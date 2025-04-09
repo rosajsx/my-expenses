@@ -1,16 +1,16 @@
-import { Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Text } from 'react-native';
+import { Container } from '../components/Container';
+import { Typography } from '../components/Typography';
 
 export default function Index() {
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text style={{ fontFamily: "Inter_400Regular" }}>My Expenses</Text>
-    </SafeAreaView>
+    <Container>
+      <Typography variant="title">Texto title</Typography>
+      <Typography variant="subtitle">Texto subtitle</Typography>
+      <Typography variant="section">Texto section</Typography>
+      <Typography variant="text">Texto normal</Typography>
+      <Typography variant="textSmall">Texto textSmall</Typography>
+      <Typography variant="label">Texto label</Typography>
+    </Container>
   );
 }
