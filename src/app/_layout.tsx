@@ -1,6 +1,7 @@
-import { Stack } from "expo-router";
-import { useEffect } from "react";
-import * as SplashScreen from "expo-splash-screen";
+import { Stack } from 'expo-router';
+import { useEffect, Suspense } from 'react';
+import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
+import * as SplashScreen from 'expo-splash-screen';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -8,7 +9,8 @@ import {
   Inter_700Bold,
   Inter_900Black,
   useFonts,
-} from "@expo-google-fonts/inter";
+} from '@expo-google-fonts/inter';
+import { Text, View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -32,10 +34,19 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
+    <Suspense
+      fallback={
+        <View>
+          <Text>Carregando....</Text>
+        </View>
+      }>
+      <SQLiteProvider databaseName="my-expenses.db" useSuspense>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        />
+      </SQLiteProvider>
+    </Suspense>
   );
 }
