@@ -18,5 +18,6 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
     height: '100%',
     width: '100%',
+    padding: theme.spacing.lg,
   },
 });
