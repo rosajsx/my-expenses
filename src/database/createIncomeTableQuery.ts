@@ -6,6 +6,7 @@ export const createIncomeTableQuery = `
     amount INTEGER NOT NULL,
     type INTEGER NOT NULL,
     installment INTEGER,
+    installmentQtd INTEGER,
     date TEXT NOT NULL
     )
 `;
