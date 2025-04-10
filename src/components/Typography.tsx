@@ -13,6 +13,7 @@ type TypographyVariant =
 
 interface TypographyProps extends TextProps {
   variant?: TypographyVariant;
+  color?: keyof typeof theme.colors;
 }
 
 type Variants = {
@@ -84,8 +85,8 @@ const variants: Variants = {
   },
 };
 
-export const Typography = ({ variant = 'text', style, ...rest }: TypographyProps) => {
+export const Typography = ({ variant = 'text', color, style, ...rest }: TypographyProps) => {
   const variantStyle = variants[variant];
 
-  return <Text {...rest} style={[variantStyle, style]} />;
+  return <Text {...rest} style={[variantStyle, style, color && { color: theme.colors[color] }]} />;
 };
