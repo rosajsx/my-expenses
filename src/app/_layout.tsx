@@ -11,6 +11,7 @@ import {
   useFonts,
 } from '@expo-google-fonts/inter';
 import { Text, View } from 'react-native';
+import { migrateDbIfNeeded } from '../database';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,7 +41,7 @@ export default function RootLayout() {
           <Text>Carregando....</Text>
         </View>
       }>
-      <SQLiteProvider databaseName="my-expenses.db" useSuspense>
+      <SQLiteProvider databaseName="my-expenses.db" useSuspense onInit={migrateDbIfNeeded}>
         <Stack
           screenOptions={{
             headerShown: false,
