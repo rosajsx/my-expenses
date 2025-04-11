@@ -1,7 +1,8 @@
 import { Text, TextProps, TextStyle } from 'react-native';
 import { theme } from '../styles/theme';
+import { Colors, FontWeight } from '../styles/types';
 
-type TypographyVariant =
+export type TypographyVariant =
   | 'title'
   | 'subtitle'
   | 'section'
@@ -13,7 +14,8 @@ type TypographyVariant =
 
 interface TypographyProps extends TextProps {
   variant?: TypographyVariant;
-  color?: keyof typeof theme.colors;
+  color?: Colors;
+  weight?: FontWeight;
 }
 
 type Variants = {
@@ -85,8 +87,26 @@ const variants: Variants = {
   },
 };
 
-export const Typography = ({ variant = 'text', color, style, ...rest }: TypographyProps) => {
+export const Typography = ({
+  variant = 'text',
+  weight,
+  color,
+  style,
+  ...rest
+}: TypographyProps) => {
   const variantStyle = variants[variant];
 
-  return <Text {...rest} style={[variantStyle, style, color && { color: theme.colors[color] }]} />;
+  return (
+    <Text
+      {...rest}
+      style={[
+        variantStyle,
+        style,
+        color && { color: theme.colors[color] },
+        weight && {
+          fontWeight: theme.fonts.weight[weight] as TextStyle['fontWeight'],
+        },
+      ]}
+    />
+  );
 };
