@@ -1,7 +1,8 @@
 export const theme = {
   colors: {
     background: '#0F172A', // Fundo principal do app
-    cardBackground: '#1E293B', // Fundos de cards e containers
+    cardBackground: '#1E293B', // Fundos de cards e containers,
+    surface: '#1A1A1A',
     textPrimary: '#F8FAFC', // Texto principal, títulos, dados
     textSecondary: '#94A3B8', // Subtítulos, descrições, labels
     primary: '#3B82F6', // Cor de destaque principal (botões, links)
@@ -70,5 +71,27 @@ export const theme = {
   },
   sizes: {
     card: 60,
+    loading: {
+      lg: {
+        width: 200,
+        height: 200,
+      },
+      md: {
+        width: 100,
+        height: 100,
+      },
+      sm: {
+        width: 50,
+        height: 50,
+      },
+    },
+    emptyTransaction: {
+      width: 300,
+      height: 300,
+    },
+    errorTransation: {
+      width: 250,
+      height: 250,
+    },
   },
 };
