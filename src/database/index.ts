@@ -1,5 +1,7 @@
 import { SQLiteDatabase } from 'expo-sqlite';
-import { createIncomeTableQuery } from './createIncomeTableQuery';
+import { createTransactionsTable } from './transactions/createTransactionsTable';
+import { createAccountSummaryTable } from './accountSummary/createAccountSummaryTable';
+import { createBalanceHistoryTable } from './balanceHistory/createBalanceHistoryTable';
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
   const DATABASE_VERSION = 1;
@@ -13,11 +15,20 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
   }
 
   if (currentDbVersion === 0) {
-    await db.execAsync(createIncomeTableQuery);
-    console.log('Database created and migrated to version 1');
-    // await db.runAsync('INSERT INTO todos (value, intValue) VALUES (?, ?)', 'hello', 1);
-    // await db.runAsync('INSERT INTO todos (value, intValue) VALUES (?, ?)', 'world', 2);
-    currentDbVersion = 1;
+    try {
+      await createTransactionsTable(db);
+
+      await createAccountSummaryTable(db);
+
+      await createBalanceHistoryTable(db);
+
+      console.log('Database created and migrated to version 1');
+      // await db.runAsync('INSERT INTO todos (value, intValue) VALUES (?, ?)', 'hello', 1);
+      // await db.runAsync('INSERT INTO todos (value, intValue) VALUES (?, ?)', 'world', 2);
+      currentDbVersion = 1;
+    } catch (error) {
+      console.error('Database not created', error);
+    }
   }
   // if (currentDbVersion === 1) {
   //   Add more migrations
