@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { theme } from '../styles/theme';
 import { Transaction } from '../database/types';
 import { Typography } from './Typography';
-import { formatCurrency } from '../utils';
+import { formatCurrency, formatDate } from '../utils';
 import { ArrowDown, ArrowUp } from 'lucide-react-native';
 
 interface TransactionCardProps {
@@ -11,6 +11,8 @@ interface TransactionCardProps {
 
 export const TransactionCard = ({ transaction }: TransactionCardProps) => {
   const isEntry = transaction.type === 1;
+
+  const date = formatDate(transaction.date);
 
   return (
     <View style={styles.container}>
@@ -30,7 +32,7 @@ export const TransactionCard = ({ transaction }: TransactionCardProps) => {
               transaction.installment_qtd &&
               `${transaction.installment}/${transaction.installment_qtd}`}
           </Typography>
-          <Typography variant="textSmall">{transaction.date}</Typography>
+          <Typography variant="textSmall">{date}</Typography>
         </View>
       </View>
 
