@@ -11,7 +11,6 @@ export async function getCacheAccountBalance(db: SQLiteDatabase) {
 
     if (!cache || !cache.last_updated.startsWith(today)) {
       const total = (await getBalance(db)) as any;
-      console.log({ total });
 
       const now = new Date().toISOString();
 
@@ -23,7 +22,6 @@ export async function getCacheAccountBalance(db: SQLiteDatabase) {
         `,
         [total.balance, now],
       );
-      console.log({ now });
       await db.runAsync(`
         INSERT INTO balance_history (balance, updated_at)
         VALUES (?, ?)
@@ -36,7 +34,6 @@ export async function getCacheAccountBalance(db: SQLiteDatabase) {
     }
   });
 
-  console.log({ balance });
   return balance;
 }
 

@@ -2,7 +2,6 @@ import { SQLiteDatabase } from 'expo-sqlite';
 
 export async function updateCachedBalance(db: SQLiteDatabase, changeAmount: number) {
   const now = new Date().toISOString();
-  console.log('here');
   return db.withTransactionAsync(async () => {
     await db.runAsync(
       `
