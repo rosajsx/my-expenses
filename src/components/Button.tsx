@@ -10,6 +10,11 @@ const textVariantStyle = {
     variant: 'text',
     weight: 'section',
   },
+  icon: {
+    color: 'textPrimary',
+    variant: 'text',
+    weight: 'section',
+  },
   secondary: {
     color: 'textSecondary',
     variant: 'text',
@@ -86,5 +91,13 @@ const variantStyles = StyleSheet.create({
     backgroundColor: 'transparent',
     paddingVertical: theme.spacing.xs,
     paddingHorizontal: theme.spacing.sm,
+  },
+  icon: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius['2xl'],
+    width: theme.sizes.button.icon.width,
+    height: theme.sizes.button.icon.height,
+    minWidth: theme.sizes.button.icon.minWidth,
+    elevation: 6,
   },
 });
