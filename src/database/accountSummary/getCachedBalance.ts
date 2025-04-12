@@ -22,11 +22,14 @@ export async function getCacheAccountBalance(db: SQLiteDatabase) {
         `,
         [total.balance, now],
       );
-      await db.runAsync(`
+
+      await db.runAsync(
+        `
         INSERT INTO balance_history (balance, updated_at)
         VALUES (?, ?)
-        `),
-        [total, now];
+        `,
+        [total, now],
+      );
 
       balance = total;
     } else {
