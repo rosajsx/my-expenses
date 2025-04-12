@@ -15,7 +15,8 @@ import { formatCurrency } from '../utils';
 import { createTransaction } from '../database/transactions/createTransaction';
 import { Loading } from '../components/Loading';
 import { Button } from '../components/Button';
-import { RotateCw } from 'lucide-react-native';
+import { Plus, RotateCw } from 'lucide-react-native';
+import { router } from 'expo-router';
 
 export default function Index() {
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
@@ -52,7 +53,7 @@ export default function Index() {
         setBalance(response);
       })
       .catch((error) => {
-        console.log('Error on getting all transactions info', error);
+        console.log('Error on getting balance info', error);
         setHaveErrorOnBalance(true);
       })
       .finally(() => {
@@ -65,26 +66,13 @@ export default function Index() {
     getBalance();
   }, []);
 
-  const onCreate = () => {
-    createTransaction(database, {
-      name: 'Salário',
-      amount: 2000,
-      type: 1,
-      date: new Date().toDateString(),
-      installment: null,
-      installment_qtd: null,
-    })
-      .then(() => console.log('created 1'))
-      .catch((error) => console.log('1', error));
-  };
-
   // database.runAsync('DROP TABLE transactions');
   // database.runAsync('DROP TABLE account_summary');
   // database.runAsync('DROP TABLE balance_history');
   // database.execAsync(`PRAGMA user_version = ${0}`);
 
   return (
-    <Container>
+    <Container style={styles.container}>
       <View>
         <View style={styles.balanceHeader}>
           <Typography variant="subtitle">Saldo total: </Typography>
@@ -100,7 +88,6 @@ export default function Index() {
           )}
         </View>
       </View>
-
       <FlatList
         data={data}
         bounces={false}
@@ -154,12 +141,20 @@ export default function Index() {
           index,
         })}
       />
+      <Button
+        variant="icon"
+        Icon={Plus}
+        style={styles.addButton}
+        onPress={() => router.navigate('/transactions/create')}
+      />
     </Container>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {},
+  container: {
+    position: 'relative',
+  },
   header: {
     backgroundColor: theme.colors.background,
   },
@@ -190,5 +185,10 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     gap: theme.spacing.lg,
+  },
+  addButton: {
+    position: 'absolute',
+    bottom: theme.spacing.xxl * 2,
+    right: 0,
   },
 });
