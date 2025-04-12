@@ -67,6 +67,7 @@ export const theme = {
     md: 8,
     lg: 12,
     xl: 16,
+    '2xl': 28,
     full: 9999,
   },
   sizes: {
@@ -92,6 +93,13 @@ export const theme = {
     errorTransation: {
       width: 250,
       height: 250,
+    },
+    button: {
+      icon: {
+        width: 56,
+        height: 56,
+        minWidth: 56,
+      },
     },
   },
 };
