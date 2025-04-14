@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import { useEffect, Suspense } from 'react';
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
+import { SQLiteProvider } from 'expo-sqlite';
 import * as SplashScreen from 'expo-splash-screen';
 import {
   Inter_400Regular,
@@ -10,8 +10,11 @@ import {
   Inter_900Black,
   useFonts,
 } from '@expo-google-fonts/inter';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import * as LocalAuthentication from 'expo-local-authentication';
+
 import { migrateDbIfNeeded } from '../database';
+import { Loading } from '../components/Loading';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,7 +29,9 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded || error) {
-      SplashScreen.hideAsync();
+      LocalAuthentication.authenticateAsync().then((data) => {
+        SplashScreen.hideAsync();
+      });
     }
   }, [loaded, error]);
 
@@ -38,7 +43,7 @@ export default function RootLayout() {
     <Suspense
       fallback={
         <View>
-          <Text>Carregando....</Text>
+          <Loading />
         </View>
       }>
       <SQLiteProvider databaseName="my-expenses.db" useSuspense onInit={migrateDbIfNeeded}>
