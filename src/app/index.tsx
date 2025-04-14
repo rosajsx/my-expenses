@@ -4,7 +4,7 @@ import LottieView from 'lottie-react-native';
 import { Container } from '../components/Container';
 import { Typography } from '../components/Typography';
 import { useDatabase } from '../hooks/useDatabase';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Transaction } from '../database/types';
 import { getAllTransactions } from '../database/transactions/getAllTransactions';
 import { theme } from '../styles/theme';
@@ -73,7 +73,7 @@ export default function Index() {
 
   return (
     <Container style={styles.container}>
-      <View>
+      <View style={styles.headerContainer}>
         <View style={styles.balanceHeader}>
           <Typography variant="subtitle">Saldo total: </Typography>
 
@@ -87,13 +87,22 @@ export default function Index() {
             </Typography>
           )}
         </View>
+        <View style={styles.subHeader}>
+          <Button
+            Icon={Plus}
+            onPress={() => router.navigate('/transactions/create')}
+            title="Adicionar transação"
+            style={styles.addButton}
+            variant="secondary"
+          />
+        </View>
       </View>
       <FlatList
         data={data}
         bounces={false}
         keyExtractor={(item) => item.id.toString()}
         renderItem={(list) => <TransactionCard transaction={list.item} />}
-        ListHeaderComponent={<Typography variant="title">Extrato</Typography>}
+        ListHeaderComponent={<Typography variant="subtitle">Extrato</Typography>}
         ListEmptyComponent={
           <>
             {isLoadingTransactions && (
@@ -141,12 +150,6 @@ export default function Index() {
           index,
         })}
       />
-      <Button
-        variant="icon"
-        Icon={Plus}
-        style={styles.addButton}
-        onPress={() => router.navigate('/transactions/create')}
-      />
     </Container>
   );
 }
@@ -186,9 +189,12 @@ const styles = StyleSheet.create({
   contentContainer: {
     gap: theme.spacing.lg,
   },
+  subHeader: {},
   addButton: {
-    position: 'absolute',
-    bottom: theme.spacing.xxl * 2,
-    right: 0,
+    flexDirection: 'row',
+    width: 230,
+  },
+  headerContainer: {
+    gap: theme.spacing.lg,
   },
 });
