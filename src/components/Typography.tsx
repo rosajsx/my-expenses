@@ -1,6 +1,7 @@
 import { Text, TextProps, TextStyle } from 'react-native';
 import { theme } from '../styles/theme';
 import { Colors, FontWeight } from '../styles/types';
+import { forwardRef } from 'react';
 
 export type TypographyVariant =
   | 'title'
@@ -87,18 +88,16 @@ const variants: Variants = {
   },
 };
 
-export const Typography = ({
-  variant = 'text',
-  weight,
-  color,
-  style,
-  ...rest
-}: TypographyProps) => {
+const TypographyComponent = (
+  { variant = 'text', weight, color, style, ...rest }: TypographyProps,
+  ref: any,
+) => {
   const variantStyle = variants[variant];
 
   return (
     <Text
       {...rest}
+      ref={ref}
       style={[
         variantStyle,
         style,
@@ -110,3 +109,5 @@ export const Typography = ({
     />
   );
 };
+
+export const Typography = forwardRef(TypographyComponent);

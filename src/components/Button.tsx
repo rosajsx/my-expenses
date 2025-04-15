@@ -3,6 +3,7 @@ import { Typography, TypographyVariant } from './Typography';
 import { theme } from '../styles/theme';
 import { Colors, FontWeight } from '../styles/types';
 import { LucideIcon } from 'lucide-react-native';
+import { forwardRef } from 'react';
 
 const textVariantStyle = {
   primary: {
@@ -33,20 +34,17 @@ interface ButtonProps extends TouchableOpacityProps {
   Icon?: LucideIcon;
 }
 
-export const Button = ({
-  variant = 'primary',
-  Icon,
-  title,
-  disabled,
-  style,
-  ...props
-}: ButtonProps) => {
+const ButtonComponent = (
+  { variant = 'primary', Icon, title, disabled, style, ...props }: ButtonProps,
+  ref: any,
+) => {
   const variantStyle = variantStyles[variant];
   const typographyStyle = textVariantStyle[variant];
 
   return (
     <TouchableOpacity
       {...props}
+      ref={ref}
       style={[styles.base, variantStyle, style, disabled && styles.disabled]}
       activeOpacity={0.7}
       disabled={disabled}>
@@ -62,6 +60,8 @@ export const Button = ({
     </TouchableOpacity>
   );
 };
+
+export const Button = forwardRef(ButtonComponent);
 
 const styles = StyleSheet.create({
   disabled: {
