@@ -1,7 +1,8 @@
 import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
 import { theme } from '../styles/theme';
-import { useState } from 'react';
+import { forwardRef, LegacyRef, useState } from 'react';
 import { Typography } from './Typography';
+import { LucideIcon } from 'lucide-react-native';
 
 const focusStyle = {
   borderWidth: 2,
@@ -17,18 +18,23 @@ interface InputProps extends TextInputProps {
   error?: boolean;
   errorText?: string;
   label?: string;
+  LeftIcon?: LucideIcon;
 }
 
-export const Input = ({
-  style,
-  editable = true,
-  error,
-  onFocus,
-  onBlur,
-  label,
-  errorText,
-  ...props
-}: InputProps) => {
+const InputComponent = (
+  {
+    style,
+    editable = true,
+    error,
+    onFocus,
+    onBlur,
+    label,
+    errorText,
+    LeftIcon,
+    ...props
+  }: InputProps,
+  ref: any,
+) => {
   const [borderStyle, setBorderStyle] = useState(defaultStyle);
 
   return (
@@ -38,40 +44,47 @@ export const Input = ({
           {label}
         </Typography>
       )}
-      <TextInput
-        {...props}
-        style={[
-          styles.input,
-          borderStyle,
-          style,
-          !editable && styles.disabled,
-          error && styles.error,
-        ]}
-        placeholderTextColor={theme.colors.textSecondary}
-        onFocus={(e) => {
-          setBorderStyle(focusStyle);
-          onFocus?.(e);
-        }}
-        onBlur={(e) => {
-          setBorderStyle(defaultStyle);
-          onBlur?.(e);
-        }}
-      />
+
+      <View style={[styles.inputContainer, borderStyle]}>
+        {LeftIcon && <LeftIcon />}
+        <TextInput
+          {...props}
+          ref={ref}
+          style={[styles.input, style, !editable && styles.disabled, error && styles.error]}
+          placeholderTextColor={theme.colors.textSecondary}
+          onFocus={(e) => {
+            setBorderStyle(focusStyle);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setBorderStyle(defaultStyle);
+            onBlur?.(e);
+          }}
+        />
+      </View>
+
       {errorText && error && <Typography variant="error">{errorText}</Typography>}
     </View>
   );
 };
 
+export const Input = forwardRef(InputComponent);
+
 const styles = StyleSheet.create({
   container: {
     gap: theme.spacing.xs,
   },
-  input: {
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
     backgroundColor: theme.colors.surface,
-
     borderRadius: theme.radius.md,
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
     paddingHorizontal: theme.spacing.md,
+  },
+  input: {
+    flex: 1,
     fontSize: theme.fonts.sizes.text,
     color: theme.colors.textPrimary,
     minHeight: 48,
