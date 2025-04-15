@@ -8,7 +8,9 @@ export const theme = {
     primary: '#3B82F6', // Cor de destaque principal (botões, links)
     border: '#334155', // Bordas, linhas divisórias
     error: '#EF4444', // Mensagens de erro, alertas
+    error50: 'rgba(239, 68, 68, 0.5)',
     success: '#22C55E', // Status positivos, confirmações
+    success50: 'rgba(34, 197, 94, 0.5)',
 
     // Extras opcionais
     primaryLight: 'rgba(59, 130, 246, 0.2)', // Versão translúcida do azul
