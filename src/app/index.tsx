@@ -91,7 +91,7 @@ export default function Index() {
           <Button
             Icon={Plus}
             onPress={() => router.navigate('/transactions/create')}
-            title="Adicionar transação"
+            title="Nova Transação"
             style={styles.addButton}
             variant="secondary"
           />
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   subHeader: {},
   addButton: {
     flexDirection: 'row',
-    width: 230,
+    width: 180,
   },
   headerContainer: {
     gap: theme.spacing.lg,
