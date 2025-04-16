@@ -4,7 +4,7 @@ import LottieView from 'lottie-react-native';
 import { Container } from '../components/Container';
 import { Typography } from '../components/Typography';
 import { useDatabase } from '../hooks/useDatabase';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Transaction } from '../database/types';
 import { getAllTransactions } from '../database/transactions/getAllTransactions';
 import { theme } from '../styles/theme';
@@ -16,7 +16,7 @@ import { createTransaction } from '../database/transactions/createTransaction';
 import { Loading } from '../components/Loading';
 import { Button } from '../components/Button';
 import { Plus, RotateCw } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 
 export default function Index() {
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
@@ -61,10 +61,16 @@ export default function Index() {
       });
   };
 
-  useEffect(() => {
+  const updateData = () => {
     getTransactions();
     getBalance();
-  }, []);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      updateData();
+    }, []),
+  );
 
   // database.runAsync('DROP TABLE transactions');
   // database.runAsync('DROP TABLE account_summary');
@@ -101,7 +107,9 @@ export default function Index() {
         data={data}
         bounces={false}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={(list) => <TransactionCard transaction={list.item} />}
+        renderItem={(list) => (
+          <TransactionCard transaction={list.item} database={database} refetch={updateData} />
+        )}
         ListHeaderComponent={<Typography variant="subtitle">Extrato</Typography>}
         ListEmptyComponent={
           <>

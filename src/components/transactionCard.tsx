@@ -1,45 +1,96 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text, Pressable, Alert } from 'react-native';
 import { theme } from '../styles/theme';
 import { Transaction } from '../database/types';
 import { Typography } from './Typography';
 import { formatCurrency, formatDate } from '../utils';
-import { ArrowDown, ArrowUp } from 'lucide-react-native';
-
+import { ArrowDown, ArrowUp, Trash } from 'lucide-react-native';
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import { deleteTransaction } from '../database/transactions/deleteTransaction';
+import { SQLiteDatabase } from 'expo-sqlite';
 interface TransactionCardProps {
   transaction: Transaction;
+  database: SQLiteDatabase;
+  refetch: () => void;
 }
 
-export const TransactionCard = ({ transaction }: TransactionCardProps) => {
+export const TransactionCard = ({ transaction, database, refetch }: TransactionCardProps) => {
   const isEntry = transaction.type === 1;
 
   const date = formatDate(transaction.date);
 
+  async function handleDelete() {
+    try {
+      await deleteTransaction(database, transaction);
+      Alert.alert('Transação deletada com sucesso!');
+      refetch?.();
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Ocorreu um erro inesperado', JSON.stringify(error));
+    }
+  }
+
+  function confirmDelete() {
+    Alert.alert(`Tem certeza que deseja apagar esta transação: ${transaction.name} `, '', [
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+      {
+        text: 'Apagar',
+        onPress: handleDelete,
+      },
+    ]);
+  }
+
+  function RightAction(prog: SharedValue<number>, drag: SharedValue<number>) {
+    const styleAnimation = useAnimatedStyle(() => {
+      return {
+        transform: [{ translateX: drag.value + 50 }],
+      };
+    });
+
+    return (
+      <Reanimated.View style={[styleAnimation]}>
+        <Pressable style={styles.deleteButton} onPress={confirmDelete}>
+          <Trash color={theme.colors.error} />
+        </Pressable>
+      </Reanimated.View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Typography>
-          {isEntry ? (
-            <ArrowUp color={theme.colors.success} />
-          ) : (
-            <ArrowDown color={theme.colors.error} />
-          )}
-        </Typography>
-
-        <View>
-          <Typography variant="section">
-            {transaction.name}{' '}
-            {transaction.installment &&
-              transaction.installment_qtd &&
-              `${transaction.installment}/${transaction.installment_qtd}`}
+    <Swipeable
+      friction={2}
+      enableTrackpadTwoFingerGesture
+      renderRightActions={RightAction}
+      containerStyle={styles.swipeableContainer}>
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Typography>
+            {isEntry ? (
+              <ArrowUp color={theme.colors.success} />
+            ) : (
+              <ArrowDown color={theme.colors.error} />
+            )}
           </Typography>
-          <Typography variant="textSmall">{date}</Typography>
-        </View>
-      </View>
 
-      <Typography color={isEntry ? 'success' : 'error'} style={styles.amount}>
-        {formatCurrency(transaction.amount)}
-      </Typography>
-    </View>
+          <View>
+            <Typography variant="section">
+              {transaction.name}{' '}
+              {transaction.installment &&
+                transaction.installment_qtd &&
+                `${transaction.installment}/${transaction.installment_qtd}`}
+            </Typography>
+            <Typography variant="textSmall">{date}</Typography>
+          </View>
+        </View>
+
+        <Typography color={isEntry ? 'success' : 'error'} style={styles.amount}>
+          {formatCurrency(transaction.amount)}
+        </Typography>
+      </View>
+    </Swipeable>
   );
 };
 
@@ -61,5 +112,17 @@ const styles = StyleSheet.create({
 
   amount: {
     marginLeft: 'auto',
+  },
+  rightAction: {},
+  swipeableContainer: {
+    backgroundColor: theme.colors.cardBackground,
+    borderTopRightRadius: theme.radius.lg,
+    borderBottomRightRadius: theme.radius.lg,
+  },
+  deleteButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    width: 50,
   },
 });

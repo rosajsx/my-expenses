@@ -15,6 +15,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
 
 import { migrateDbIfNeeded } from '../database';
 import { Loading } from '../components/Loading';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,13 +48,15 @@ export default function RootLayout() {
         </View>
       }>
       <SQLiteProvider databaseName="my-expenses.db" useSuspense onInit={migrateDbIfNeeded}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="transactions/create" options={{ presentation: 'modal' }} />
-        </Stack>
+        <GestureHandlerRootView>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="transactions/create" options={{ presentation: 'modal' }} />
+          </Stack>
+        </GestureHandlerRootView>
       </SQLiteProvider>
     </Suspense>
   );
