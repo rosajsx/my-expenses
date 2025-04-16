@@ -160,7 +160,7 @@ export default function CreateTransaction() {
             <Button
               title="Fechar"
               variant="secondary"
-              onPress={() => router.navigate('/')}
+              onPress={() => router.back()}
               style={styles.buttonStyle}
             />
           </Animated.View>
