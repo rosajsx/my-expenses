@@ -3,11 +3,13 @@ import { theme } from '../styles/theme';
 import { Transaction } from '../database/types';
 import { Typography } from './Typography';
 import { formatCurrency, formatDate } from '../utils';
-import { ArrowDown, ArrowUp, Trash } from 'lucide-react-native';
+import { ArrowDown, ArrowUp, PenLine, Trash } from 'lucide-react-native';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { deleteTransaction } from '../database/transactions/deleteTransaction';
+
 import { SQLiteDatabase } from 'expo-sqlite';
+import { router } from 'expo-router';
 interface TransactionCardProps {
   transaction: Transaction;
   database: SQLiteDatabase;
@@ -59,11 +61,32 @@ export const TransactionCard = ({ transaction, database, refetch }: TransactionC
     );
   }
 
+  function LeftAction(prog: SharedValue<number>, drag: SharedValue<number>) {
+    const styleAnimation = useAnimatedStyle(() => {
+      return {
+        transform: [{ translateX: drag.value - 50 }],
+      };
+    });
+
+    return (
+      <Reanimated.View style={[styleAnimation]}>
+        <Pressable
+          style={styles.editButton}
+          onPress={() => router.navigate(`/transactions/update/${transaction.id}`)}>
+          <PenLine />
+        </Pressable>
+      </Reanimated.View>
+    );
+  }
+
   return (
     <Swipeable
       friction={2}
+      leftThreshold={40}
+      rightThreshold={40}
       enableTrackpadTwoFingerGesture
       renderRightActions={RightAction}
+      renderLeftActions={LeftAction}
       containerStyle={styles.swipeableContainer}>
       <View style={styles.container}>
         <View style={styles.content}>
@@ -113,13 +136,18 @@ const styles = StyleSheet.create({
   amount: {
     marginLeft: 'auto',
   },
-  rightAction: {},
+
   swipeableContainer: {
     backgroundColor: theme.colors.cardBackground,
-    borderTopRightRadius: theme.radius.lg,
-    borderBottomRightRadius: theme.radius.lg,
+    borderRadius: theme.radius.lg,
   },
   deleteButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    width: 50,
+  },
+  editButton: {
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
