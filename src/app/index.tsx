@@ -3,7 +3,6 @@ import {
   Modal,
   Pressable,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -27,6 +26,9 @@ import { Button } from '../components/Button';
 import { ArrowDown, ArrowUp, Calendar, Plus, RotateCw, Search, X } from 'lucide-react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
+import { getMonthBalance } from '../database/accountSummary/getMonthBalance';
+
+const currentMonth = new Date().getMonth();
 
 export default function Index() {
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
@@ -35,6 +37,7 @@ export default function Index() {
   const [haveErrorOnBalance, setHaveErrorOnBalance] = useState(false);
   const [data, setData] = useState<Transaction[]>([]);
   const [balance, setBalance] = useState(0);
+  const [monthBalance, setMonthBalance] = useState(0);
 
   const [selectedYear, setSelectedYear] = useState<string>();
   const [isSelectYearModalOpen, setIsSelectYearModalOpen] = useState(false);
@@ -88,21 +91,22 @@ export default function Index() {
       });
   };
 
-  const getBalance = () => {
+  const getBalance = async () => {
     if (haveErrorOnBalance) setHaveErrorOnBalance(false);
 
-    setIsLoadingBalance(true);
-    getCacheAccountBalance(database)
-      .then((response) => {
-        setBalance(response);
-      })
-      .catch((error) => {
-        console.log('Error on getting balance info', error);
-        setHaveErrorOnBalance(true);
-      })
-      .finally(() => {
-        setIsLoadingBalance(false);
-      });
+    try {
+      setIsLoadingBalance(true);
+      const response = await getCacheAccountBalance(database);
+      setBalance(response);
+
+      const monthResponse = await getMonthBalance(database, `${currentMonth + 1}`);
+      setMonthBalance(monthResponse?.total || 0);
+    } catch (error) {
+      console.log('Error on getting balance info', error);
+      setHaveErrorOnBalance(true);
+    } finally {
+      setIsLoadingBalance(false);
+    }
   };
 
   const updateData = () => {
@@ -144,17 +148,28 @@ export default function Index() {
   return (
     <Container style={styles.container}>
       <View style={styles.headerContainer}>
-        <View style={styles.balanceHeader}>
-          <Typography variant="subtitle">Saldo total: </Typography>
+        <View>
+          <View style={styles.balanceHeader}>
+            <Typography variant="subtitle">Saldo total: </Typography>
 
+            {!isLoadingBalance && !haveErrorOnBalance && (
+              <Typography variant="subtitle" color={balance < 0 ? 'error' : 'textPrimary'}>
+                {formatCurrency(balance)}
+              </Typography>
+            )}
+          </View>
+          <View style={styles.balanceHeader}>
+            <Typography variant="section">Saldo {months[currentMonth].value} : </Typography>
+
+            {!isLoadingBalance && !haveErrorOnBalance && (
+              <Typography variant="section" color={monthBalance < 0 ? 'error' : 'textPrimary'}>
+                {formatCurrency(monthBalance)}
+              </Typography>
+            )}
+          </View>
           {isLoadingBalance && <Loading size="sm" />}
           {!isLoadingBalance && haveErrorOnBalance && (
             <Button Icon={RotateCw} variant="secondary" onPress={getBalance} />
-          )}
-          {!isLoadingBalance && !haveErrorOnBalance && (
-            <Typography variant="subtitle" color={balance < 0 ? 'error' : 'textPrimary'}>
-              {formatCurrency(balance)}
-            </Typography>
           )}
         </View>
         <View style={styles.subHeader}>
