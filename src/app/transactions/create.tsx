@@ -15,9 +15,6 @@ import { useDatabase } from '@/src/hooks/useDatabase';
 import { createTransaction } from '@/src/database/transactions/createTransaction';
 import LottieView from 'lottie-react-native';
 import { Loading } from '@/src/components/Loading';
-import Animated, { FadeIn } from 'react-native-reanimated';
-
-const AnimatedTypography = Animated.createAnimatedComponent(Typography);
 
 export default function CreateTransaction() {
   const [transactionName, setTransactionName] = useState('');
@@ -145,13 +142,10 @@ export default function CreateTransaction() {
             source={require('../../../assets/animations/success.json')}
           />
 
-          <AnimatedTypography
-            variant="section"
-            style={styles.errorStateText}
-            entering={FadeIn.duration(3800)}>
+          <Typography variant="section" style={styles.errorStateText}>
             Transação criada com sucesso!
-          </AnimatedTypography>
-          <Animated.View entering={FadeIn.duration(3800)} style={styles.buttonContainer}>
+          </Typography>
+          <View style={styles.buttonContainer}>
             <Button
               title="Criar uma nova"
               onPress={handleChangeScreenStateToDefault}
@@ -163,7 +157,7 @@ export default function CreateTransaction() {
               onPress={() => router.back()}
               style={styles.buttonStyle}
             />
-          </Animated.View>
+          </View>
         </View>
       )}
     </Container>
