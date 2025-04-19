@@ -3,6 +3,7 @@ import {
   Modal,
   Pressable,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -23,7 +24,7 @@ import { formatCurrency, getAllMonthsOfYear, getLast5Years } from '../utils';
 import { createTransaction } from '../database/transactions/createTransaction';
 import { Loading } from '../components/Loading';
 import { Button } from '../components/Button';
-import { Calendar, Plus, RotateCw, Search, X } from 'lucide-react-native';
+import { ArrowDown, ArrowUp, Calendar, Plus, RotateCw, Search, X } from 'lucide-react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
 
@@ -32,12 +33,15 @@ export default function Index() {
   const [haveErrorOnTransactions, setHaveErrorOnTransactions] = useState(false);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [haveErrorOnBalance, setHaveErrorOnBalance] = useState(false);
+  const [data, setData] = useState<Transaction[]>([]);
+  const [balance, setBalance] = useState(0);
+
   const [selectedYear, setSelectedYear] = useState<string>();
   const [isSelectYearModalOpen, setIsSelectYearModalOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState<{ id: number; value: string }>();
   const [isSelectMonthModalOpen, setIsSelectMonthModalOpen] = useState(false);
-  const [data, setData] = useState<Transaction[]>([]);
-  const [balance, setBalance] = useState(0);
+  const [transactionTypeFilter, setTransactionTypeFilter] = useState<number>();
+
   const { database } = useDatabase();
 
   const years = useMemo(() => {
@@ -70,6 +74,7 @@ export default function Index() {
     getAllTransactions(database, {
       month: selectedMonth?.id,
       year: selectedYear ? Number(selectedYear) : undefined,
+      transactionType: transactionTypeFilter,
     })
       .then((response) => {
         setData(response);
@@ -105,11 +110,29 @@ export default function Index() {
     getBalance();
   };
 
+  const handlePressTypeFilter = () => {
+    setTransactionTypeFilter((prevState) => {
+      if (!prevState) {
+        return 1;
+      }
+      if (prevState === 1) {
+        return 2;
+      }
+
+      if (prevState === 2) {
+        return undefined;
+      }
+
+      return;
+    });
+  };
+
   useFocusEffect(
     useCallback(() => {
       updateData();
       setSelectedYear(undefined);
       setSelectedMonth(undefined);
+      setTransactionTypeFilter(undefined);
     }, []),
   );
 
@@ -148,6 +171,7 @@ export default function Index() {
         data={data}
         bounces={false}
         keyExtractor={(item) => item.id.toString()}
+        showsVerticalScrollIndicator={false}
         renderItem={(list) => (
           <TransactionCard transaction={list.item} database={database} refetch={updateData} />
         )}
@@ -174,15 +198,42 @@ export default function Index() {
                 />
                 <Typography>{!selectedYear ? 'Ano' : selectedYear}</Typography>
               </TouchableOpacity>
+
               <TouchableOpacity
-                style={[styles.filterItem, styles.filterSearch]}
-                onPress={getFilteredTransactions}>
-                <Search
-                  color={selectedYear ? theme.colors.primary : theme.colors.textSecondary}
-                  size="20px"
-                />
+                style={[
+                  styles.filterItem,
+                  transactionTypeFilter === 1 && styles.incomeItem,
+                  transactionTypeFilter === 2 && styles.outcomeItem,
+                ]}
+                onPress={handlePressTypeFilter}>
+                {transactionTypeFilter === 1 && (
+                  <ArrowUp size="20px" color={theme.colors.success} />
+                )}
+                {transactionTypeFilter === 2 && (
+                  <ArrowDown size="20px" color={theme.colors.error} />
+                )}
+
+                <Typography
+                  color={
+                    transactionTypeFilter === 1
+                      ? 'success'
+                      : transactionTypeFilter === 2
+                        ? 'error'
+                        : 'textPrimary'
+                  }>
+                  {transactionTypeFilter === 1 && 'Entradas'}
+                  {transactionTypeFilter === 2 && 'Saídas'}
+                  {!transactionTypeFilter && 'Tipo'}
+                </Typography>
               </TouchableOpacity>
             </View>
+            <TouchableOpacity style={[styles.filterItem]} onPress={getFilteredTransactions}>
+              <Search
+                color={selectedYear ? theme.colors.primary : theme.colors.textSecondary}
+                size="20px"
+              />
+              <Typography>Filtrar</Typography>
+            </TouchableOpacity>
           </View>
         }
         ListEmptyComponent={
@@ -315,9 +366,13 @@ const styles = StyleSheet.create({
   filter: {
     gap: theme.spacing.sm,
   },
-
-  filterSearch: {
-    marginLeft: 'auto',
+  incomeItem: {
+    borderWidth: 1,
+    borderColor: theme.colors.success,
+  },
+  outcomeItem: {
+    borderWidth: 1,
+    borderColor: theme.colors.error,
   },
 
   filterItem: {
@@ -329,10 +384,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.sm,
     borderRadius: theme.radius.lg,
+    flex: 1,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   filterItems: {
     flexDirection: 'row',
-    gap: theme.spacing.lg,
+    justifyContent: 'space-between',
+    gap: theme.spacing.sm,
+    width: '100%',
   },
   header: {
     backgroundColor: theme.colors.background,

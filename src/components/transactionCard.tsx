@@ -125,6 +125,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     height: theme.sizes.card,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   content: {
     flexDirection: 'row',

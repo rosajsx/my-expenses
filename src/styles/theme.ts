@@ -74,7 +74,7 @@ export const theme = {
     full: 9999,
   },
   sizes: {
-    card: 60,
+    card: 61,
     loading: {
       lg: {
         width: 200,

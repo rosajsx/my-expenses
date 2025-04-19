@@ -4,31 +4,40 @@ import { Transaction } from '../types';
 interface FilterParams {
   year?: number;
   month?: number;
+  transactionType?: number;
 }
 
 export async function getAllTransactions(db: SQLiteDatabase, filter?: FilterParams) {
-  if (typeof filter?.month === 'number' && filter?.year) {
-    const isTwoDigitsMonth = filter.month < 10;
-    return db.getAllAsync<Transaction>(
-      `SELECT * FROM transactions WHERE strftime('%m', date) = ? AND strftime('%Y', date) = ?  ORDER BY date DESC;`,
-      [isTwoDigitsMonth ? `0${filter.month + 1}` : filter.month + 1, `${filter.year}`],
-    );
-  }
+  let query = '';
+  let params = [];
 
   if (typeof filter?.month === 'number') {
     const isTwoDigitsMonth = filter.month < 10;
-    return db.getAllAsync<Transaction>(
-      `SELECT * FROM transactions WHERE strftime('%m', date) = ? ORDER BY date DESC;`,
-      [isTwoDigitsMonth ? `0${filter.month + 1}` : filter.month + 1],
-    );
+    query = `${query} WHERE strftime('%m', date) = ?`;
+    params.push(isTwoDigitsMonth ? `0${filter.month + 1}` : filter.month + 1);
   }
 
   if (filter?.year) {
-    return db.getAllAsync<Transaction>(
-      `SELECT * FROM transactions WHERE strftime('%Y', date) = ? ORDER BY date DESC;`,
-      [`${filter?.year}`],
-    );
+    if (params.length > 0) {
+      query = `${query} AND strftime('%Y', date) = ?`;
+    } else {
+      query = `${query} WHERE strftime('%Y', date) = ?`;
+    }
+
+    params.push(`${filter?.year}`);
   }
 
-  return db.getAllAsync<Transaction>(`SELECT * FROM transactions ORDER BY date DESC;`);
+  if (filter?.transactionType) {
+    if (params.length > 0) {
+      query = `${query} AND type=?`;
+    } else {
+      query = `${query} WHERE type=?`;
+    }
+    params.push(filter.transactionType);
+  }
+
+  return db.getAllAsync<Transaction>(
+    `SELECT * FROM transactions ${query} ORDER BY date DESC;`,
+    params,
+  );
 }
