@@ -71,8 +71,6 @@ export default function UpdateTransaction() {
       if (data?.amount) setAmount(data?.amount);
       if (data?.date) setSelectedDate(new Date(data?.date));
       if (data?.type) setTransactionType(data?.type);
-
-      console.log({ data });
     } catch (error) {
       console.log('error');
     }

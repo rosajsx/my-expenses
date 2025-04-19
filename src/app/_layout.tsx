@@ -16,7 +16,13 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { migrateDbIfNeeded } from '../database';
 import { Loading } from '../components/Loading';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 
+// This is the default configuration
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false, // Reanimated runs in strict mode by default
+});
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {

@@ -1,37 +1,76 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  Modal,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import LottieView from 'lottie-react-native';
 
 import { Container } from '../components/Container';
 import { Typography } from '../components/Typography';
 import { useDatabase } from '../hooks/useDatabase';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Transaction } from '../database/types';
 import { getAllTransactions } from '../database/transactions/getAllTransactions';
 import { theme } from '../styles/theme';
 
 import { TransactionCard } from '../components/transactionCard';
 import { getCacheAccountBalance } from '../database/accountSummary/getCachedBalance';
-import { formatCurrency } from '../utils';
+import { formatCurrency, getAllMonthsOfYear, getLast5Years } from '../utils';
 import { createTransaction } from '../database/transactions/createTransaction';
 import { Loading } from '../components/Loading';
 import { Button } from '../components/Button';
-import { Plus, RotateCw } from 'lucide-react-native';
+import { Calendar, Plus, RotateCw, Search, X } from 'lucide-react-native';
 import { router, useFocusEffect } from 'expo-router';
+import { Picker } from '@react-native-picker/picker';
 
 export default function Index() {
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
   const [haveErrorOnTransactions, setHaveErrorOnTransactions] = useState(false);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [haveErrorOnBalance, setHaveErrorOnBalance] = useState(false);
-
+  const [selectedYear, setSelectedYear] = useState<string>();
+  const [isSelectYearModalOpen, setIsSelectYearModalOpen] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState<{ id: number; value: string }>();
+  const [isSelectMonthModalOpen, setIsSelectMonthModalOpen] = useState(false);
   const [data, setData] = useState<Transaction[]>([]);
   const [balance, setBalance] = useState(0);
   const { database } = useDatabase();
+
+  const years = useMemo(() => {
+    return getLast5Years();
+  }, []);
+
+  const months = useMemo(() => {
+    return getAllMonthsOfYear();
+  }, []);
 
   const getTransactions = () => {
     if (haveErrorOnTransactions) setHaveErrorOnTransactions(false);
     setIsLoadingTransactions(true);
     getAllTransactions(database)
+      .then((response) => {
+        setData(response);
+      })
+      .catch((error) => {
+        console.log('Error on getting all transactions info', error);
+        setHaveErrorOnTransactions(true);
+      })
+      .finally(() => {
+        setIsLoadingTransactions(false);
+      });
+  };
+
+  const getFilteredTransactions = () => {
+    if (haveErrorOnTransactions) setHaveErrorOnTransactions(false);
+    setIsLoadingTransactions(true);
+    getAllTransactions(database, {
+      month: selectedMonth?.id,
+      year: selectedYear ? Number(selectedYear) : undefined,
+    })
       .then((response) => {
         setData(response);
       })
@@ -69,6 +108,8 @@ export default function Index() {
   useFocusEffect(
     useCallback(() => {
       updateData();
+      setSelectedYear(undefined);
+      setSelectedMonth(undefined);
     }, []),
   );
 
@@ -110,7 +151,40 @@ export default function Index() {
         renderItem={(list) => (
           <TransactionCard transaction={list.item} database={database} refetch={updateData} />
         )}
-        ListHeaderComponent={<Typography variant="subtitle">Extrato</Typography>}
+        ListHeaderComponent={
+          <View style={styles.filter}>
+            <Typography variant="subtitle">Extrato</Typography>
+
+            <View style={styles.filterItems}>
+              <TouchableOpacity
+                style={styles.filterItem}
+                onPress={() => setIsSelectMonthModalOpen(true)}>
+                <Calendar
+                  color={selectedMonth ? theme.colors.primary : theme.colors.textSecondary}
+                  size="20px"
+                />
+                <Typography>{!selectedMonth ? 'Mês' : selectedMonth.value}</Typography>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.filterItem}
+                onPress={() => setIsSelectYearModalOpen(true)}>
+                <Calendar
+                  color={selectedYear ? theme.colors.primary : theme.colors.textSecondary}
+                  size="20px"
+                />
+                <Typography>{!selectedYear ? 'Ano' : selectedYear}</Typography>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.filterItem, styles.filterSearch]}
+                onPress={getFilteredTransactions}>
+                <Search
+                  color={selectedYear ? theme.colors.primary : theme.colors.textSecondary}
+                  size="20px"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        }
         ListEmptyComponent={
           <>
             {isLoadingTransactions && (
@@ -158,13 +232,107 @@ export default function Index() {
           index,
         })}
       />
+
+      <Modal
+        transparent
+        visible={isSelectYearModalOpen}
+        onRequestClose={() => {
+          setIsSelectYearModalOpen(false);
+        }}>
+        <SafeAreaView style={styles.modalView}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Pressable onPress={() => setIsSelectYearModalOpen(false)}>
+                <X />
+              </Pressable>
+            </View>
+            <Picker
+              selectedValue={selectedYear}
+              onValueChange={(value) => {
+                setSelectedYear(value);
+              }}>
+              <Picker.Item label="Todos" value={''} />
+              {years.map((year) => (
+                <Picker.Item key={year} label={`${year}`} value={year} />
+              ))}
+            </Picker>
+          </View>
+        </SafeAreaView>
+      </Modal>
+
+      <Modal
+        transparent
+        visible={isSelectMonthModalOpen}
+        onRequestClose={() => {
+          setIsSelectMonthModalOpen(false);
+        }}>
+        <SafeAreaView style={styles.modalView}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Pressable onPress={() => setIsSelectMonthModalOpen(false)}>
+                <X />
+              </Pressable>
+            </View>
+            <Picker
+              selectedValue={selectedMonth?.id}
+              onValueChange={(value) => {
+                setSelectedMonth(months[value]);
+              }}>
+              <Picker.Item label="Todos" value={''} />
+              {months.map((month) => (
+                <Picker.Item key={month.id} label={month.value} value={month.id} />
+              ))}
+            </Picker>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </Container>
   );
 }
 
 const styles = StyleSheet.create({
+  modalContent: {
+    backgroundColor: theme.colors.cardBackground,
+    borderRadius: theme.radius.lg,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.lg,
+    width: '80%',
+  },
+  modalHeader: {
+    width: '100%',
+    alignItems: 'flex-end',
+    padding: theme.spacing.md,
+  },
+  modalView: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    backgroundColor: theme.colors.black50,
+  },
   container: {
     position: 'relative',
+  },
+  filter: {
+    gap: theme.spacing.sm,
+  },
+
+  filterSearch: {
+    marginLeft: 'auto',
+  },
+
+  filterItem: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.cardBackground,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.lg,
+  },
+  filterItems: {
+    flexDirection: 'row',
+    gap: theme.spacing.lg,
   },
   header: {
     backgroundColor: theme.colors.background,

@@ -15,6 +15,7 @@ export const theme = {
     // Extras opcionais
     primaryLight: 'rgba(59, 130, 246, 0.2)', // Versão translúcida do azul
     shadow: 'rgba(0, 0, 0, 0.3)', // Sombra padrão
+    black50: 'rgba(0, 0, 0, 0.5)',
   },
   fonts: {
     family: {
