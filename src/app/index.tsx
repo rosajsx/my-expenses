@@ -36,6 +36,7 @@ export default function Index() {
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [haveErrorOnBalance, setHaveErrorOnBalance] = useState(false);
   const [data, setData] = useState<Transaction[]>([]);
+  const [balanceInView, setBalanceInView] = useState('GENERAL');
   const [balance, setBalance] = useState(0);
   const [monthBalance, setMonthBalance] = useState(0);
 
@@ -131,6 +132,15 @@ export default function Index() {
     });
   };
 
+  const onChangeBalanceView = () => {
+    setBalanceInView((prevState) => {
+      if (prevState === 'GENERAL') {
+        return 'MONTH';
+      }
+      return 'GENERAL';
+    });
+  };
+
   useFocusEffect(
     useCallback(() => {
       updateData();
@@ -149,24 +159,21 @@ export default function Index() {
     <Container style={styles.container}>
       <View style={styles.headerContainer}>
         <View>
-          <View style={styles.balanceHeader}>
-            <Typography variant="subtitle">Saldo total: </Typography>
+          <Pressable style={styles.balanceHeader} onPress={onChangeBalanceView}>
+            <Typography variant="subtitle">
+              {balanceInView === 'GENERAL' ? 'Saldo total:' : `Saldo ${months[currentMonth].value}`}
+            </Typography>
 
             {!isLoadingBalance && !haveErrorOnBalance && (
               <Typography variant="subtitle" color={balance < 0 ? 'error' : 'textPrimary'}>
-                {formatCurrency(balance)}
+                {balanceInView === 'GENERAL'
+                  ? formatCurrency(balance)
+                  : formatCurrency(monthBalance)}
               </Typography>
             )}
-          </View>
-          <View style={styles.balanceHeader}>
-            <Typography variant="section">Saldo {months[currentMonth].value} : </Typography>
+          </Pressable>
+          <Typography variant="label">Toque no saldo para mudar a visualização</Typography>
 
-            {!isLoadingBalance && !haveErrorOnBalance && (
-              <Typography variant="section" color={monthBalance < 0 ? 'error' : 'textPrimary'}>
-                {formatCurrency(monthBalance)}
-              </Typography>
-            )}
-          </View>
           {isLoadingBalance && <Loading size="sm" />}
           {!isLoadingBalance && haveErrorOnBalance && (
             <Button Icon={RotateCw} variant="secondary" onPress={getBalance} />
