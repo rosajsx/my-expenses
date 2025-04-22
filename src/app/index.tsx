@@ -12,39 +12,74 @@ import LottieView from 'lottie-react-native';
 import { Container } from '../components/Container';
 import { Typography } from '../components/Typography';
 import { useDatabase } from '../hooks/useDatabase';
-import { useCallback, useMemo, useState } from 'react';
-import { Transaction } from '../database/types';
-import { getAllTransactions } from '../database/transactions/getAllTransactions';
+import { useCallback, useMemo } from 'react';
 import { theme } from '../styles/theme';
 
-import { TransactionCard } from '../components/transactionCard';
-import { getCacheAccountBalance } from '../database/accountSummary/getCachedBalance';
+import { TransactionCard } from '../components/TransactionList/transactionCard';
 import { formatCurrency, getAllMonthsOfYear, getLast5Years } from '../utils';
-import { createTransaction } from '../database/transactions/createTransaction';
 import { Loading } from '../components/Loading';
 import { Button } from '../components/Button';
 import { ArrowDown, ArrowUp, Calendar, Plus, RotateCw, Search, X } from 'lucide-react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
-import { getMonthBalance } from '../database/accountSummary/getMonthBalance';
+import { useBoundStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
+import { ScreenStateEnum } from '../enums/screenStates';
 
 const currentMonth = new Date().getMonth();
 
 export default function Index() {
-  const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
-  const [haveErrorOnTransactions, setHaveErrorOnTransactions] = useState(false);
-  const [isLoadingBalance, setIsLoadingBalance] = useState(true);
-  const [haveErrorOnBalance, setHaveErrorOnBalance] = useState(false);
-  const [data, setData] = useState<Transaction[]>([]);
-  const [balanceInView, setBalanceInView] = useState('GENERAL');
-  const [balance, setBalance] = useState(0);
-  const [monthBalance, setMonthBalance] = useState(0);
+  const { transactions, getTransactions, transactionsState } = useBoundStore(
+    useShallow((state) => ({
+      transactions: state.transactions,
+      getTransactions: state.getTransactions,
+      transactionsState: state.transactionsState,
+    })),
+  );
 
-  const [selectedYear, setSelectedYear] = useState<string>();
-  const [isSelectYearModalOpen, setIsSelectYearModalOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState<{ id: number; value: string }>();
-  const [isSelectMonthModalOpen, setIsSelectMonthModalOpen] = useState(false);
-  const [transactionTypeFilter, setTransactionTypeFilter] = useState<number>();
+  const { balance, monthBalance, balanceInView, toggleBalanceInView, getBalances, balancesState } =
+    useBoundStore(
+      useShallow((state) => ({
+        balance: state.balance,
+        monthBalance: state.monthBalance,
+        balanceInView: state.balanceInView,
+        toggleBalanceInView: state.toggleBalanceView,
+        getBalances: state.getBalances,
+        balancesState: state.balanceState,
+      })),
+    );
+
+  const {
+    selectedMonth,
+    selectedYear,
+    setSelectedYear,
+    setSelectedMonth,
+    isSelectMonthModalOpen,
+    isSelectYearModalOpen,
+    openSelectMonthModal,
+    closeSelectMonthModal,
+    openSelectYearModal,
+    closeSelectYearModal,
+    resetFilters,
+    toggleTransactionsFilter,
+    transactionTypeFilter,
+  } = useBoundStore(
+    useShallow((state) => ({
+      selectedYear: state.selectedYear,
+      selectedMonth: state.selectedMonth,
+      setSelectedYear: state.setSelectedYear,
+      setSelectedMonth: state.setSelectedMonth,
+      transactionTypeFilter: state.transactionTypeFilter,
+      isSelectMonthModalOpen: state.isSelectMonthModalOpen,
+      isSelectYearModalOpen: state.isSelectYearModalOpen,
+      openSelectYearModal: state.handleOpenSelectYearModal,
+      closeSelectYearModal: state.handleCloseSelectYearModal,
+      openSelectMonthModal: state.handleOpenSelectMonthModal,
+      closeSelectMonthModal: state.handleCloseSelectMonthModal,
+      resetFilters: state.resetTransactionFilters,
+      toggleTransactionsFilter: state.toggleTransactionTypeFiler,
+    })),
+  );
 
   const { database } = useDatabase();
 
@@ -56,97 +91,29 @@ export default function Index() {
     return getAllMonthsOfYear();
   }, []);
 
-  const getTransactions = () => {
-    if (haveErrorOnTransactions) setHaveErrorOnTransactions(false);
-    setIsLoadingTransactions(true);
-    getAllTransactions(database)
-      .then((response) => {
-        setData(response);
-      })
-      .catch((error) => {
-        console.log('Error on getting all transactions info', error);
-        setHaveErrorOnTransactions(true);
-      })
-      .finally(() => {
-        setIsLoadingTransactions(false);
-      });
-  };
-
-  const getFilteredTransactions = () => {
-    if (haveErrorOnTransactions) setHaveErrorOnTransactions(false);
-    setIsLoadingTransactions(true);
-    getAllTransactions(database, {
+  const handleGetTransactions = () => {
+    const filters = {
       month: selectedMonth?.id,
       year: selectedYear ? Number(selectedYear) : undefined,
       transactionType: transactionTypeFilter,
-    })
-      .then((response) => {
-        setData(response);
-      })
-      .catch((error) => {
-        console.log('Error on getting all transactions info', error);
-        setHaveErrorOnTransactions(true);
-      })
-      .finally(() => {
-        setIsLoadingTransactions(false);
-      });
+    };
+
+    getTransactions(database, filters);
   };
 
-  const getBalance = async () => {
-    if (haveErrorOnBalance) setHaveErrorOnBalance(false);
-
-    try {
-      setIsLoadingBalance(true);
-      const response = await getCacheAccountBalance(database);
-      setBalance(response);
-
-      const monthResponse = await getMonthBalance(database, `${currentMonth + 1}`);
-      setMonthBalance(monthResponse?.total || 0);
-    } catch (error) {
-      console.log('Error on getting balance info', error);
-      setHaveErrorOnBalance(true);
-    } finally {
-      setIsLoadingBalance(false);
-    }
+  const handleGetBalances = () => {
+    getBalances(database);
   };
 
   const updateData = () => {
-    getTransactions();
-    getBalance();
-  };
-
-  const handlePressTypeFilter = () => {
-    setTransactionTypeFilter((prevState) => {
-      if (!prevState) {
-        return 1;
-      }
-      if (prevState === 1) {
-        return 2;
-      }
-
-      if (prevState === 2) {
-        return undefined;
-      }
-
-      return;
-    });
-  };
-
-  const onChangeBalanceView = () => {
-    setBalanceInView((prevState) => {
-      if (prevState === 'GENERAL') {
-        return 'MONTH';
-      }
-      return 'GENERAL';
-    });
+    handleGetTransactions();
+    handleGetBalances();
   };
 
   useFocusEffect(
     useCallback(() => {
       updateData();
-      setSelectedYear(undefined);
-      setSelectedMonth(undefined);
-      setTransactionTypeFilter(undefined);
+      resetFilters();
     }, []),
   );
 
@@ -159,12 +126,12 @@ export default function Index() {
     <Container style={styles.container}>
       <View style={styles.headerContainer}>
         <View>
-          <Pressable style={styles.balanceHeader} onPress={onChangeBalanceView}>
+          <Pressable style={styles.balanceHeader} onPress={toggleBalanceInView}>
             <Typography variant="subtitle">
               {balanceInView === 'GENERAL' ? 'Saldo total:' : `Saldo ${months[currentMonth].value}`}
             </Typography>
 
-            {!isLoadingBalance && !haveErrorOnBalance && (
+            {balancesState === ScreenStateEnum.DEFAULT && (
               <Typography variant="subtitle" color={balance < 0 ? 'error' : 'textPrimary'}>
                 {balanceInView === 'GENERAL'
                   ? formatCurrency(balance)
@@ -174,9 +141,9 @@ export default function Index() {
           </Pressable>
           <Typography variant="label">Toque no saldo para mudar a visualização</Typography>
 
-          {isLoadingBalance && <Loading size="sm" />}
-          {!isLoadingBalance && haveErrorOnBalance && (
-            <Button Icon={RotateCw} variant="secondary" onPress={getBalance} />
+          {balancesState === ScreenStateEnum.LOADING && <Loading size="sm" />}
+          {balancesState === ScreenStateEnum.ERROR && (
+            <Button Icon={RotateCw} variant="secondary" onPress={handleGetBalances} />
           )}
         </View>
         <View style={styles.subHeader}>
@@ -190,7 +157,7 @@ export default function Index() {
         </View>
       </View>
       <FlatList
-        data={data}
+        data={transactions}
         bounces={false}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
@@ -202,18 +169,14 @@ export default function Index() {
             <Typography variant="subtitle">Extrato</Typography>
 
             <View style={styles.filterItems}>
-              <TouchableOpacity
-                style={styles.filterItem}
-                onPress={() => setIsSelectMonthModalOpen(true)}>
+              <TouchableOpacity style={styles.filterItem} onPress={openSelectMonthModal}>
                 <Calendar
                   color={selectedMonth ? theme.colors.primary : theme.colors.textSecondary}
                   size="20px"
                 />
                 <Typography>{!selectedMonth ? 'Mês' : selectedMonth.value}</Typography>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.filterItem}
-                onPress={() => setIsSelectYearModalOpen(true)}>
+              <TouchableOpacity style={styles.filterItem} onPress={openSelectYearModal}>
                 <Calendar
                   color={selectedYear ? theme.colors.primary : theme.colors.textSecondary}
                   size="20px"
@@ -227,7 +190,7 @@ export default function Index() {
                   transactionTypeFilter === 1 && styles.incomeItem,
                   transactionTypeFilter === 2 && styles.outcomeItem,
                 ]}
-                onPress={handlePressTypeFilter}>
+                onPress={toggleTransactionsFilter}>
                 {transactionTypeFilter === 1 && (
                   <ArrowUp size="20px" color={theme.colors.success} />
                 )}
@@ -249,7 +212,7 @@ export default function Index() {
                 </Typography>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={[styles.filterItem]} onPress={getFilteredTransactions}>
+            <TouchableOpacity style={[styles.filterItem]} onPress={handleGetTransactions}>
               <Search
                 color={selectedYear ? theme.colors.primary : theme.colors.textSecondary}
                 size="20px"
@@ -260,13 +223,13 @@ export default function Index() {
         }
         ListEmptyComponent={
           <>
-            {isLoadingTransactions && (
+            {transactionsState === ScreenStateEnum.LOADING && (
               <View style={styles.emptyLoading}>
                 <Loading />
               </View>
             )}
 
-            {!isLoadingTransactions && haveErrorOnTransactions && (
+            {transactionsState === ScreenStateEnum.ERROR && (
               <View style={styles.error}>
                 <LottieView
                   autoPlay
@@ -278,11 +241,11 @@ export default function Index() {
                   Ocorreu um erro inesperado, por favor, tente novamente.
                 </Typography>
 
-                <Button title="Recarregar" onPress={getTransactions} />
+                <Button title="Recarregar" onPress={handleGetTransactions} />
               </View>
             )}
 
-            {!isLoadingTransactions && !haveErrorOnTransactions && (
+            {transactionsState == ScreenStateEnum.DEFAULT && (
               <View style={styles.empty}>
                 <LottieView
                   autoPlay
@@ -306,16 +269,11 @@ export default function Index() {
         })}
       />
 
-      <Modal
-        transparent
-        visible={isSelectYearModalOpen}
-        onRequestClose={() => {
-          setIsSelectYearModalOpen(false);
-        }}>
+      <Modal transparent visible={isSelectYearModalOpen} onRequestClose={closeSelectYearModal}>
         <SafeAreaView style={styles.modalView}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Pressable onPress={() => setIsSelectYearModalOpen(false)}>
+              <Pressable onPress={closeSelectYearModal}>
                 <X />
               </Pressable>
             </View>
@@ -333,16 +291,11 @@ export default function Index() {
         </SafeAreaView>
       </Modal>
 
-      <Modal
-        transparent
-        visible={isSelectMonthModalOpen}
-        onRequestClose={() => {
-          setIsSelectMonthModalOpen(false);
-        }}>
+      <Modal transparent visible={isSelectMonthModalOpen} onRequestClose={closeSelectMonthModal}>
         <SafeAreaView style={styles.modalView}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Pressable onPress={() => setIsSelectMonthModalOpen(false)}>
+              <Pressable onPress={closeSelectMonthModal}>
                 <X />
               </Pressable>
             </View>
