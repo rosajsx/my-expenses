@@ -1,7 +1,7 @@
 import { SQLiteDatabase } from 'expo-sqlite';
 import { Transaction } from '../types';
 
-interface FilterParams {
+export interface FilterParams {
   year?: number;
   month?: number;
   transactionType?: number;
