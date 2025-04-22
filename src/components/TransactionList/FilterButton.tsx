@@ -13,19 +13,19 @@ const Icons = {
 
 interface FilterButtonProps {
   onPress: () => void;
-  icon: keyof typeof Icons;
-  text: string;
+  icon?: keyof typeof Icons;
+  text?: string;
   iconColor: Colors;
   style: TouchableOpacityProps['style'];
 }
 
 export function FilterButton({ onPress, icon, text, iconColor, style }: FilterButtonProps) {
-  const SelectedIcon = Icons[icon];
+  const SelectedIcon = Icons[icon!];
   const color = theme.colors[iconColor];
   return (
     <TouchableOpacity style={[styles.filterItem, style]} onPress={onPress}>
-      <SelectedIcon color={color} size="20px" />
-      <Typography>{text}</Typography>
+      {SelectedIcon && <SelectedIcon color={color} size="20px" />}
+      {text && <Typography>{text}</Typography>}
     </TouchableOpacity>
   );
 }

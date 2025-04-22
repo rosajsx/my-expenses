@@ -2,21 +2,53 @@ import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Typography } from '../Typography';
 import { theme } from '@/src/styles/theme';
 import { FilterButton } from './FilterButton';
+import { useBoundStore } from '@/src/store';
+import { useShallow } from 'zustand/react/shallow';
+import { Calendar, Search } from 'lucide-react-native';
 
-export function TransactionListHeader() {
+interface TransactionListHeaderProps {
+  onFilter: () => void;
+}
+
+export function TransactionListHeader({ onFilter }: TransactionListHeaderProps) {
+  const {
+    selectedMonth,
+    selectedYear,
+    openSelectMonthModal,
+    openSelectYearModal,
+    toggleTransactionsFilter,
+    transactionTypeFilter,
+  } = useBoundStore(
+    useShallow((state) => ({
+      selectedYear: state.selectedYear,
+      selectedMonth: state.selectedMonth,
+      setSelectedYear: state.setSelectedYear,
+      setSelectedMonth: state.setSelectedMonth,
+      transactionTypeFilter: state.transactionTypeFilter,
+      isSelectMonthModalOpen: state.isSelectMonthModalOpen,
+      isSelectYearModalOpen: state.isSelectYearModalOpen,
+      openSelectYearModal: state.handleOpenSelectYearModal,
+      closeSelectYearModal: state.handleCloseSelectYearModal,
+      openSelectMonthModal: state.handleOpenSelectMonthModal,
+      closeSelectMonthModal: state.handleCloseSelectMonthModal,
+      resetFilters: state.resetTransactionFilters,
+      toggleTransactionsFilter: state.toggleTransactionTypeFiler,
+    })),
+  );
+
   return (
     <View style={styles.filter}>
       <Typography variant="subtitle">Extrato</Typography>
 
       <View style={styles.filterItems}>
-        <TouchableOpacity style={styles.filterItem} onPress={() => setIsSelectMonthModalOpen(true)}>
+        <TouchableOpacity style={styles.filterItem} onPress={openSelectMonthModal}>
           <Calendar
             color={selectedMonth ? theme.colors.primary : theme.colors.textSecondary}
             size="20px"
           />
           <Typography>{!selectedMonth ? 'Mês' : selectedMonth.value}</Typography>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterItem} onPress={() => setIsSelectYearModalOpen(true)}>
+        <TouchableOpacity style={styles.filterItem} onPress={openSelectYearModal}>
           <Calendar
             color={selectedYear ? theme.colors.primary : theme.colors.textSecondary}
             size="20px"
@@ -25,35 +57,32 @@ export function TransactionListHeader() {
         </TouchableOpacity>
 
         <FilterButton
-          style={transactionTypeFilter === 1 ? styles.incomeItem : styles.outcomeItem}
-          onPress={handlePressTypeFilter}
-          icon={transactionTypeFilter === 1 ? 'ArrowUp' : 'ArrowDown'}
+          style={
+            transactionTypeFilter === 1
+              ? styles.incomeItem
+              : transactionTypeFilter === 2
+                ? styles.outcomeItem
+                : {}
+          }
+          onPress={toggleTransactionsFilter}
+          icon={
+            transactionTypeFilter === 1
+              ? 'ArrowUp'
+              : transactionTypeFilter === 2
+                ? 'ArrowDown'
+                : undefined
+          }
+          iconColor={transactionTypeFilter === 1 ? 'success' : 'error'}
+          text={
+            transactionTypeFilter === 1
+              ? 'Entradas'
+              : transactionTypeFilter === 2
+                ? 'Saídas'
+                : 'Tipo'
+          }
         />
-        <TouchableOpacity
-          style={[
-            styles.filterItem,
-            transactionTypeFilter === 1 && styles.incomeItem,
-            transactionTypeFilter === 2 && styles.outcomeItem,
-          ]}
-          onPress={handlePressTypeFilter}>
-          {transactionTypeFilter === 1 && <ArrowUp size="20px" color={theme.colors.success} />}
-          {transactionTypeFilter === 2 && <ArrowDown size="20px" color={theme.colors.error} />}
-
-          <Typography
-            color={
-              transactionTypeFilter === 1
-                ? 'success'
-                : transactionTypeFilter === 2
-                  ? 'error'
-                  : 'textPrimary'
-            }>
-            {transactionTypeFilter === 1 && 'Entradas'}
-            {transactionTypeFilter === 2 && 'Saídas'}
-            {!transactionTypeFilter && 'Tipo'}
-          </Typography>
-        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={[styles.filterItem]} onPress={getFilteredTransactions}>
+      <TouchableOpacity style={[styles.filterItem]} onPress={onFilter}>
         <Search
           color={selectedYear ? theme.colors.primary : theme.colors.textSecondary}
           size="20px"
