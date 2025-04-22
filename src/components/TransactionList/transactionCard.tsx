@@ -1,12 +1,12 @@
 import { StyleSheet, View, Text, Pressable, Alert } from 'react-native';
-import { theme } from '../styles/theme';
-import { Transaction } from '../database/types';
-import { Typography } from './Typography';
-import { formatCurrency, formatDate } from '../utils';
+import { theme } from '../../styles/theme';
+import { Transaction } from '../../database/types';
+import { Typography } from '../Typography';
+import { formatCurrency, formatDate } from '../../utils';
 import { ArrowDown, ArrowUp, PenLine, Trash } from 'lucide-react-native';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import { deleteTransaction } from '../database/transactions/deleteTransaction';
+import { deleteTransaction } from '../../database/transactions/deleteTransaction';
 
 import { SQLiteDatabase } from 'expo-sqlite';
 import { router } from 'expo-router';
