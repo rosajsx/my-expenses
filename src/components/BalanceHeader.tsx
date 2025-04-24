@@ -7,19 +7,22 @@ import { ScreenStateEnum } from '../enums/screenStates';
 import { formatCurrency, getAllMonthsOfYear } from '../utils';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { useDatabase } from '../hooks/useDatabase';
-import { Plus, RotateCw } from 'lucide-react-native';
+import { Plus, RefreshCcw, RotateCw } from 'lucide-react-native';
 import { Button } from './Button';
 import { router } from 'expo-router';
 import { Loading } from './Loading';
 
 interface BalanceHeaderProps {
   db?: SQLiteDatabase;
+  onPressSync?: () => void;
+  canSync?: boolean;
+  isSyncing?: boolean;
 }
 
 const currentMonth = new Date().getMonth();
 const months = getAllMonthsOfYear();
 
-export const BalanceHeader = ({ db }: BalanceHeaderProps) => {
+export const BalanceHeader = ({ db, onPressSync, canSync, isSyncing }: BalanceHeaderProps) => {
   const { balance, monthBalance, balanceInView, toggleBalanceInView, getBalances, balancesState } =
     useBoundStore(
       useShallow((state) => ({
@@ -63,6 +66,16 @@ export const BalanceHeader = ({ db }: BalanceHeaderProps) => {
           style={styles.addButton}
           variant="secondary"
         />
+        {canSync && (
+          <Button
+            Icon={RefreshCcw}
+            onPress={onPressSync}
+            title={isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+            style={styles.addButton}
+            variant="secondary"
+            disabled={isSyncing}
+          />
+        )}
       </View>
     </View>
   );
@@ -80,10 +93,15 @@ const styles = StyleSheet.create({
 
   addButton: {
     flexDirection: 'row',
-    width: 180,
+    flex: 1,
+    gap: theme.spacing.sm,
+    maxWidth: 180,
   },
   headerContainer: {
     gap: theme.spacing.lg,
   },
-  subHeader: {},
+  subHeader: {
+    flexDirection: 'row',
+    gap: theme.spacing.lg,
+  },
 });

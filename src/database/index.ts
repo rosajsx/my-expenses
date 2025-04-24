@@ -14,9 +14,7 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     'PRAGMA user_version',
   )) || { user_version: 0 };
 
-  syncTransactions();
   if (currentDbVersion >= DATABASE_VERSION) {
-    removeDeletedTransactions(db);
     return;
   }
 

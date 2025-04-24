@@ -25,19 +25,14 @@ export async function getAllTransactions(db: SQLiteDatabase, filter?: FilterPara
   }
 
   if (filter?.year) {
-    if (params.length > 0) {
-      query = `${query} AND strftime('%Y', date) = ?`;
-    }
+    query = `${query} AND strftime('%Y', date) = ?`;
 
     params.push(`${filter?.year}`);
   }
 
   if (filter?.transactionType) {
-    if (params.length > 0) {
-      query = `${query} AND type=?`;
-    } else {
-      query = `${query} WHERE type=?`;
-    }
+    query = `${query} AND type=?`;
+
     params.push(filter.transactionType);
   }
 

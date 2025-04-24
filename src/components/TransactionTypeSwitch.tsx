@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { theme } from '../styles/theme';
 import { ArrowBigDown, ArrowBigUp } from 'lucide-react-native';
@@ -14,6 +14,10 @@ export const TransactionTypeSwitch = ({
   onSelect,
 }: TransactionTypeSwitchProps) => {
   const [transactionType, setTransactionType] = useState<number>(initialValue);
+
+  useEffect(() => {
+    setTransactionType(initialValue);
+  }, [initialValue]);
 
   return (
     <View style={styles.switchContainer}>

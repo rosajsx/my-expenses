@@ -45,7 +45,7 @@ async function createTransactionQuery(
   }: Omit<Transaction, 'id' | 'created_at' | 'updated_at' | 'deleted'>,
 ) {
   return db.runAsync(
-    `INSERT OR REPLACE INTO transactions (name, amount, installment, type, date, installment_qtd, pendingSync, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT OR REPLACE INTO transactions (name, amount, installment, type, date, installment_qtd, pendingSync, user_id, created_at, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     name,
     amount,
     installment,
@@ -55,5 +55,6 @@ async function createTransactionQuery(
     1,
     user_id,
     new Date().toISOString(),
+    0,
   );
 }

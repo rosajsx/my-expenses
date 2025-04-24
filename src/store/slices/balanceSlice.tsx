@@ -26,6 +26,7 @@ export const createBalanceSlice: StateCreator<BalanceSlice, [], [], BalanceSlice
     set((state) => ({ balanceState: ScreenStateEnum.LOADING }));
     try {
       const balance = await getCacheAccountBalance(database);
+      console.log({ balance });
       const monthBalance = await getMonthBalance(database, `${currentMonth + 1}`);
       set((state) => ({
         balance: balance,

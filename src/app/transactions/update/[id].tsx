@@ -114,7 +114,7 @@ export default function UpdateTransaction() {
               ref={currencyValueRef}
               returnKeyType="next"
             />
-            <TransactionTypeSwitch onSelect={setTransactionType} />
+            <TransactionTypeSwitch onSelect={setTransactionType} initialValue={transactionType} />
 
             <View>
               <Typography variant="label">Data</Typography>

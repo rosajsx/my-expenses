@@ -2,7 +2,7 @@ import { FlatList, StyleSheet } from 'react-native';
 
 import { Container } from '../components/Container';
 import { useDatabase } from '../hooks/useDatabase';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { theme } from '../styles/theme';
 
 import { TransactionCard } from '../components/TransactionList/transactionCard';
@@ -14,6 +14,11 @@ import { BalanceHeader } from '../components/BalanceHeader';
 import { EmptyComponent } from '../components/TransactionList/EmptyComponent';
 import { SelectYearModal } from '../components/TransactionList/SelectYearModal';
 import { SelectMonthModal } from '../components/TransactionList/SelectMonthModal';
+import { syncTransactions } from '../database/transactions/syncTransactions';
+import * as Network from 'expo-network';
+import { Button } from '../components/Button';
+
+let isFirstRender = true;
 
 export default function Index() {
   const { transactions, getTransactions, transactionsState } = useBoundStore(
@@ -23,6 +28,8 @@ export default function Index() {
       transactionsState: state.transactionsState,
     })),
   );
+
+  const { isConnected } = Network.useNetworkState();
 
   const getBalances = useBoundStore((state) => state.getBalances);
 
@@ -35,7 +42,12 @@ export default function Index() {
     })),
   );
 
+  const [syncTimes, setSyncTimes] = useState(0);
+  const [isSyncing, setIsSyncing] = useState(false);
+
   const { database } = useDatabase();
+
+  const canSync = transactions.some((transaction) => transaction.pendingSync === 1);
 
   const handleGetTransactions = () => {
     const filters = {
@@ -63,22 +75,36 @@ export default function Index() {
     }, []),
   );
 
+  useLayoutEffect(() => {
+    if (isConnected) {
+      (async () => {
+        setIsSyncing(true);
+        await syncTransactions();
+        if (!isFirstRender) {
+          updateData();
+        }
+        setIsSyncing(false);
+        isFirstRender = false;
+      })();
+    }
+  }, [syncTimes]);
+
   // database.runAsync('DROP TABLE transactions');
   // database.runAsync('DROP TABLE account_summary');
   // database.runAsync('DROP TABLE balance_history');
   // database.execAsync(`PRAGMA user_version = ${0}`);
 
-  console.log(transactions.length);
-
   return (
     <Container style={styles.container}>
-      <BalanceHeader db={database} />
+      <BalanceHeader
+        db={database}
+        onPressSync={() => setSyncTimes((prevState) => prevState + 1)}
+        isSyncing={isSyncing}
+        canSync={canSync}
+      />
 
       <FlatList
-        data={transactions.filter((transaction) => {
-          console.log('transaction', transaction.deleted);
-          return transaction.deleted === 0;
-        })}
+        data={transactions.filter((transaction) => transaction.deleted === 0)}
         bounces={false}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
