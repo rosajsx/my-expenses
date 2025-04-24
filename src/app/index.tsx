@@ -16,7 +16,6 @@ import { SelectYearModal } from '../components/TransactionList/SelectYearModal';
 import { SelectMonthModal } from '../components/TransactionList/SelectMonthModal';
 import { syncTransactions } from '../database/transactions/syncTransactions';
 import * as Network from 'expo-network';
-import { Button } from '../components/Button';
 
 let isFirstRender = true;
 
