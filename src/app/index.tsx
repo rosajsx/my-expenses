@@ -68,12 +68,17 @@ export default function Index() {
   // database.runAsync('DROP TABLE balance_history');
   // database.execAsync(`PRAGMA user_version = ${0}`);
 
+  console.log(transactions.length);
+
   return (
     <Container style={styles.container}>
       <BalanceHeader db={database} />
 
       <FlatList
-        data={transactions}
+        data={transactions.filter((transaction) => {
+          console.log('transaction', transaction.deleted);
+          return transaction.deleted === 0;
+        })}
         bounces={false}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}

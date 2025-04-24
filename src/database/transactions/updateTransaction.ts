@@ -12,8 +12,8 @@ interface UpdateTransactionInput {
 export async function updateTransaction(db: SQLiteDatabase, input: UpdateTransactionInput) {
   try {
     await db.runAsync(
-      'UPDATE transactions SET name = ?, amount = ?, type = ?, date = ? WHERE id = ?',
-      [input.name, input.amount, input.type, input.date, input.id],
+      'UPDATE transactions SET name = ?, amount = ?, type = ?, date = ?, updated_at = ?, pendingSync = 1 WHERE id = ? AND deleted = 0',
+      [input.name, input.amount, input.type, input.date, input.id, new Date().toISOString()],
     );
     await updateCachedBalance(db, input.type === 1 ? input.amount : -input.amount);
   } catch (error) {

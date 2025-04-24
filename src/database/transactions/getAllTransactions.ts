@@ -1,5 +1,6 @@
 import { SQLiteDatabase } from 'expo-sqlite';
 import { Transaction } from '../types';
+import Storage from 'expo-sqlite/kv-store';
 
 export interface FilterParams {
   year?: number;
@@ -11,17 +12,21 @@ export async function getAllTransactions(db: SQLiteDatabase, filter?: FilterPara
   let query = '';
   let params = [];
 
+  const user_id = await Storage.getItem('my-expenses-user-hash');
+
+  if (!user_id) {
+    throw new Error('User Hash not found');
+  }
+
   if (typeof filter?.month === 'number') {
     const isTwoDigitsMonth = filter.month < 10;
-    query = `${query} WHERE strftime('%m', date) = ?`;
+    query = `${query} AND strftime('%m', date) = ?`;
     params.push(isTwoDigitsMonth ? `0${filter.month + 1}` : filter.month + 1);
   }
 
   if (filter?.year) {
     if (params.length > 0) {
       query = `${query} AND strftime('%Y', date) = ?`;
-    } else {
-      query = `${query} WHERE strftime('%Y', date) = ?`;
     }
 
     params.push(`${filter?.year}`);
@@ -37,7 +42,7 @@ export async function getAllTransactions(db: SQLiteDatabase, filter?: FilterPara
   }
 
   return db.getAllAsync<Transaction>(
-    `SELECT * FROM transactions ${query} ORDER BY date DESC;`,
-    params,
+    `SELECT * FROM transactions  WHERE user_id = ? ${query} ORDER BY date DESC;`,
+    [user_id, ...params],
   );
 }

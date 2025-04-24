@@ -2,6 +2,10 @@ import { SQLiteDatabase } from 'expo-sqlite';
 import { createTransactionsTable } from './transactions/createTransactionsTable';
 import { createAccountSummaryTable } from './accountSummary/createAccountSummaryTable';
 import { createBalanceHistoryTable } from './balanceHistory/createBalanceHistoryTable';
+import Storage from 'expo-sqlite/kv-store';
+import * as Crypto from 'expo-crypto';
+import { syncTransactions } from './transactions/syncTransactions';
+import { removeDeletedTransactions } from './transactions/removeDeletedTransactions';
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
   const DATABASE_VERSION = 1;
@@ -10,7 +14,9 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     'PRAGMA user_version',
   )) || { user_version: 0 };
 
+  syncTransactions();
   if (currentDbVersion >= DATABASE_VERSION) {
+    removeDeletedTransactions(db);
     return;
   }
 
@@ -21,6 +27,12 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
       await createAccountSummaryTable(db);
 
       await createBalanceHistoryTable(db);
+
+      const userHash = await Storage.getItem('my-expenses-user-hash');
+      if (!userHash) {
+        await Storage.setItem('my-expenses-user-hash', Crypto.randomUUID());
+        console.log('User Hash was Created');
+      }
 
       console.log('Database created and migrated to version 1');
       // await db.runAsync('INSERT INTO todos (value, intValue) VALUES (?, ?)', 'hello', 1);
