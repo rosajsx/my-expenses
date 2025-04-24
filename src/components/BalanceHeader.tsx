@@ -11,6 +11,7 @@ import { Plus, RefreshCcw, RotateCw } from 'lucide-react-native';
 import { Button } from './Button';
 import { router } from 'expo-router';
 import { Loading } from './Loading';
+import Animated from 'react-native-reanimated';
 
 interface BalanceHeaderProps {
   db?: SQLiteDatabase;
@@ -18,6 +19,8 @@ interface BalanceHeaderProps {
   canSync?: boolean;
   isSyncing?: boolean;
 }
+
+const AnimatedButton = Animated.createAnimatedComponent(Button);
 
 const currentMonth = new Date().getMonth();
 const months = getAllMonthsOfYear();
@@ -66,16 +69,14 @@ export const BalanceHeader = ({ db, onPressSync, canSync, isSyncing }: BalanceHe
           style={styles.addButton}
           variant="secondary"
         />
-        {canSync && (
-          <Button
-            Icon={RefreshCcw}
-            onPress={onPressSync}
-            title={isSyncing ? 'Sincronizando...' : 'Sincronizar'}
-            style={styles.addButton}
-            variant="secondary"
-            disabled={isSyncing}
-          />
-        )}
+        <Button
+          Icon={RefreshCcw}
+          onPress={onPressSync}
+          title={isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+          style={[styles.addButton, !canSync && { opacity: 0 }]}
+          variant="secondary"
+          disabled={isSyncing || !canSync}
+        />
       </View>
     </View>
   );
