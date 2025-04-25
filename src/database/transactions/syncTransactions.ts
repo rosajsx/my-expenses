@@ -16,10 +16,16 @@ export async function syncTransactions() {
     deleted: transaction.deleted === 1,
   }));
 
+  console.log({ pendingTransactions });
+
   if (pendingTransactions.length > 0) {
     try {
       const response = await supabase.from('transactions').upsert(markPendingTransactions);
+      console.log({ response });
 
+      if (response?.error?.details) {
+        throw new Error('Cant sync with error' + response?.error?.code);
+      }
       const syncedIds = pendingTransactions.map((transaction) => transaction.id);
 
       await markSyncTransactions(db, syncedIds);
