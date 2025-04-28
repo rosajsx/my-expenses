@@ -3,6 +3,7 @@ import { Transaction } from '../types';
 import { updateCachedBalance } from '../accountSummary/updateCachedBalance';
 import { formatDateForSQLite } from '@/src/utils';
 import Storage from 'expo-sqlite/kv-store';
+import * as Crypto from 'expo-crypto';
 
 export async function createTransaction(
   db: SQLiteDatabase,
@@ -17,7 +18,10 @@ export async function createTransaction(
       throw new Error('User Hash not found');
     }
 
+    const id = Crypto.randomUUID();
+
     await createTransactionQuery(db, {
+      id,
       name,
       amount,
       installment,
@@ -35,6 +39,7 @@ export async function createTransaction(
 async function createTransactionQuery(
   db: SQLiteDatabase,
   {
+    id,
     name,
     amount,
     installment,
@@ -42,10 +47,11 @@ async function createTransactionQuery(
     type,
     installment_qtd,
     user_id,
-  }: Omit<Transaction, 'id' | 'created_at' | 'updated_at' | 'deleted'>,
+  }: Omit<Transaction, 'created_at' | 'updated_at' | 'deleted'>,
 ) {
   return db.runAsync(
-    `INSERT OR REPLACE INTO transactions (name, amount, installment, type, date, installment_qtd, pendingSync, user_id, created_at, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT OR REPLACE INTO transactions (id,name, amount, installment, type, date, installment_qtd, pendingSync, user_id, created_at, deleted) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    id,
     name,
     amount,
     installment,

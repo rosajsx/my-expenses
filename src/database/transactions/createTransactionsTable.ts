@@ -6,7 +6,7 @@ export async function createTransactionsTable(db: SQLiteDatabase) {
       `
   PRAGMA journal_mode = 'wal';
   CREATE TABLE IF NOT EXISTS transactions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    id TEXT PRIMARY KEY NOT NULL,
     user_id TEXT NOT NULL,
     name TEXT NOT NULL,
     amount INTEGER NOT NULL,
