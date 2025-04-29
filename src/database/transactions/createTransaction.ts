@@ -7,7 +7,15 @@ import * as Crypto from 'expo-crypto';
 
 export async function createTransaction(
   db: SQLiteDatabase,
-  { name, amount, installment, date, type, installment_qtd }: Omit<Transaction, 'id' | 'user_id'>,
+  {
+    name,
+    amount,
+    installment,
+    date,
+    type,
+    installment_qtd,
+    category,
+  }: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'deleted'>,
 ) {
   try {
     const formattedDate = formatDateForSQLite(new Date(date));
@@ -29,6 +37,7 @@ export async function createTransaction(
       date: formattedDate,
       user_id,
       type,
+      category,
     });
     await updateCachedBalance(db, type === 1 ? amount : -amount);
   } catch (error) {
@@ -47,10 +56,11 @@ async function createTransactionQuery(
     type,
     installment_qtd,
     user_id,
+    category,
   }: Omit<Transaction, 'created_at' | 'updated_at' | 'deleted'>,
 ) {
   return db.runAsync(
-    `INSERT OR REPLACE INTO transactions (id,name, amount, installment, type, date, installment_qtd, pendingSync, user_id, created_at, deleted) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT OR REPLACE INTO transactions (id,name, amount, installment, type, date, installment_qtd, pendingSync, user_id, created_at, deleted, category) VALUES (?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     name,
     amount,
@@ -62,5 +72,6 @@ async function createTransactionQuery(
     user_id,
     new Date().toISOString(),
     0,
+    category,
   );
 }

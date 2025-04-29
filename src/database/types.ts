@@ -11,6 +11,7 @@ export interface Transaction {
   created_at: string;
   updated_at: string;
   deleted: number;
+  category: string;
 }
 
 export interface AccountSummary {

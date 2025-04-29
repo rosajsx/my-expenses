@@ -1,6 +1,6 @@
 import { SQLiteDatabase } from 'expo-sqlite';
 
-export async function markSyncTransactions(db: SQLiteDatabase, ids: number[]) {
+export async function markSyncTransactions(db: SQLiteDatabase, ids: string[]) {
   if (ids.length === 0) return;
 
   return await db.withTransactionSync(async () => {

@@ -99,12 +99,20 @@ export const TransactionCard = ({ transaction, database, refetch }: TransactionC
           </Typography>
 
           <View>
-            <Typography variant="section">
-              {transaction.name}{' '}
-              {transaction.installment &&
-                transaction.installment_qtd &&
-                `${transaction.installment}/${transaction.installment_qtd}`}
-            </Typography>
+            <View style={styles.titleContainer}>
+              <Typography variant="section">
+                {transaction.name}{' '}
+                {transaction.installment &&
+                  transaction.installment_qtd &&
+                  `${transaction.installment}/${transaction.installment_qtd}`}
+              </Typography>
+              {transaction.category && (
+                <View style={styles.tagContainer}>
+                  <Typography variant="textSmall">{transaction.category}</Typography>
+                </View>
+              )}
+            </View>
+
             <Typography variant="textSmall">{date}</Typography>
           </View>
         </View>
@@ -118,6 +126,17 @@ export const TransactionCard = ({ transaction, database, refetch }: TransactionC
 };
 
 const styles = StyleSheet.create({
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
+  tagContainer: {
+    paddingVertical: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.sm,
+    borderRadius: theme.spacing.md,
+    backgroundColor: theme.colors.surface,
+  },
   container: {
     backgroundColor: theme.colors.cardBackground,
     borderRadius: theme.radius.lg,

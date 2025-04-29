@@ -17,7 +17,8 @@ export async function createTransactionsTable(db: SQLiteDatabase) {
     updated_at TEXT,
     created_at TEXT NOT NULL,
     pendingSync INTEGER DEFAULT 1,
-    deleted INTEGER DEFAULT 0
+    deleted INTEGER DEFAULT 0,
+    category TEXT
   )
 `,
     )

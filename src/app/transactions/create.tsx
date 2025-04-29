@@ -21,6 +21,7 @@ export default function CreateTransaction() {
   const [transactionType, setTransactionType] = useState<number>();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [amount, setAmount] = useState(0);
+  const [category, setCategory] = useState('');
 
   const {
     screenState,
@@ -36,6 +37,7 @@ export default function CreateTransaction() {
   const { database } = useDatabase();
 
   const currencyValueRef = useRef<TextInput>();
+  const categoryValueRef = useRef<TextInput>();
 
   const isCreateButtonDisabled = !transactionType && !transactionName;
 
@@ -49,6 +51,7 @@ export default function CreateTransaction() {
       installment_qtd: null,
       type: transactionType!,
       date: selectedDate.toISOString(),
+      category,
     })
       .then(() => {
         handleChangeScreenStateToSuccess();
@@ -88,7 +91,17 @@ export default function CreateTransaction() {
                 const cents = parseCurrencyToCents(value);
                 setAmount(cents);
               }}
+              onEndEditing={() => {
+                categoryValueRef?.current?.focus?.();
+              }}
               ref={currencyValueRef}
+              returnKeyType="next"
+            />
+            <Input
+              label="Categoria"
+              value={category}
+              onChangeText={setCategory}
+              ref={categoryValueRef}
               returnKeyType="next"
             />
             <TransactionTypeSwitch onSelect={setTransactionType} />
@@ -96,7 +109,7 @@ export default function CreateTransaction() {
             <View>
               <Typography variant="label">Data</Typography>
               <DateTimePicker
-                display="inline"
+                display="spinner"
                 mode="date"
                 value={selectedDate}
                 onChange={(_, date) => {

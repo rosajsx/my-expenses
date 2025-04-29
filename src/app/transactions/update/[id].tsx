@@ -26,6 +26,7 @@ export default function UpdateTransaction() {
   const [transactionType, setTransactionType] = useState<number>();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [amount, setAmount] = useState(0);
+  const [category, setCategory] = useState('');
 
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -41,6 +42,7 @@ export default function UpdateTransaction() {
   const { database } = useDatabase();
 
   const currencyValueRef = useRef<TextInput>();
+  const categoryValueRef = useRef<TextInput>();
 
   const isUpdateButtonDisabled = !transactionType && !transactionName;
 
@@ -53,6 +55,7 @@ export default function UpdateTransaction() {
       id,
       type: transactionType!,
       date: selectedDate.toISOString(),
+      category,
     })
       .then(() => {
         handleChangeScreenStateToSuccess();
@@ -71,6 +74,7 @@ export default function UpdateTransaction() {
       if (data?.amount) setAmount(data?.amount);
       if (data?.date) setSelectedDate(new Date(data?.date));
       if (data?.type) setTransactionType(data?.type);
+      if (data?.category) setCategory(data?.category);
     } catch (error) {
       console.log('error');
     }
@@ -111,7 +115,17 @@ export default function UpdateTransaction() {
                 const cents = parseCurrencyToCents(value);
                 setAmount(cents);
               }}
+              onEndEditing={() => {
+                categoryValueRef?.current?.focus?.();
+              }}
               ref={currencyValueRef}
+              returnKeyType="next"
+            />
+            <Input
+              label="Categoria"
+              value={category}
+              onChangeText={setCategory}
+              ref={categoryValueRef}
               returnKeyType="next"
             />
             <TransactionTypeSwitch onSelect={setTransactionType} initialValue={transactionType} />
@@ -119,7 +133,7 @@ export default function UpdateTransaction() {
             <View>
               <Typography variant="label">Data</Typography>
               <DateTimePicker
-                display="inline"
+                display="spinner"
                 mode="date"
                 value={selectedDate}
                 onChange={(_, date) => {
