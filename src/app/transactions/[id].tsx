@@ -92,7 +92,13 @@ export default function TransactionDetails() {
             </Typography>
           </View>
           {transaction?.date && (
-            <Typography variant="textSmall">{formatDate(transaction?.date)}</Typography>
+            <Typography variant="textSmall">
+              {formatDate(transaction?.date, {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </Typography>
           )}
           {transaction?.category && (
             <Typography variant="textSmall">Categoria: {transaction?.category}</Typography>

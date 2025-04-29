@@ -20,7 +20,7 @@ export function formatDate(date: string, options?: Intl.DateTimeFormatOptions) {
   const defaultOptions: Intl.DateTimeFormatOptions = {
     month: 'long',
     day: '2-digit',
-    year: '2-digit',
+    year: 'numeric',
   };
 
   return new Date(date).toLocaleDateString('pt-BR', options || defaultOptions);
