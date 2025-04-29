@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { ScreenStateEnum } from '../enums/screenStates';
 
-export const useScreenState = () => {
-  const [screenState, setScreenState] = useState<ScreenStateEnum>(ScreenStateEnum.DEFAULT);
+export const useScreenState = (initialState = ScreenStateEnum.DEFAULT) => {
+  const [screenState, setScreenState] = useState<ScreenStateEnum>(initialState);
 
   const handleChangeScreenStateToDefault = () => setScreenState(ScreenStateEnum.DEFAULT);
   const handleChangeScreenStateToLoading = () => setScreenState(ScreenStateEnum.LOADING);

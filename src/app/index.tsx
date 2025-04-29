@@ -107,9 +107,7 @@ export default function Index() {
         bounces={false}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
-        renderItem={(list) => (
-          <TransactionCard transaction={list.item} database={database} refetch={updateData} />
-        )}
+        renderItem={(list) => <TransactionCard transaction={list.item} />}
         ListHeaderComponent={<TransactionListHeader onFilter={handleGetTransactions} />}
         ListEmptyComponent={
           <EmptyComponent

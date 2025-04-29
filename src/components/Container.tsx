@@ -5,10 +5,10 @@ import { theme } from '../styles/theme';
 interface ContainerProps extends SafeAreaViewProps {}
 
 export const Container = ({ children, style, ...props }: ContainerProps) => {
-  const { width, height } = useWindowDimensions();
+  //const { width, height } = useWindowDimensions();
 
   return (
-    <View style={[styles.wrapper, { width, height }]}>
+    <View style={[styles.wrapper]}>
       <StatusBar animated barStyle="light-content" />
       <SafeAreaView {...props} style={[styles.container, style]}>
         {children}
