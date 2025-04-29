@@ -6,16 +6,9 @@ import { Typography } from '@/src/components/Typography';
 import { theme } from '@/src/styles/theme';
 import { formatCurrency, parseCurrencyToCents } from '@/src/utils';
 import { router } from 'expo-router';
-import { DollarSign, X } from 'lucide-react-native';
+import { ArrowLeft, DollarSign, X } from 'lucide-react-native';
 import { useRef, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useScreenState } from '@/src/hooks/useScreenState';
 import { useDatabase } from '@/src/hooks/useDatabase';
@@ -36,7 +29,6 @@ export default function CreateTransaction() {
   const [installmentQtd, setInstallmentQtd] = useState<string | null>();
 
   const {
-    screenState,
     handleChangeScreenStateToError,
     handleChangeScreenStateToLoading,
     handleChangeScreenStateToSuccess,
@@ -82,8 +74,13 @@ export default function CreateTransaction() {
           showsVerticalScrollIndicator={false}
           automaticallyAdjustKeyboardInsets>
           <View style={styles.modalHeader}>
-            <Typography>Nova Transação</Typography>
-            <Button variant="ghost" Icon={X} onPress={router.back} />
+            <Button
+              variant="ghost"
+              Icon={ArrowLeft}
+              onPress={router.back}
+              style={{ zIndex: 1, minWidth: 'auto', minHeight: 'auto' }}
+            />
+            <Typography style={styles.title}>Nova Transação</Typography>
           </View>
           <View style={styles.content}>
             <Input
@@ -233,12 +230,20 @@ const styles = StyleSheet.create({
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+
+    position: 'relative',
+  },
+  title: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
   },
   avoidView: {},
   content: {
     flex: 1,
     gap: theme.spacing.xl,
+    paddingTop: theme.spacing.md,
   },
   footer: {
     borderWidth: 1,

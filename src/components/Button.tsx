@@ -45,7 +45,7 @@ const ButtonComponent = (
     <TouchableOpacity
       {...props}
       ref={ref}
-      style={[styles.base, variantStyle, style, disabled && styles.disabled]}
+      style={[styles.base, variantStyle, disabled && styles.disabled, style]}
       activeOpacity={0.7}
       disabled={disabled}>
       {Icon && <Icon color={theme.colors.textPrimary} />}

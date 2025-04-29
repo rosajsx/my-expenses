@@ -6,20 +6,12 @@ import { Typography } from '@/src/components/Typography';
 import { theme } from '@/src/styles/theme';
 import { formatCurrency, parseCurrencyToCents } from '@/src/utils';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { DollarSign, X } from 'lucide-react-native';
+import { ArrowLeft, DollarSign, X } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useScreenState } from '@/src/hooks/useScreenState';
 import { useDatabase } from '@/src/hooks/useDatabase';
-import { createTransaction } from '@/src/database/transactions/createTransaction';
 import LottieView from 'lottie-react-native';
 import { Loading } from '@/src/components/Loading';
 import Animated, { FadeIn, FadeOut, Easing } from 'react-native-reanimated';
@@ -111,8 +103,13 @@ export default function UpdateTransaction() {
           showsVerticalScrollIndicator={false}
           automaticallyAdjustKeyboardInsets>
           <View style={styles.modalHeader}>
-            <Typography>Nova Transação</Typography>
-            <Button variant="ghost" Icon={X} onPress={router.back} />
+            <Button
+              variant="ghost"
+              Icon={ArrowLeft}
+              onPress={router.back}
+              style={{ zIndex: 1, minWidth: 'auto', minHeight: 'auto' }}
+            />
+            <Typography style={styles.title}>Nova Transação</Typography>
           </View>
           <View style={styles.content}>
             <Input
@@ -257,6 +254,12 @@ const styles = StyleSheet.create({
   installmentInput: {
     flex: 1,
   },
+  title: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+  },
   checkboxLabel: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.family.regular,
@@ -264,7 +267,7 @@ const styles = StyleSheet.create({
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    position: 'relative',
   },
   avoidView: {
     flex: 1,
@@ -272,6 +275,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     gap: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
   },
   footer: {
     borderWidth: 1,
