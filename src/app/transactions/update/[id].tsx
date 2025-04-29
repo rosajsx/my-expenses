@@ -8,16 +8,24 @@ import { formatCurrency, parseCurrencyToCents } from '@/src/utils';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { DollarSign, X } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useScreenState } from '@/src/hooks/useScreenState';
 import { useDatabase } from '@/src/hooks/useDatabase';
 import { createTransaction } from '@/src/database/transactions/createTransaction';
 import LottieView from 'lottie-react-native';
 import { Loading } from '@/src/components/Loading';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, Easing } from 'react-native-reanimated';
 import { getTransactionById } from '@/src/database/transactions/getTransactionById';
 import { updateTransaction } from '@/src/database/transactions/updateTransaction';
+import { AdvancedCheckbox } from 'react-native-advanced-checkbox';
 
 const AnimatedTypography = Animated.createAnimatedComponent(Typography);
 
@@ -27,6 +35,9 @@ export default function UpdateTransaction() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState('');
+  const [haveInstallment, setHaveInstallment] = useState<boolean | string>(false);
+  const [installment, setInstallment] = useState<string | null>();
+  const [installmentQtd, setInstallmentQtd] = useState<string | null>();
 
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -75,6 +86,12 @@ export default function UpdateTransaction() {
       if (data?.date) setSelectedDate(new Date(data?.date));
       if (data?.type) setTransactionType(data?.type);
       if (data?.category) setCategory(data?.category);
+
+      if (data?.installment && data?.installment_qtd) {
+        setInstallment(data?.installment.toString());
+        setInstallmentQtd(data?.installment_qtd.toString());
+        setHaveInstallment(true);
+      }
     } catch (error) {
       console.log('error');
     }
@@ -89,9 +106,10 @@ export default function UpdateTransaction() {
   return (
     <Container>
       {isScreenStateDefault && (
-        <KeyboardAvoidingView
-          style={styles.avoidView}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+          automaticallyAdjustKeyboardInsets>
           <View style={styles.modalHeader}>
             <Typography>Nova Transação</Typography>
             <Button variant="ghost" Icon={X} onPress={router.back} />
@@ -129,7 +147,39 @@ export default function UpdateTransaction() {
               returnKeyType="next"
             />
             <TransactionTypeSwitch onSelect={setTransactionType} initialValue={transactionType} />
-
+            <AdvancedCheckbox
+              label="Transação parcelada?"
+              value={haveInstallment}
+              onValueChange={setHaveInstallment}
+              checkedColor={theme.colors.primary}
+              labelStyle={styles.checkboxLabel}
+              disabled
+            />
+            {haveInstallment && (
+              <Animated.View
+                style={styles.installmentContainer}
+                entering={FadeIn.duration(300).easing(Easing.inOut(Easing.quad))}
+                exiting={FadeOut.duration(300).easing(Easing.inOut(Easing.quad))}>
+                <Input
+                  label="Parcela atual"
+                  editable={false}
+                  value={installment || ''}
+                  onChangeText={setInstallment}
+                  containerStyle={styles.installmentInput}
+                  keyboardType="number-pad"
+                  returnKeyType="next"
+                />
+                <Input
+                  label="Total parcelas"
+                  editable={false}
+                  value={installmentQtd || ''}
+                  onChangeText={setInstallmentQtd}
+                  keyboardType="number-pad"
+                  containerStyle={styles.installmentInput}
+                  returnKeyType="next"
+                />
+              </Animated.View>
+            )}
             <View>
               <Typography variant="label">Data</Typography>
               <DateTimePicker
@@ -141,14 +191,14 @@ export default function UpdateTransaction() {
                 }}
               />
             </View>
-            <Button
-              variant="primary"
-              title="Atualizar"
-              disabled={isUpdateButtonDisabled}
-              onPress={handleUpdateTransaction}
-            />
           </View>
-        </KeyboardAvoidingView>
+          <Button
+            variant="primary"
+            title="Atualizar"
+            disabled={isUpdateButtonDisabled}
+            onPress={handleUpdateTransaction}
+          />
+        </ScrollView>
       )}
 
       {isScreenStateLoading && (
@@ -200,6 +250,17 @@ export default function UpdateTransaction() {
 }
 
 const styles = StyleSheet.create({
+  installmentContainer: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+  installmentInput: {
+    flex: 1,
+  },
+  checkboxLabel: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.family.regular,
+  },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',

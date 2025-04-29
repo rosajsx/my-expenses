@@ -18,7 +18,7 @@ export async function createTransaction(
   }: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'deleted'>,
 ) {
   try {
-    const formattedDate = formatDateForSQLite(new Date(date));
+    const transactions: Omit<Transaction, 'created_at' | 'updated_at' | 'deleted'>[] = [];
 
     const user_id = await Storage.getItem('my-expenses-user-hash');
 
@@ -26,20 +26,67 @@ export async function createTransaction(
       throw new Error('User Hash not found');
     }
 
-    const id = Crypto.randomUUID();
+    const formattedDate = formatDateForSQLite(new Date(date));
 
-    await createTransactionQuery(db, {
-      id,
-      name,
-      amount,
-      installment,
-      installment_qtd,
-      date: formattedDate,
-      user_id,
-      type,
-      category,
+    if (installment_qtd && installment) {
+      const baseDate = new Date(date);
+      const id = Crypto.randomUUID();
+      const restInstallments = installment_qtd - installment;
+
+      transactions.push({
+        id,
+        name,
+        amount,
+        installment,
+        installment_qtd,
+        date: formattedDate,
+        user_id,
+        type,
+        category,
+      });
+
+      for (let i = 0; i < restInstallments; i++) {
+        const newDate = new Date(date);
+        newDate.setMonth(baseDate.getMonth() + (i + 1));
+        const newId = Crypto.randomUUID();
+
+        transactions.push({
+          id: newId,
+          name,
+          amount,
+          installment: installment + (i + 1),
+          installment_qtd,
+          date: formatDateForSQLite(newDate),
+          user_id,
+          type,
+          category,
+        });
+      }
+    } else {
+      const id = Crypto.randomUUID();
+
+      transactions.push({
+        id,
+        name,
+        amount,
+        installment,
+        installment_qtd,
+        date: formattedDate,
+        user_id,
+        type,
+        category,
+      });
+    }
+
+    await db.withTransactionAsync(async () => {
+      transactions.forEach(async (transaction) => {
+        await createTransactionQuery(db, transaction);
+        await updateCachedBalance(
+          db,
+          transaction.type === 1 ? transaction.amount : -transaction.amount,
+        );
+      });
     });
-    await updateCachedBalance(db, type === 1 ? amount : -amount);
   } catch (error) {
     throw error;
   }

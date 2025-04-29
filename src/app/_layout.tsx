@@ -60,8 +60,8 @@ export default function RootLayout() {
               headerShown: false,
             }}>
             <Stack.Screen name="index" />
-            <Stack.Screen name="transactions/create" options={{ presentation: 'modal' }} />
-            <Stack.Screen name="transactions/update/[id]" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="transactions/create" />
+            <Stack.Screen name="transactions/update/[id]" />
           </Stack>
         </GestureHandlerRootView>
       </SQLiteProvider>

@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
+import { StyleSheet, TextInput, TextInputProps, View, ViewProps } from 'react-native';
 import { theme } from '../styles/theme';
 import { forwardRef, LegacyRef, useState } from 'react';
 import { Typography } from './Typography';
@@ -19,6 +19,7 @@ interface InputProps extends TextInputProps {
   errorText?: string;
   label?: string;
   LeftIcon?: LucideIcon;
+  containerStyle?: ViewProps['style'];
 }
 
 const InputComponent = (
@@ -31,6 +32,7 @@ const InputComponent = (
     label,
     errorText,
     LeftIcon,
+    containerStyle,
     ...props
   }: InputProps,
   ref: any,
@@ -38,7 +40,7 @@ const InputComponent = (
   const [borderStyle, setBorderStyle] = useState(defaultStyle);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       {label && (
         <Typography variant="label" color={error ? 'error' : 'textSecondary'}>
           {label}
@@ -50,7 +52,7 @@ const InputComponent = (
         <TextInput
           {...props}
           ref={ref}
-          style={[styles.input, style, !editable && styles.disabled, error && styles.error]}
+          style={[styles.input, !editable && styles.disabled, error && styles.error, style]}
           placeholderTextColor={theme.colors.textSecondary}
           onFocus={(e) => {
             setBorderStyle(focusStyle);

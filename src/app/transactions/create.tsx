@@ -8,13 +8,22 @@ import { formatCurrency, parseCurrencyToCents } from '@/src/utils';
 import { router } from 'expo-router';
 import { DollarSign, X } from 'lucide-react-native';
 import { useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useScreenState } from '@/src/hooks/useScreenState';
 import { useDatabase } from '@/src/hooks/useDatabase';
 import { createTransaction } from '@/src/database/transactions/createTransaction';
 import LottieView from 'lottie-react-native';
 import { Loading } from '@/src/components/Loading';
+import { AdvancedCheckbox } from 'react-native-advanced-checkbox';
+import Animated, { Easing, FadeIn, FadeOut } from 'react-native-reanimated';
 
 export default function CreateTransaction() {
   const [transactionName, setTransactionName] = useState('');
@@ -22,6 +31,9 @@ export default function CreateTransaction() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState('');
+  const [haveInstallment, setHaveInstallment] = useState<boolean | string>(false);
+  const [installment, setInstallment] = useState<string | null>();
+  const [installmentQtd, setInstallmentQtd] = useState<string | null>();
 
   const {
     screenState,
@@ -47,8 +59,8 @@ export default function CreateTransaction() {
     createTransaction(database, {
       name: transactionName,
       amount,
-      installment: null,
-      installment_qtd: null,
+      installment: typeof installment !== 'undefined' ? Number(installment) : null,
+      installment_qtd: typeof installment !== 'undefined' ? Number(installmentQtd) : null,
       type: transactionType!,
       date: selectedDate.toISOString(),
       category,
@@ -65,9 +77,10 @@ export default function CreateTransaction() {
   return (
     <Container>
       {isScreenStateDefault && (
-        <KeyboardAvoidingView
-          style={styles.avoidView}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+          automaticallyAdjustKeyboardInsets>
           <View style={styles.modalHeader}>
             <Typography>Nova Transação</Typography>
             <Button variant="ghost" Icon={X} onPress={router.back} />
@@ -82,6 +95,7 @@ export default function CreateTransaction() {
                 currencyValueRef?.current?.focus?.();
               }}
             />
+
             <Input
               label="Valor"
               keyboardType="number-pad"
@@ -95,17 +109,44 @@ export default function CreateTransaction() {
                 categoryValueRef?.current?.focus?.();
               }}
               ref={currencyValueRef}
-              returnKeyType="next"
             />
             <Input
               label="Categoria"
               value={category}
               onChangeText={setCategory}
               ref={categoryValueRef}
-              returnKeyType="next"
             />
             <TransactionTypeSwitch onSelect={setTransactionType} />
-
+            <AdvancedCheckbox
+              label="Transação parcelada?"
+              value={haveInstallment}
+              onValueChange={setHaveInstallment}
+              checkedColor={theme.colors.primary}
+              labelStyle={styles.checkboxLabel}
+            />
+            {haveInstallment && (
+              <Animated.View
+                style={styles.installmentContainer}
+                entering={FadeIn.duration(300).easing(Easing.inOut(Easing.quad))}
+                exiting={FadeOut.duration(300).easing(Easing.inOut(Easing.quad))}>
+                <Input
+                  label="Parcela atual"
+                  value={installment || ''}
+                  onChangeText={setInstallment}
+                  containerStyle={styles.installmentInput}
+                  keyboardType="number-pad"
+                  returnKeyType="next"
+                />
+                <Input
+                  label="Total parcelas"
+                  value={installmentQtd || ''}
+                  onChangeText={setInstallmentQtd}
+                  keyboardType="number-pad"
+                  containerStyle={styles.installmentInput}
+                  returnKeyType="next"
+                />
+              </Animated.View>
+            )}
             <View>
               <Typography variant="label">Data</Typography>
               <DateTimePicker
@@ -117,14 +158,14 @@ export default function CreateTransaction() {
                 }}
               />
             </View>
-            <Button
-              variant="primary"
-              title="Criar"
-              disabled={isCreateButtonDisabled}
-              onPress={handleCreateTransaction}
-            />
           </View>
-        </KeyboardAvoidingView>
+          <Button
+            variant="primary"
+            title="Criar"
+            disabled={isCreateButtonDisabled}
+            onPress={handleCreateTransaction}
+          />
+        </ScrollView>
       )}
 
       {isScreenStateLoading && (
@@ -178,17 +219,26 @@ export default function CreateTransaction() {
 }
 
 const styles = StyleSheet.create({
+  checkboxLabel: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.family.regular,
+  },
+  installmentContainer: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+  installmentInput: {
+    flex: 1,
+  },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  avoidView: {
-    flex: 1,
-  },
+  avoidView: {},
   content: {
     flex: 1,
-    gap: theme.spacing.lg,
+    gap: theme.spacing.xl,
   },
   footer: {
     borderWidth: 1,

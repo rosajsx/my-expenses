@@ -7247,6 +7247,11 @@ react-is@^16.13.1, react-is@^16.7.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
+react-native-advanced-checkbox@^2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/react-native-advanced-checkbox/-/react-native-advanced-checkbox-2.0.5.tgz#62fd21dfc5d75a24b5043890203488c57e8cde1d"
+  integrity sha512-ku4NU6Xw0ZEqFt2ZHqbaQdSlyEuCTSGWYk79XQLmcB4j3qtpbQIsb5CM/c1hfmHh2aPfZwaQjeODJIcnetUk9g==
+
 react-native-gesture-handler@~2.20.2:
   version "2.20.2"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.20.2.tgz#73844c8e9c417459c2f2981bc4d8f66ba8a5ee66"
