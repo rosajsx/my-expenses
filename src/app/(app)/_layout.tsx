@@ -3,13 +3,14 @@ import { useBoundStore } from '@/store';
 import { router, Stack } from 'expo-router';
 import { useShallow } from 'zustand/react/shallow';
 import { SQLiteProvider } from 'expo-sqlite';
-import { Suspense, useLayoutEffect } from 'react';
-import { View } from 'react-native';
+import { Suspense, useEffect, useLayoutEffect, useRef } from 'react';
+import { AppState, View } from 'react-native';
 import { migrateDbIfNeeded } from '@/database';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { theme } from '@/styles/theme';
 
 export default function AppLayout() {
+  const appState = useRef(AppState.currentState);
   const { verifyIfHaveAuthHash } = useBoundStore(
     useShallow((state) => ({
       verifyIfHaveAuthHash: state.verifyIfHaveAuthHash,
@@ -21,8 +22,23 @@ export default function AppLayout() {
       const haveHash = await verifyIfHaveAuthHash();
       if (!haveHash) {
         router.replace('/sign-in');
+      } else {
       }
     })();
+  }, []);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', async (nextAppState) => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        await LocalAuthentication.authenticateAsync();
+      }
+
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   //Storage.clear();
