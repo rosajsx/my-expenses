@@ -3,8 +3,8 @@ import { X } from 'lucide-react-native';
 import { Modal, ModalProps, Pressable, SafeAreaView, StyleSheet, View } from 'react-native';
 import { useBoundStore } from '../../store';
 import { useShallow } from 'zustand/react/shallow';
-import { getAllMonthsOfYear, getLast5Years } from '@/src/utils';
-import { theme } from '@/src/styles/theme';
+import { getAllMonthsOfYear, getLast5Years } from '@/utils';
+import { theme } from '@/styles/theme';
 
 const months = getAllMonthsOfYear();
 interface SelectMonthModalProps extends ModalProps {}

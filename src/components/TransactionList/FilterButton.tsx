@@ -1,8 +1,8 @@
-import { theme } from '@/src/styles/theme';
+import { theme } from '@/styles/theme';
 import { StyleSheet, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import { Typography } from '../Typography';
 import { ArrowDown, ArrowUp, Calendar, Search } from 'lucide-react-native';
-import { Colors } from '@/src/styles/types';
+import { Colors } from '@/styles/types';
 
 const Icons = {
   Calendar: Calendar,

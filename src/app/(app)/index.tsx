@@ -1,20 +1,20 @@
 import { FlatList, StyleSheet } from 'react-native';
 
-import { Container } from '../components/Container';
-import { useDatabase } from '../hooks/useDatabase';
+import { Container } from '@/components/Container';
+import { useDatabase } from '@/hooks/useDatabase';
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { theme } from '../styles/theme';
+import { theme } from '@/styles/theme';
 
-import { TransactionCard } from '../components/TransactionList/transactionCard';
+import { TransactionCard } from '@/components/TransactionList/transactionCard';
 import { useFocusEffect } from 'expo-router';
-import { useBoundStore } from '../store';
+import { useBoundStore } from '@/store';
 import { useShallow } from 'zustand/react/shallow';
-import { TransactionListHeader } from '../components/TransactionList/TransactionListHeader';
-import { BalanceHeader } from '../components/BalanceHeader';
-import { EmptyComponent } from '../components/TransactionList/EmptyComponent';
-import { SelectYearModal } from '../components/TransactionList/SelectYearModal';
-import { SelectMonthModal } from '../components/TransactionList/SelectMonthModal';
-import { syncTransactions } from '../database/transactions/syncTransactions';
+import { TransactionListHeader } from '@/components/TransactionList/TransactionListHeader';
+import { BalanceHeader } from '@/components/BalanceHeader';
+import { EmptyComponent } from '@/components/TransactionList/EmptyComponent';
+import { SelectYearModal } from '@/components/TransactionList/SelectYearModal';
+import { SelectMonthModal } from '@/components/TransactionList/SelectMonthModal';
+import { syncTransactions } from '@/database/transactions/syncTransactions';
 import * as Network from 'expo-network';
 
 let isFirstRender = true;
@@ -92,7 +92,6 @@ export default function Index() {
   // database.runAsync('DROP TABLE account_summary');
   // database.runAsync('DROP TABLE balance_history');
   // database.execAsync(`PRAGMA user_version = ${0}`);
-
   return (
     <Container style={styles.container}>
       <BalanceHeader
@@ -125,9 +124,7 @@ export default function Index() {
           index,
         })}
       />
-
       <SelectYearModal />
-
       <SelectMonthModal />
     </Container>
   );

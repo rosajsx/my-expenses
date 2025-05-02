@@ -48,7 +48,7 @@ const InputComponent = (
       )}
 
       <View style={[styles.inputContainer, borderStyle]}>
-        {LeftIcon && <LeftIcon />}
+        {LeftIcon && <LeftIcon color={theme.colors.textPrimary} />}
         <TextInput
           {...props}
           ref={ref}
@@ -75,6 +75,7 @@ export const Input = forwardRef(InputComponent);
 const styles = StyleSheet.create({
   container: {
     gap: theme.spacing.xs,
+    width: '100%',
   },
   inputContainer: {
     flexDirection: 'row',

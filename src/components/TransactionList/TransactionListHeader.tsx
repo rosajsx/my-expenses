@@ -1,8 +1,8 @@
 import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Typography } from '../Typography';
-import { theme } from '@/src/styles/theme';
+import { theme } from '@/styles/theme';
 import { FilterButton } from './FilterButton';
-import { useBoundStore } from '@/src/store';
+import { useBoundStore } from '@/store';
 import { useShallow } from 'zustand/react/shallow';
 import { Calendar, Search } from 'lucide-react-native';
 

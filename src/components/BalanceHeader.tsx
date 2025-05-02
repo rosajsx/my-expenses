@@ -1,12 +1,12 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { theme } from '../styles/theme';
+import { theme } from '@/styles/theme';
 import { Typography } from './Typography';
-import { useBoundStore } from '../store';
+import { useBoundStore } from '@/store';
 import { useShallow } from 'zustand/react/shallow';
-import { ScreenStateEnum } from '../enums/screenStates';
-import { formatCurrency, getAllMonthsOfYear } from '../utils';
+import { ScreenStateEnum } from '@/enums/screenStates';
+import { formatCurrency, getAllMonthsOfYear } from '@/utils';
 import { SQLiteDatabase } from 'expo-sqlite';
-import { useDatabase } from '../hooks/useDatabase';
+import { useDatabase } from '@/hooks/useDatabase';
 import { Plus, RefreshCcw, RotateCw } from 'lucide-react-native';
 import { Button } from './Button';
 import { router } from 'expo-router';

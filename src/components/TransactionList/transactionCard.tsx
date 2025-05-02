@@ -39,11 +39,6 @@ export const TransactionCard = ({ transaction }: TransactionCardProps) => {
                   transaction.installment_qtd &&
                   `${transaction.installment}/${transaction.installment_qtd}`}
               </Typography>
-              {transaction.category && (
-                <View style={styles.tagContainer}>
-                  <Typography variant="textSmall">{transaction.category}</Typography>
-                </View>
-              )}
             </View>
 
             <Typography variant="textSmall">{date}</Typography>
@@ -65,12 +60,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: theme.spacing.xs,
   },
-  tagContainer: {
-    paddingVertical: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.sm,
-    borderRadius: theme.spacing.md,
-    backgroundColor: theme.colors.surface,
-  },
+
   container: {
     backgroundColor: theme.colors.cardBackground,
     borderRadius: theme.radius.lg,

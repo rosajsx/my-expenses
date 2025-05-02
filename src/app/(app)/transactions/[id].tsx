@@ -1,20 +1,20 @@
-import { Button } from '@/src/components/Button';
-import { Container } from '@/src/components/Container';
-import { Typography } from '@/src/components/Typography';
-import { Transaction } from '@/src/database/types';
+import { Button } from '@/components/Button';
+import { Container } from '@/components/Container';
+import { Typography } from '@/components/Typography';
+import { Transaction } from '@/database/types';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Pen, Trash, X } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
-import { getTransactionById } from '@/src/database/transactions/getTransactionById';
-import { useDatabase } from '@/src/hooks/useDatabase';
-import { useScreenState } from '@/src/hooks/useScreenState';
-import { ScreenStateEnum } from '@/src/enums/screenStates';
-import { Loading } from '@/src/components/Loading';
+import { getTransactionById } from '@/database/transactions/getTransactionById';
+import { useDatabase } from '@/hooks/useDatabase';
+import { useScreenState } from '@/hooks/useScreenState';
+import { ScreenStateEnum } from '@/enums/screenStates';
+import { Loading } from '@/components/Loading';
 import LottieView from 'lottie-react-native';
-import { theme } from '@/src/styles/theme';
-import { formatCurrency, formatDate } from '@/src/utils';
-import { deleteTransaction } from '@/src/database/transactions/deleteTransaction';
+import { theme } from '@/styles/theme';
+import { formatCurrency, formatDate } from '@/utils';
+import { deleteTransaction } from '@/database/transactions/deleteTransaction';
 
 export default function TransactionDetails() {
   const [transaction, setTransaction] = useState<Transaction>();
@@ -138,7 +138,7 @@ export default function TransactionDetails() {
           <LottieView
             autoPlay
             style={theme.sizes.errorTransation}
-            source={require('../../../assets/animations/error.json')}
+            source={{ uri: 'error-animation' }}
             loop={false}
           />
           <Typography variant="section" style={styles.errorStateText}>

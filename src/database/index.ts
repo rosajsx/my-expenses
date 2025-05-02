@@ -28,8 +28,7 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
 
       const userHash = await Storage.getItem('my-expenses-user-hash');
       if (!userHash) {
-        await Storage.setItem('my-expenses-user-hash', Crypto.randomUUID());
-        console.log('User Hash was Created');
+        throw new Error("User hash wasn't created");
       }
 
       console.log('Database created and migrated to version 1');

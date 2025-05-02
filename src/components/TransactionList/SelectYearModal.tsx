@@ -1,5 +1,5 @@
-import { theme } from '@/src/styles/theme';
-import { getLast5Years } from '@/src/utils';
+import { theme } from '@/styles/theme';
+import { getLast5Years } from '@/utils';
 import { Picker } from '@react-native-picker/picker';
 import { X } from 'lucide-react-native';
 import { Modal, SafeAreaView, View, Pressable, ModalProps, StyleSheet } from 'react-native';

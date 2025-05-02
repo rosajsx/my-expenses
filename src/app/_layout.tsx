@@ -1,6 +1,5 @@
 import { Stack } from 'expo-router';
-import { useEffect, Suspense } from 'react';
-import { SQLiteProvider } from 'expo-sqlite';
+import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import {
   Inter_400Regular,
@@ -10,13 +9,10 @@ import {
   Inter_900Black,
   useFonts,
 } from '@expo-google-fonts/inter';
-import { View } from 'react-native';
-import * as LocalAuthentication from 'expo-local-authentication';
 
-import { migrateDbIfNeeded } from '../database';
-import { Loading } from '../components/Loading';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
+import { useBoundStore } from '@/store';
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -34,11 +30,12 @@ export default function RootLayout() {
     Inter_900Black,
   });
 
+  const verifyIfHaveAuthHash = useBoundStore((state) => state.verifyIfHaveAuthHash);
+
   useEffect(() => {
     if (loaded || error) {
-      LocalAuthentication.authenticateAsync().then((data) => {
-        SplashScreen.hideAsync();
-      });
+      verifyIfHaveAuthHash();
+      SplashScreen.hideAsync();
     }
   }, [loaded, error]);
 
@@ -47,25 +44,13 @@ export default function RootLayout() {
   }
 
   return (
-    <Suspense
-      fallback={
-        <View>
-          <Loading />
-        </View>
-      }>
-      <SQLiteProvider databaseName="my-expenses.db" useSuspense onInit={migrateDbIfNeeded}>
-        <GestureHandlerRootView>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="transactions/[id]" options={{ presentation: 'modal' }} />
-            <Stack.Screen name="transactions/create" />
-            <Stack.Screen name="transactions/update/[id]" />
-          </Stack>
-        </GestureHandlerRootView>
-      </SQLiteProvider>
-    </Suspense>
+    <GestureHandlerRootView>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: 'fade',
+        }}
+      />
+    </GestureHandlerRootView>
   );
 }

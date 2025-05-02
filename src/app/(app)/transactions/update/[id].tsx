@@ -1,22 +1,22 @@
-import { Button } from '@/src/components/Button';
-import { Container } from '@/src/components/Container';
-import { Input } from '@/src/components/Input';
-import { TransactionTypeSwitch } from '@/src/components/TransactionTypeSwitch';
-import { Typography } from '@/src/components/Typography';
-import { theme } from '@/src/styles/theme';
-import { formatCurrency, parseCurrencyToCents } from '@/src/utils';
+import { Button } from '@/components/Button';
+import { Container } from '@/components/Container';
+import { Input } from '@/components/Input';
+import { TransactionTypeSwitch } from '@/components/TransactionTypeSwitch';
+import { Typography } from '@/components/Typography';
+import { theme } from '@/styles/theme';
+import { formatCurrency, parseCurrencyToCents } from '@/utils';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, DollarSign, X } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useScreenState } from '@/src/hooks/useScreenState';
-import { useDatabase } from '@/src/hooks/useDatabase';
+import { useScreenState } from '@/hooks/useScreenState';
+import { useDatabase } from '@/hooks/useDatabase';
 import LottieView from 'lottie-react-native';
-import { Loading } from '@/src/components/Loading';
+import { Loading } from '@/components/Loading';
 import Animated, { FadeIn, FadeOut, Easing } from 'react-native-reanimated';
-import { getTransactionById } from '@/src/database/transactions/getTransactionById';
-import { updateTransaction } from '@/src/database/transactions/updateTransaction';
+import { getTransactionById } from '@/database/transactions/getTransactionById';
+import { updateTransaction } from '@/database/transactions/updateTransaction';
 import { AdvancedCheckbox } from 'react-native-advanced-checkbox';
 
 const AnimatedTypography = Animated.createAnimatedComponent(Typography);
@@ -44,8 +44,8 @@ export default function UpdateTransaction() {
   } = useScreenState();
   const { database } = useDatabase();
 
-  const currencyValueRef = useRef<TextInput>();
-  const categoryValueRef = useRef<TextInput>();
+  const currencyValueRef = useRef<TextInput>(null);
+  const categoryValueRef = useRef<TextInput>(null);
 
   const isUpdateButtonDisabled = !transactionType && !transactionName;
 
@@ -208,7 +208,9 @@ export default function UpdateTransaction() {
           <LottieView
             autoPlay
             style={theme.sizes.errorTransation}
-            source={require('../../../../assets/animations/error.json')}
+            source={{
+              uri: 'error-animation',
+            }}
             loop={false}
           />
           <Typography variant="section" style={styles.errorStateText}>
@@ -223,7 +225,7 @@ export default function UpdateTransaction() {
           <LottieView
             autoPlay
             style={theme.sizes.errorTransation}
-            source={require('../../../../assets/animations/success.json')}
+            source={{ uri: 'success-animation' }}
           />
 
           <AnimatedTypography

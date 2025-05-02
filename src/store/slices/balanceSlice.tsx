@@ -1,6 +1,6 @@
-import { getCacheAccountBalance } from '@/src/database/accountSummary/getCachedBalance';
-import { getMonthBalance } from '@/src/database/accountSummary/getMonthBalance';
-import { ScreenStateEnum } from '@/src/enums/screenStates';
+import { getCacheAccountBalance } from '@/database/accountSummary/getCachedBalance';
+import { getMonthBalance } from '@/database/accountSummary/getMonthBalance';
+import { ScreenStateEnum } from '@/enums/screenStates';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { StateCreator } from 'zustand';
 

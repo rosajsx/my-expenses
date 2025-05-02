@@ -1,9 +1,9 @@
 import { SQLiteDatabase } from 'expo-sqlite';
 import { Transaction } from '../types';
 import { updateCachedBalance } from '../accountSummary/updateCachedBalance';
-import { formatDateForSQLite } from '@/src/utils';
-import Storage from 'expo-sqlite/kv-store';
+import { formatDateForSQLite } from '@/utils';
 import * as Crypto from 'expo-crypto';
+import Storage from 'expo-sqlite/kv-store';
 
 export async function createTransaction(
   db: SQLiteDatabase,

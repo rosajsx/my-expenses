@@ -1,4 +1,4 @@
-import { supabase } from '@/src/utils/supabase';
+import { supabase } from '@/utils/supabase';
 import { SQLiteDatabase } from 'expo-sqlite';
 
 export async function removeDeletedTransactions(db: SQLiteDatabase) {

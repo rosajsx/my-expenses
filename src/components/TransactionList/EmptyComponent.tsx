@@ -1,8 +1,8 @@
-import { ScreenStateEnum } from '@/src/enums/screenStates';
+import { ScreenStateEnum } from '@/enums/screenStates';
 import { View, StyleSheet } from 'react-native';
 import { Loading } from '../Loading';
 import LottieView from 'lottie-react-native';
-import { theme } from '@/src/styles/theme';
+import { theme } from '@/styles/theme';
 import { Typography } from '../Typography';
 import { Button } from '../Button';
 
@@ -28,7 +28,9 @@ export const EmptyComponent = ({
           <LottieView
             autoPlay
             style={theme.sizes.errorTransation}
-            source={require('../../../assets/animations/error.json')}
+            source={{
+              uri: 'error-animation',
+            }}
             loop={false}
           />
           <Typography variant="section" style={styles.errorText}>
@@ -39,7 +41,7 @@ export const EmptyComponent = ({
         </View>
       )}
 
-      {transactionsState == ScreenStateEnum.DEFAULT && (
+      {transactionsState === ScreenStateEnum.DEFAULT && (
         <View style={styles.empty}>
           <LottieView
             autoPlay

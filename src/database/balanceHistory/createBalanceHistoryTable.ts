@@ -8,7 +8,8 @@ export async function createBalanceHistoryTable(db: SQLiteDatabase) {
     CREATE TABLE IF NOT EXISTS balance_history (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       balance INTEGER NOT NULL DEFAULT 0,
-      updated_at TEXT NOT NULL
+      updated_at TEXT NOT NULL,
+      user_id TEXT NOT NULL
     )
     `,
     )
