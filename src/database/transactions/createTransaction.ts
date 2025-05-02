@@ -4,6 +4,7 @@ import { updateCachedBalance } from '../accountSummary/updateCachedBalance';
 import { formatDateForSQLite } from '@/utils';
 import * as Crypto from 'expo-crypto';
 import Storage from 'expo-sqlite/kv-store';
+import { hashKey } from '@/store/slices/authStore';
 
 export async function createTransaction(
   db: SQLiteDatabase,
@@ -20,7 +21,7 @@ export async function createTransaction(
   try {
     const transactions: Omit<Transaction, 'created_at' | 'updated_at' | 'deleted'>[] = [];
 
-    const user_id = await Storage.getItem('my-expenses-user-hash');
+    const user_id = await Storage.getItem(hashKey);
 
     if (!user_id) {
       throw new Error('User Hash not found');

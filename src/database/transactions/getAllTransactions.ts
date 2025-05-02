@@ -1,6 +1,7 @@
 import { SQLiteDatabase } from 'expo-sqlite';
 import { Transaction } from '../types';
 import Storage from 'expo-sqlite/kv-store';
+import { hashKey } from '@/store/slices/authStore';
 
 export interface FilterParams {
   year?: number;
@@ -12,7 +13,7 @@ export async function getAllTransactions(db: SQLiteDatabase, filter?: FilterPara
   let query = '';
   let params = [];
 
-  const user_id = await Storage.getItem('my-expenses-user-hash');
+  const user_id = await Storage.getItem(hashKey);
 
   if (!user_id) {
     throw new Error('User Hash not found');

@@ -6,6 +6,7 @@ import Storage from 'expo-sqlite/kv-store';
 import * as Crypto from 'expo-crypto';
 import { syncTransactions } from './transactions/syncTransactions';
 import { removeDeletedTransactions } from './transactions/removeDeletedTransactions';
+import { hashKey } from '@/store/slices/authStore';
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
   const DATABASE_VERSION = 1;
@@ -26,7 +27,7 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
 
       await createBalanceHistoryTable(db);
 
-      const userHash = await Storage.getItem('my-expenses-user-hash');
+      const userHash = await Storage.getItem(hashKey);
       if (!userHash) {
         throw new Error("User hash wasn't created");
       }

@@ -2,13 +2,15 @@ import { StatusBar, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView, SafeAreaViewProps } from 'react-native-safe-area-context';
 import { theme } from '../styles/theme';
 
-interface ContainerProps extends SafeAreaViewProps {}
+interface ContainerProps extends SafeAreaViewProps {
+  wrapperStyle?: SafeAreaViewProps['style'];
+}
 
-export const Container = ({ children, style, ...props }: ContainerProps) => {
+export const Container = ({ children, style, wrapperStyle, ...props }: ContainerProps) => {
   //const { width, height } = useWindowDimensions();
 
   return (
-    <View style={[styles.wrapper]}>
+    <View style={[styles.wrapper, wrapperStyle]}>
       <StatusBar animated barStyle="light-content" />
       <SafeAreaView {...props} style={[styles.container, style]}>
         {children}

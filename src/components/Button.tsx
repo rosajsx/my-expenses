@@ -28,15 +28,27 @@ const textVariantStyle = {
   },
 };
 
-interface ButtonProps extends TouchableOpacityProps {
+export interface ButtonProps extends TouchableOpacityProps {
   variant?: keyof typeof variantStyles;
   title?: string;
   Icon?: LucideIcon;
   fontWeight?: FontWeight;
+  color?: Colors;
+  iconColor?: Colors;
 }
 
 const ButtonComponent = (
-  { variant = 'primary', Icon, title, disabled, style, fontWeight, ...props }: ButtonProps,
+  {
+    variant = 'primary',
+    Icon,
+    title,
+    disabled,
+    style,
+    color,
+    fontWeight,
+    iconColor,
+    ...props
+  }: ButtonProps,
   ref: any,
 ) => {
   const variantStyle = variantStyles[variant];
@@ -49,11 +61,11 @@ const ButtonComponent = (
       style={[styles.base, variantStyle, disabled && styles.disabled, style]}
       activeOpacity={0.7}
       disabled={disabled}>
-      {Icon && <Icon color={theme.colors.textPrimary} />}
+      {Icon && <Icon color={iconColor ? theme.colors[iconColor] : theme.colors.textPrimary} />}
       {title && (
         <Typography
           variant={typographyStyle.variant as TypographyVariant}
-          color={typographyStyle.color as Colors}
+          color={color ? color : (typographyStyle.color as Colors)}
           weight={
             fontWeight
               ? (theme.fonts.weight[fontWeight] as FontWeight)

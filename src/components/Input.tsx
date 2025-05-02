@@ -54,13 +54,18 @@ const InputComponent = (
           ref={ref}
           style={[styles.input, !editable && styles.disabled, error && styles.error, style]}
           placeholderTextColor={theme.colors.textSecondary}
+          editable={editable}
           onFocus={(e) => {
-            setBorderStyle(focusStyle);
-            onFocus?.(e);
+            if (editable) {
+              setBorderStyle(focusStyle);
+              onFocus?.(e);
+            }
           }}
           onBlur={(e) => {
-            setBorderStyle(defaultStyle);
-            onBlur?.(e);
+            if (editable) {
+              setBorderStyle(defaultStyle);
+              onBlur?.(e);
+            }
           }}
         />
       </View>

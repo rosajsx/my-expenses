@@ -1,10 +1,11 @@
+import { hashKey } from '@/store/slices/authStore';
 import { SQLiteDatabase } from 'expo-sqlite';
 import Storage from 'expo-sqlite/kv-store';
 
 export async function getCacheAccountBalance(db: SQLiteDatabase) {
   let balance = 0;
 
-  const user_id = await Storage.getItem('my-expenses-user-hash');
+  const user_id = await Storage.getItem(hashKey);
 
   if (!user_id) {
     throw new Error('User Hash not found');
@@ -38,7 +39,7 @@ export async function getCacheAccountBalance(db: SQLiteDatabase) {
 }
 
 async function getBalance(db: SQLiteDatabase) {
-  const user_id = await Storage.getItem('my-expenses-user-hash');
+  const user_id = await Storage.getItem(hashKey);
 
   if (!user_id) {
     throw new Error('User Hash not found');

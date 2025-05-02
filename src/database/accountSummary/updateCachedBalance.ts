@@ -1,10 +1,11 @@
+import { hashKey } from '@/store/slices/authStore';
 import { SQLiteDatabase } from 'expo-sqlite';
 import Storage from 'expo-sqlite/kv-store';
 
 export async function updateCachedBalance(db: SQLiteDatabase, changeAmount: number) {
   const now = new Date().toISOString();
 
-  const user_id = await Storage.getItem('my-expenses-user-hash');
+  const user_id = await Storage.getItem(hashKey);
 
   if (!user_id) {
     throw new Error('User Hash not found');

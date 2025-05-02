@@ -1,3 +1,4 @@
+import { hashKey } from '@/store/slices/authStore';
 import { SQLiteDatabase } from 'expo-sqlite';
 import Storage from 'expo-sqlite/kv-store';
 
@@ -6,7 +7,7 @@ export const getMonthBalance = async (db: SQLiteDatabase, month: string) => {
 
   const haveMonthTwoDigits = month.length > 1;
 
-  const user_id = await Storage.getItem('my-expenses-user-hash');
+  const user_id = await Storage.getItem(hashKey);
 
   if (!user_id) {
     throw new Error('User Hash not found');

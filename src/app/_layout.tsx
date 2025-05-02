@@ -13,6 +13,7 @@ import {
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 import { useBoundStore } from '@/store';
+import { theme } from '@/styles/theme';
 
 // This is the default configuration
 configureReanimatedLogger({

@@ -8,12 +8,16 @@ export interface AuthSlice {
 
   verifyIfHaveAuthHash: () => Promise<boolean>;
   createAuthHash: () => Promise<void>;
+
+  logout: () => Promise<void>;
 }
+
+export const hashKey = 'my-expenses-user-hash';
 
 export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set) => ({
   authHash: null,
   setAuthHash: async (hash) => {
-    await Storage.setItem('my-expenses-user-hash', hash);
+    await Storage.setItem(hashKey, hash);
     set((state) => ({
       ...state,
       authHash: hash,
@@ -21,7 +25,7 @@ export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set)
   },
 
   verifyIfHaveAuthHash: async () => {
-    const userHash = await Storage.getItem('my-expenses-user-hash');
+    const userHash = await Storage.getItem(hashKey);
 
     console.log({ userHash });
     if (userHash) {
@@ -35,8 +39,13 @@ export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set)
   },
   createAuthHash: async () => {
     const hash = Crypto.randomUUID();
-    await Storage.setItem('my-expenses-user-hash', hash);
+    await Storage.setItem(hashKey, hash);
     console.log('User Hash was Created', hash);
     set((state) => ({ ...state, authHash: hash }));
+  },
+
+  logout: async () => {
+    await Storage.removeItem(hashKey);
+    set((state) => ({ authHash: null }));
   },
 });

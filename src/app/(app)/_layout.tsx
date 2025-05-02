@@ -47,19 +47,24 @@ export default function AppLayout() {
     <View style={{ backgroundColor: theme.colors.background, width: '100%', height: '100%' }}>
       <Suspense
         fallback={
-          <View>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <Loading />
           </View>
         }>
         <SQLiteProvider databaseName="my-expenses.db" useSuspense onInit={migrateDbIfNeeded}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="transactions/[id]" options={{ presentation: 'modal' }} />
-            <Stack.Screen name="transactions/create" />
-            <Stack.Screen name="transactions/update/[id]" />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen
+              name="(tabs)"
+              options={{
+                animation: 'fade',
+              }}
+            />
+            <Stack.Screen
+              name="user"
+              options={{
+                presentation: 'modal',
+              }}
+            />
           </Stack>
         </SQLiteProvider>
       </Suspense>
