@@ -1,20 +1,20 @@
 import { Button } from '@/components/Button';
-import { Container } from '@/components/Container';
+import { Loading } from '@/components/Loading';
 import { Typography } from '@/components/Typography';
-import { Transaction } from '@/database/types';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { Pen, Trash, X } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { deleteTransaction } from '@/database/transactions/deleteTransaction';
 import { getTransactionById } from '@/database/transactions/getTransactionById';
+import { Transaction } from '@/database/types';
+import { ScreenStateEnum } from '@/enums/screenStates';
 import { useDatabase } from '@/hooks/useDatabase';
 import { useScreenState } from '@/hooks/useScreenState';
-import { ScreenStateEnum } from '@/enums/screenStates';
-import { Loading } from '@/components/Loading';
-import LottieView from 'lottie-react-native';
 import { theme } from '@/styles/theme';
 import { formatCurrency, formatDate } from '@/utils';
-import { deleteTransaction } from '@/database/transactions/deleteTransaction';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import LottieView from 'lottie-react-native';
+import { Pen, Trash } from 'lucide-react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, StyleSheet, View } from 'react-native';
+import { BotttomSheet, useBottomSheet } from '../../../../components/BottomSheet';
 
 export default function TransactionDetails() {
   const [transaction, setTransaction] = useState<Transaction>();
@@ -28,6 +28,8 @@ export default function TransactionDetails() {
     handleChangeScreenStateToError,
     handleChangeScreenStateToLoading,
   } = useScreenState(ScreenStateEnum.LOADING);
+
+  const { isOpen, toggleSheet } = useBottomSheet(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -44,7 +46,14 @@ export default function TransactionDetails() {
     }, []),
   );
 
-  const handleClose = () => router.back();
+  const handleClose = (haveChange?: boolean) => {
+    toggleSheet();
+
+    router.back();
+    router.setParams({
+      update: !!haveChange,
+    } as any);
+  };
 
   const handleEdit = () => {
     router.back();
@@ -54,7 +63,7 @@ export default function TransactionDetails() {
   async function handleDelete() {
     try {
       await deleteTransaction(database, transaction!);
-      handleClose();
+      handleClose(true);
       Alert.alert('Transação deletada com sucesso!');
     } catch (error) {
       console.log(error);
@@ -76,11 +85,12 @@ export default function TransactionDetails() {
     ]);
   }
 
+  useEffect(() => {
+    toggleSheet();
+  }, []);
+
   return (
-    <Container>
-      <View style={styles.header}>
-        <Button variant="ghost" Icon={X} style={styles.closeButton} onPress={handleClose} />
-      </View>
+    <BotttomSheet isOpen={isOpen} containerHeight={300} onClose={handleClose}>
       {isScreenStateDefault && (
         <View style={styles.content}>
           <View>
@@ -147,14 +157,31 @@ export default function TransactionDetails() {
           <Button variant="secondary" title="Fechar" onPress={handleClose} />
         </View>
       )}
-    </Container>
+    </BotttomSheet>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    alignItems: 'flex-end',
+  flex: {
+    flex: 1,
   },
+  dateModalContainer: {
+    padding: theme.spacing.md,
+  },
+  dateContent: {
+    gap: theme.spacing.xs,
+  },
+  dateContainer: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.md,
+    paddingVertical: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
+    minHeight: 48,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  container: {},
   content: {
     alignItems: 'center',
     justifyContent: 'center',

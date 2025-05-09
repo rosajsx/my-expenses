@@ -1,10 +1,11 @@
-import { Picker } from '@react-native-picker/picker';
-import { X } from 'lucide-react-native';
-import { Modal, ModalProps, Pressable, SafeAreaView, StyleSheet, View } from 'react-native';
-import { useBoundStore } from '../../store';
-import { useShallow } from 'zustand/react/shallow';
-import { getAllMonthsOfYear, getLast5Years } from '@/utils';
 import { theme } from '@/styles/theme';
+import { getAllMonthsOfYear } from '@/utils';
+import { Picker } from '@react-native-picker/picker';
+import React, { useEffect } from 'react';
+import { ModalProps, StyleSheet, View } from 'react-native';
+import { useShallow } from 'zustand/react/shallow';
+import { useBoundStore } from '../../store';
+import { BotttomSheet, useBottomSheet } from '../BottomSheet';
 
 const months = getAllMonthsOfYear();
 interface SelectMonthModalProps extends ModalProps {}
@@ -20,52 +21,39 @@ export const SelectMonthModal = ({ ...rest }: SelectMonthModalProps) => {
       })),
     );
 
+  const { isOpen, toggleSheet } = useBottomSheet();
+  const handleClose = () => {
+    closeSelectMonthModal();
+    toggleSheet();
+  };
+
+  useEffect(() => {
+    isOpen.value = isSelectMonthModalOpen;
+  }, [isSelectMonthModalOpen]);
+
   return (
-    <Modal
-      {...rest}
-      transparent
-      visible={isSelectMonthModalOpen}
-      onRequestClose={closeSelectMonthModal}>
-      <SafeAreaView style={styles.modalView}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Pressable onPress={closeSelectMonthModal}>
-              <X />
-            </Pressable>
-          </View>
-          <Picker
-            selectedValue={selectedMonth?.id}
-            onValueChange={(value) => {
-              setSelectedMonth(months[value]);
-            }}>
-            <Picker.Item label="Todos" value={''} />
-            {months.map((month) => (
-              <Picker.Item key={month.id} label={month.value} value={month.id} />
-            ))}
-          </Picker>
-        </View>
-      </SafeAreaView>
-    </Modal>
+    <BotttomSheet isOpen={isOpen} toggleSheet={handleClose}>
+      <View style={styles.modalContent}>
+        <Picker
+          selectedValue={selectedMonth?.id}
+          onValueChange={(value) => {
+            setSelectedMonth(months[value]);
+          }}>
+          <Picker.Item label="Todos" value={''} />
+          {months.map((month) => (
+            <Picker.Item key={month.id} label={month.value} value={month.id} />
+          ))}
+        </Picker>
+      </View>
+    </BotttomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  modalView: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    backgroundColor: theme.colors.black50,
-  },
   modalContent: {
-    backgroundColor: theme.colors.cardBackground,
-    borderRadius: theme.radius.lg,
+    width: '100%',
+    height: '100%',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.lg,
-    width: '80%',
-  },
-  modalHeader: {
-    width: '100%',
-    alignItems: 'flex-end',
-    padding: theme.spacing.md,
   },
 });

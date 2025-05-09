@@ -1,20 +1,21 @@
+import { BotttomSheet, useBottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
 import { Input } from '@/components/Input';
+import { Loading } from '@/components/Loading';
 import { TransactionTypeSwitch } from '@/components/TransactionTypeSwitch';
 import { Typography } from '@/components/Typography';
-import { theme } from '@/styles/theme';
-import { formatCurrency, parseCurrencyToCents } from '@/utils';
-import { router } from 'expo-router';
-import { ArrowLeft, DollarSign, X } from 'lucide-react-native';
-import { useRef, useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { useScreenState } from '@/hooks/useScreenState';
-import { useDatabase } from '@/hooks/useDatabase';
 import { createTransaction } from '@/database/transactions/createTransaction';
+import { useDatabase } from '@/hooks/useDatabase';
+import { useScreenState } from '@/hooks/useScreenState';
+import { theme } from '@/styles/theme';
+import { formatCurrency, formatDate, parseCurrencyToCents } from '@/utils';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { router } from 'expo-router';
 import LottieView from 'lottie-react-native';
-import { Loading } from '@/components/Loading';
+import { ArrowLeft, DollarSign } from 'lucide-react-native';
+import { useRef, useState } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { AdvancedCheckbox } from 'react-native-advanced-checkbox';
 import Animated, { Easing, FadeIn, FadeOut } from 'react-native-reanimated';
 
@@ -27,6 +28,7 @@ export default function CreateTransaction() {
   const [haveInstallment, setHaveInstallment] = useState<boolean | string>(false);
   const [installment, setInstallment] = useState<string | null>();
   const [installmentQtd, setInstallmentQtd] = useState<string | null>();
+  const [haveChanges, setHaveChanges] = useState(false);
 
   const {
     handleChangeScreenStateToError,
@@ -42,6 +44,8 @@ export default function CreateTransaction() {
 
   const currencyValueRef = useRef<TextInput>(null);
   const categoryValueRef = useRef<TextInput>(null);
+
+  const { isOpen, toggleSheet } = useBottomSheet();
 
   const isCreateButtonDisabled = !transactionType && !transactionName;
 
@@ -59,6 +63,7 @@ export default function CreateTransaction() {
     })
       .then(() => {
         handleChangeScreenStateToSuccess();
+        setHaveChanges(true);
       })
       .catch((error) => {
         console.log(error);
@@ -66,158 +71,191 @@ export default function CreateTransaction() {
       });
   };
 
+  const handleBack = () => {
+    router.back();
+    router.setParams({ update: haveChanges } as any);
+  };
+
   return (
-    <Container>
-      {isScreenStateDefault && (
-        <ScrollView
-          bounces={false}
-          showsVerticalScrollIndicator={false}
-          automaticallyAdjustKeyboardInsets>
-          <View style={styles.modalHeader}>
+    <>
+      <Container>
+        {isScreenStateDefault && (
+          <View style={styles.flex}>
+            <View style={styles.modalHeader}>
+              <Button
+                variant="ghost"
+                Icon={ArrowLeft}
+                onPress={handleBack}
+                style={{ zIndex: 1, minWidth: 'auto', minHeight: 'auto' }}
+              />
+              <Typography style={styles.title}>Nova Transação</Typography>
+            </View>
+            <View style={styles.content}>
+              <Input
+                label="Nome"
+                returnKeyType="next"
+                value={transactionName}
+                onChangeText={setTransactionName}
+                onSubmitEditing={() => {
+                  currencyValueRef?.current?.focus?.();
+                }}
+              />
+
+              <Input
+                label="Valor"
+                keyboardType="number-pad"
+                LeftIcon={DollarSign}
+                value={formatCurrency(amount)}
+                onChangeText={(value) => {
+                  const cents = parseCurrencyToCents(value);
+                  setAmount(cents);
+                }}
+                onEndEditing={() => {
+                  categoryValueRef?.current?.focus?.();
+                }}
+                ref={currencyValueRef}
+              />
+              <Input
+                label="Categoria"
+                value={category}
+                onChangeText={setCategory}
+                ref={categoryValueRef}
+              />
+
+              <TransactionTypeSwitch onSelect={setTransactionType} />
+              <View style={styles.dateContent}>
+                <Typography variant="label">Data</Typography>
+                <TouchableOpacity style={styles.dateContainer} onPress={toggleSheet}>
+                  <Typography>{formatDate(selectedDate.toString())}</Typography>
+                </TouchableOpacity>
+              </View>
+              <AdvancedCheckbox
+                label="Transação parcelada?"
+                value={haveInstallment}
+                onValueChange={setHaveInstallment}
+                checkedColor={theme.colors.primary}
+                labelStyle={styles.checkboxLabel}
+              />
+              {haveInstallment && (
+                <Animated.View
+                  style={styles.installmentContainer}
+                  entering={FadeIn.duration(300).easing(Easing.inOut(Easing.quad))}
+                  exiting={FadeOut.duration(300).easing(Easing.inOut(Easing.quad))}>
+                  <Input
+                    label="Parcela atual"
+                    value={installment || ''}
+                    onChangeText={setInstallment}
+                    containerStyle={styles.installmentInput}
+                    keyboardType="number-pad"
+                    returnKeyType="next"
+                  />
+                  <Input
+                    label="Total parcelas"
+                    value={installmentQtd || ''}
+                    onChangeText={setInstallmentQtd}
+                    keyboardType="number-pad"
+                    containerStyle={styles.installmentInput}
+                    returnKeyType="next"
+                  />
+                </Animated.View>
+              )}
+            </View>
             <Button
-              variant="ghost"
-              Icon={ArrowLeft}
-              onPress={router.back}
-              style={{ zIndex: 1, minWidth: 'auto', minHeight: 'auto' }}
+              variant="primary"
+              title="Criar"
+              disabled={isCreateButtonDisabled}
+              onPress={handleCreateTransaction}
             />
-            <Typography style={styles.title}>Nova Transação</Typography>
           </View>
-          <View style={styles.content}>
-            <Input
-              label="Nome"
-              returnKeyType="next"
-              value={transactionName}
-              onChangeText={setTransactionName}
-              onSubmitEditing={() => {
-                currencyValueRef?.current?.focus?.();
+        )}
+
+        {isScreenStateLoading && (
+          <View style={styles.statesContainer}>
+            <Loading />
+          </View>
+        )}
+        {isScreenStateError && (
+          <View style={styles.statesContainer}>
+            <LottieView
+              autoPlay
+              style={theme.sizes.errorTransation}
+              source={{
+                uri: 'error-animation',
               }}
+              loop={false}
+            />
+            <Typography variant="section" style={styles.errorStateText}>
+              Ocorreu um erro inesperado, por favor, tente novamente.
+            </Typography>
+            <Button title="Fechar" onPress={handleBack} />
+          </View>
+        )}
+
+        {isScreenStateSuccess && (
+          <View style={styles.statesContainer}>
+            <LottieView
+              autoPlay
+              style={theme.sizes.errorTransation}
+              source={{ uri: 'success-animation' }}
             />
 
-            <Input
-              label="Valor"
-              keyboardType="number-pad"
-              LeftIcon={DollarSign}
-              value={formatCurrency(amount)}
-              onChangeText={(value) => {
-                const cents = parseCurrencyToCents(value);
-                setAmount(cents);
-              }}
-              onEndEditing={() => {
-                categoryValueRef?.current?.focus?.();
-              }}
-              ref={currencyValueRef}
-            />
-            <Input
-              label="Categoria"
-              value={category}
-              onChangeText={setCategory}
-              ref={categoryValueRef}
-            />
-            <TransactionTypeSwitch onSelect={setTransactionType} />
-            <AdvancedCheckbox
-              label="Transação parcelada?"
-              value={haveInstallment}
-              onValueChange={setHaveInstallment}
-              checkedColor={theme.colors.primary}
-              labelStyle={styles.checkboxLabel}
-            />
-            {haveInstallment && (
-              <Animated.View
-                style={styles.installmentContainer}
-                entering={FadeIn.duration(300).easing(Easing.inOut(Easing.quad))}
-                exiting={FadeOut.duration(300).easing(Easing.inOut(Easing.quad))}>
-                <Input
-                  label="Parcela atual"
-                  value={installment || ''}
-                  onChangeText={setInstallment}
-                  containerStyle={styles.installmentInput}
-                  keyboardType="number-pad"
-                  returnKeyType="next"
-                />
-                <Input
-                  label="Total parcelas"
-                  value={installmentQtd || ''}
-                  onChangeText={setInstallmentQtd}
-                  keyboardType="number-pad"
-                  containerStyle={styles.installmentInput}
-                  returnKeyType="next"
-                />
-              </Animated.View>
-            )}
-            <View>
-              <Typography variant="label">Data</Typography>
-              <DateTimePicker
-                display="spinner"
-                mode="date"
-                value={selectedDate}
-                onChange={(_, date) => {
-                  setSelectedDate(date!);
-                }}
+            <Typography variant="section" style={styles.errorStateText}>
+              Transação criada com sucesso!
+            </Typography>
+            <View style={styles.buttonContainer}>
+              <Button
+                title="Criar uma nova"
+                onPress={handleChangeScreenStateToDefault}
+                style={styles.buttonStyle}
+              />
+              <Button
+                title="Fechar"
+                variant="secondary"
+                onPress={handleBack}
+                style={styles.buttonStyle}
               />
             </View>
           </View>
-          <Button
-            variant="primary"
-            title="Criar"
-            disabled={isCreateButtonDisabled}
-            onPress={handleCreateTransaction}
-          />
-        </ScrollView>
-      )}
+        )}
+      </Container>
 
-      {isScreenStateLoading && (
-        <View style={styles.statesContainer}>
-          <Loading />
-        </View>
-      )}
-      {isScreenStateError && (
-        <View style={styles.statesContainer}>
-          <LottieView
-            autoPlay
-            style={theme.sizes.errorTransation}
-            source={{
-              uri: 'error-animation',
+      <BotttomSheet isOpen={isOpen} toggleSheet={toggleSheet}>
+        <View style={styles.dateModalContainer}>
+          <DateTimePicker
+            display="spinner"
+            mode="date"
+            value={selectedDate}
+            onChange={(_, date) => {
+              setSelectedDate(date!);
             }}
-            loop={false}
           />
-          <Typography variant="section" style={styles.errorStateText}>
-            Ocorreu um erro inesperado, por favor, tente novamente.
-          </Typography>
-          <Button title="Fechar" onPress={router.back} />
+          <Button title="Salvar" onPress={toggleSheet} />
         </View>
-      )}
-
-      {isScreenStateSuccess && (
-        <View style={styles.statesContainer}>
-          <LottieView
-            autoPlay
-            style={theme.sizes.errorTransation}
-            source={{ uri: 'success-animation' }}
-          />
-
-          <Typography variant="section" style={styles.errorStateText}>
-            Transação criada com sucesso!
-          </Typography>
-          <View style={styles.buttonContainer}>
-            <Button
-              title="Criar uma nova"
-              onPress={handleChangeScreenStateToDefault}
-              style={styles.buttonStyle}
-            />
-            <Button
-              title="Fechar"
-              variant="secondary"
-              onPress={() => router.back()}
-              style={styles.buttonStyle}
-            />
-          </View>
-        </View>
-      )}
-    </Container>
+      </BotttomSheet>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+  dateModalContainer: {
+    padding: theme.spacing.md,
+  },
+  dateContent: {
+    gap: theme.spacing.xs,
+  },
+  dateContainer: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.md,
+    paddingVertical: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
+    minHeight: 48,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
   checkboxLabel: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.family.regular,
@@ -244,7 +282,7 @@ const styles = StyleSheet.create({
   avoidView: {},
   content: {
     flex: 1,
-    gap: theme.spacing.xl,
+    gap: theme.spacing.lg,
     paddingTop: theme.spacing.md,
   },
   footer: {

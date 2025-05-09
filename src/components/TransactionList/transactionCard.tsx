@@ -1,9 +1,9 @@
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { theme } from '../../styles/theme';
-import { Transaction } from '../../database/types';
-import { Typography } from '../Typography';
-import { formatCurrency, formatDate } from '../../utils';
 import { ArrowDown, ArrowUp } from 'lucide-react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Transaction } from '../../database/types';
+import { theme } from '../../styles/theme';
+import { formatCurrency, formatDate } from '../../utils';
+import { Typography } from '../Typography';
 
 import { router } from 'expo-router';
 interface TransactionCardProps {
@@ -16,7 +16,7 @@ export const TransactionCard = ({ transaction }: TransactionCardProps) => {
   const date = formatDate(transaction.date);
 
   function handleGoToDetails() {
-    router.navigate(`transactions/${transaction.id}`);
+    router.navigate(`transactions/${transaction.id}` as any);
   }
 
   return (
@@ -33,7 +33,7 @@ export const TransactionCard = ({ transaction }: TransactionCardProps) => {
 
           <View>
             <View style={styles.titleContainer}>
-              <Typography variant="section">
+              <Typography variant="text" weight="title">
                 {transaction.name}{' '}
                 {transaction.installment &&
                   transaction.installment_qtd &&
