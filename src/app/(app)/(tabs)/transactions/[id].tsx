@@ -49,10 +49,12 @@ export default function TransactionDetails() {
   const handleClose = (haveChange?: boolean) => {
     toggleSheet();
 
-    router.back();
-    router.setParams({
-      update: !!haveChange,
-    } as any);
+    setTimeout(() => {
+      router.back();
+      router.setParams({
+        update: !!haveChange,
+      } as any);
+    }, 500);
   };
 
   const handleEdit = () => {

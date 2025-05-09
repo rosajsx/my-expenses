@@ -1,13 +1,13 @@
 import { Loading } from '@/components/Loading';
+import { migrateDbIfNeeded } from '@/database';
 import { useBoundStore } from '@/store';
+import { theme } from '@/styles/theme';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { router, Stack } from 'expo-router';
-import { useShallow } from 'zustand/react/shallow';
 import { SQLiteProvider } from 'expo-sqlite';
 import { Suspense, useEffect, useLayoutEffect, useRef } from 'react';
 import { AppState, View } from 'react-native';
-import { migrateDbIfNeeded } from '@/database';
-import * as LocalAuthentication from 'expo-local-authentication';
-import { theme } from '@/styles/theme';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function AppLayout() {
   const appState = useRef(AppState.currentState);
@@ -61,9 +61,7 @@ export default function AppLayout() {
             />
             <Stack.Screen
               name="user"
-              options={{
-                presentation: 'modal',
-              }}
+              options={{ presentation: 'transparentModal', animation: 'fade' }}
             />
           </Stack>
         </SQLiteProvider>
