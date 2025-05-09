@@ -1,4 +1,4 @@
-import { StatusBar, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaView, SafeAreaViewProps } from 'react-native-safe-area-context';
 import { theme } from '../styles/theme';
 
@@ -23,7 +23,10 @@ const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: theme.colors.background,
 
-    padding: theme.spacing.lg,
+    paddingLeft: theme.spacing.lg,
+    paddingRight: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.lg,
   },
   container: {
     height: '100%',

@@ -1,7 +1,7 @@
 import { theme } from '@/styles/theme';
 import { router } from 'expo-router';
 import { User } from 'lucide-react-native';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 export const Header = () => {
   const handleGoToUserInfo = () => router.navigate('/user');

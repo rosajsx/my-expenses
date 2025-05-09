@@ -15,7 +15,7 @@ import { router } from 'expo-router';
 import LottieView from 'lottie-react-native';
 import { ArrowLeft, DollarSign } from 'lucide-react-native';
 import { useRef, useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { AdvancedCheckbox } from 'react-native-advanced-checkbox';
 import Animated, { Easing, FadeIn, FadeOut } from 'react-native-reanimated';
 
@@ -78,9 +78,9 @@ export default function CreateTransaction() {
 
   return (
     <>
-      <Container>
+      <Container wrapperStyle={{ paddingBottom: 0 }}>
         {isScreenStateDefault && (
-          <View style={styles.flex}>
+          <ScrollView style={styles.flex} bounces={false} showsVerticalScrollIndicator={false}>
             <View style={styles.modalHeader}>
               <Button
                 variant="ghost"
@@ -165,8 +165,9 @@ export default function CreateTransaction() {
               title="Criar"
               disabled={isCreateButtonDisabled}
               onPress={handleCreateTransaction}
+              style={{ marginTop: theme.spacing.md }}
             />
-          </View>
+          </ScrollView>
         )}
 
         {isScreenStateLoading && (
@@ -239,6 +240,7 @@ export default function CreateTransaction() {
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
+    height: '100%',
   },
   dateModalContainer: {
     padding: theme.spacing.md,

@@ -17,6 +17,8 @@ export function parseCurrencyToCents(value: string) {
 }
 
 export function formatDate(date: string, options?: Intl.DateTimeFormatOptions) {
+  console.log(date);
+  console.log(new Date(date).getMonth());
   const defaultOptions: Intl.DateTimeFormatOptions = {
     month: 'long',
     day: '2-digit',
