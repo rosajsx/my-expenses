@@ -51,15 +51,7 @@
           "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
         }
       ],
-      [
-        "expo-asset",
-        {
-          "empty-animation": "./assets/animations/empty.json",
-          "error-animation": "./assets/animations/error.json",
-          "loading-animation": "./assets/animations/loading.json",
-          "success-animation": "./assets/animations/success.json"
-        }
-      ]
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

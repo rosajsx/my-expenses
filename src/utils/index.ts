@@ -17,8 +17,6 @@ export function parseCurrencyToCents(value: string) {
 }
 
 export function formatDate(date: string, options?: Intl.DateTimeFormatOptions) {
-  console.log(date);
-  console.log(new Date(date).getMonth());
   const defaultOptions: Intl.DateTimeFormatOptions = {
     month: 'long',
     day: '2-digit',
@@ -41,6 +39,19 @@ export function getAllMonthsOfYear() {
   }
 
   return months;
+}
+
+export function getLastAndFoward5Years() {
+  const currentYear = new Date().getFullYear() + 5;
+  const years = [];
+
+  for (let i = 10; i > 0; i--) {
+    years.push(currentYear - i);
+  }
+
+  years.push(currentYear);
+
+  return years.reverse();
 }
 
 export function getLast5Years() {

@@ -1,7 +1,7 @@
+import { forwardRef } from 'react';
 import { Text, TextProps, TextStyle } from 'react-native';
 import { theme } from '../styles/theme';
 import { Colors, FontWeight } from '../styles/types';
-import { forwardRef } from 'react';
 
 export type TypographyVariant =
   | 'title'
