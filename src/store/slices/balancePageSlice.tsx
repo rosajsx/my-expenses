@@ -15,6 +15,8 @@ export interface BalancePageSlice {
     setSelectedYear: (value: string) => void;
     isSelectYearOpen: boolean;
     toggleSelectYearOpen: () => void;
+    selectedItem?: BalanceType;
+    setSelectedItem: (item: BalanceType) => void;
   };
 }
 
@@ -27,6 +29,15 @@ export const createBalancePageSlice: StateCreator<BalancePageSlice, [], [], Bala
     state: ScreenStateEnum.LOADING,
     isSelectYearOpen: false,
     selectedYear: undefined,
+    selectedItem: undefined,
+    setSelectedItem: (item) =>
+      set((state) => ({
+        ...state,
+        balancePage: {
+          ...state.balancePage,
+          selectedItem: item,
+        },
+      })),
     getBalances: async (database) => {
       set((state) => ({
         balancePage: { ...state.balancePage, state: ScreenStateEnum.LOADING, balances: [] },

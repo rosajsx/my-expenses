@@ -21,7 +21,7 @@ export const createBalanceSlice: StateCreator<BalanceSlice, [], [], BalanceSlice
   balanceState: ScreenStateEnum.LOADING,
   balance: 0,
   monthBalance: 0,
-  balanceInView: 'GENERAL',
+  balanceInView: 'MONTH',
   getBalances: async (database) => {
     set((state) => ({ balanceState: ScreenStateEnum.LOADING }));
     try {

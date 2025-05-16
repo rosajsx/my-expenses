@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 
 import { Container } from '@/components/Container';
 import { useDatabase } from '@/hooks/useDatabase';
@@ -106,30 +106,30 @@ export default function Index() {
           isSyncing={isSyncing}
           canSync={canSync}
         />
-
-        <FlatList
-          data={transactions.filter((transaction) => transaction.deleted === 0)}
-          bounces={false}
-          keyExtractor={(item) => item.id.toString()}
-          showsVerticalScrollIndicator={false}
-          renderItem={(list) => <TransactionCard transaction={list.item} />}
-          ListHeaderComponent={<TransactionListHeader onFilter={handleGetTransactions} />}
-          ListEmptyComponent={
-            <EmptyComponent
-              transactionsState={transactionsState}
-              handleGetTransactions={handleGetTransactions}
-            />
-          }
-          ListHeaderComponentStyle={styles.header}
-          stickyHeaderIndices={[0]}
-          style={styles.list}
-          contentContainerStyle={styles.contentContainer}
-          getItemLayout={(data, index) => ({
-            length: theme.sizes.card,
-            offset: theme.sizes.card * index,
-            index,
-          })}
-        />
+        <View style={styles.listContainer}>
+          <FlatList
+            data={transactions.filter((transaction) => transaction.deleted === 0)}
+            bounces={false}
+            keyExtractor={(item) => item.id.toString()}
+            showsVerticalScrollIndicator={false}
+            renderItem={(list) => <TransactionCard transaction={list.item} />}
+            ListHeaderComponent={<TransactionListHeader onFilter={handleGetTransactions} />}
+            ListEmptyComponent={
+              <EmptyComponent
+                transactionsState={transactionsState}
+                handleGetTransactions={handleGetTransactions}
+              />
+            }
+            ListHeaderComponentStyle={styles.header}
+            stickyHeaderIndices={[0]}
+            contentContainerStyle={styles.contentContainer}
+            getItemLayout={(data, index) => ({
+              length: theme.sizes.card,
+              offset: theme.sizes.card * index,
+              index,
+            })}
+          />
+        </View>
       </Container>
       <SelectYearModal />
       <SelectMonthModal />
@@ -145,11 +145,8 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: theme.colors.background,
   },
+  listContainer: { flex: 1, paddingBottom: theme.spacing.xxl * 2 },
 
-  list: {
-    height: '100%',
-    marginTop: theme.spacing.xl,
-  },
   contentContainer: {
     gap: theme.spacing.md,
   },

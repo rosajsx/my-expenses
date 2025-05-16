@@ -4,6 +4,7 @@ import { Container } from '@/components/Container';
 import { Header } from '@/components/Header';
 import { Loading } from '@/components/Loading';
 import { Typography } from '@/components/Typography';
+import { BalanceType } from '@/database/balances/getBalancePerMonth';
 import { ScreenStateEnum } from '@/enums/screenStates';
 import { useDatabase } from '@/hooks/useDatabase';
 import { useBoundStore } from '@/store';
@@ -12,7 +13,7 @@ import { formatCurrency, getLastAndFoward5Years } from '@/utils';
 import { Picker } from '@react-native-picker/picker';
 import { useFocusEffect } from 'expo-router';
 import LottieView from 'lottie-react-native';
-import { Calendar, Filter } from 'lucide-react-native';
+import { ArrowBigDown, ArrowBigUp, Calendar, Filter } from 'lucide-react-native';
 import { useCallback, useEffect } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -40,12 +41,22 @@ export default function Balances() {
   const setSelectedYear = useBoundStore((state) => state.balancePage.setSelectedYear);
   const filterBalance = useBoundStore((state) => state.balancePage.getFilteredBalances);
   const clearFilters = useBoundStore((state) => state.balancePage.clearFilters);
+  const selectedItem = useBoundStore((state) => state.balancePage.selectedItem);
+  const setSelectedItem = useBoundStore((state) => state.balancePage.setSelectedItem);
 
   const { isOpen, toggleSheet } = useBottomSheet();
+  const { isOpen: IsDetailsOpen, toggleSheet: toggleDetailsSheet } = useBottomSheet();
 
   const handleClose = () => {
     toggleSelectYearOpen();
     toggleSheet();
+  };
+
+  const handleSelectItem = (item: BalanceType) => {
+    setSelectedItem(item);
+    setTimeout(() => {
+      toggleDetailsSheet();
+    }, 500);
   };
 
   useEffect(() => {
@@ -62,89 +73,91 @@ export default function Balances() {
     <>
       <Container>
         <Header />
-        <FlatList
-          data={filteredBalances}
-          style={styles.list}
-          keyExtractor={(item) => item.month}
-          showsVerticalScrollIndicator={false}
-          bounces={false}
-          stickyHeaderIndices={[0]}
-          ListHeaderComponent={
-            <View style={styles.header}>
-              <Typography variant="title">Saldos</Typography>
-              <View style={styles.filterItems}>
-                <TouchableOpacity style={styles.filterItem} onPress={toggleSelectYearOpen}>
-                  <Calendar color={theme.colors.textSecondary} size="20px" />
-                  <Typography>{selectedYear ? selectedYear : 'Ano'}</Typography>
-                </TouchableOpacity>
+        <View>
+          <FlatList
+            data={filteredBalances}
+            style={styles.list}
+            keyExtractor={(item) => item.month}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            stickyHeaderIndices={[0]}
+            ListHeaderComponent={
+              <View style={styles.header}>
+                <Typography variant="title">Saldos</Typography>
+                <View style={styles.filterItems}>
+                  <TouchableOpacity style={styles.filterItem} onPress={toggleSelectYearOpen}>
+                    <Calendar color={theme.colors.textSecondary} size="20px" />
+                    <Typography>{selectedYear ? selectedYear : 'Ano'}</Typography>
+                  </TouchableOpacity>
 
+                  <TouchableOpacity
+                    style={[styles.filterItem, !selectedYear && styles.opacity]}
+                    disabled={!selectedYear}
+                    onPress={clearFilters}>
+                    <Filter color={theme.colors.textSecondary} size="20px" />
+                    <Typography>Limpar filtros</Typography>
+                  </TouchableOpacity>
+                </View>
                 <TouchableOpacity
                   style={[styles.filterItem, !selectedYear && styles.opacity]}
                   disabled={!selectedYear}
-                  onPress={clearFilters}>
+                  onPress={filterBalance}>
                   <Filter color={theme.colors.textSecondary} size="20px" />
-                  <Typography>Limpar filtros</Typography>
+                  <Typography>Filtrar</Typography>
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                style={[styles.filterItem, !selectedYear && styles.opacity]}
-                disabled={!selectedYear}
-                onPress={filterBalance}>
-                <Filter color={theme.colors.textSecondary} size="20px" />
-                <Typography>Filtrar</Typography>
-              </TouchableOpacity>
-            </View>
-          }
-          contentContainerStyle={[styles.listContainer]}
-          renderItem={({ item }) => {
-            return (
-              <View style={styles.item}>
-                <Typography variant="section">{formatDate(item.month)}</Typography>
-                <Typography variant="section" color={item.total > 0 ? 'success' : 'error'}>
-                  {formatCurrency(item.total)}
-                </Typography>
-              </View>
-            );
-          }}
-          ListEmptyComponent={
-            <View style={[styles.flex, styles.center]}>
-              {state === ScreenStateEnum.ERROR && (
-                <View style={[styles.center, styles.errorContainer]}>
-                  <LottieView
-                    autoPlay
-                    style={theme.sizes.errorTransation}
-                    source={{
-                      uri: '../../../../../assets/animations/error.json',
-                    }}
-                    loop={false}
-                  />
-                  <Typography variant="section" style={styles.textCenter}>
-                    Ocorreu um erro inesperado, por favor, tente novamente.
+            }
+            contentContainerStyle={[styles.listContainer]}
+            renderItem={({ item }) => {
+              return (
+                <TouchableOpacity style={styles.item} onPress={() => handleSelectItem(item)}>
+                  <Typography variant="section">{formatDate(item.month)}</Typography>
+                  <Typography variant="section" color={item.total > 0 ? 'success' : 'error'}>
+                    {formatCurrency(item.total)}
                   </Typography>
+                </TouchableOpacity>
+              );
+            }}
+            ListEmptyComponent={
+              <View style={[styles.flex, styles.center]}>
+                {state === ScreenStateEnum.ERROR && (
+                  <View style={[styles.center, styles.errorContainer]}>
+                    <LottieView
+                      autoPlay
+                      style={theme.sizes.errorTransation}
+                      source={{
+                        uri: '../../../../../assets/animations/error.json',
+                      }}
+                      loop={false}
+                    />
+                    <Typography variant="section" style={styles.textCenter}>
+                      Ocorreu um erro inesperado, por favor, tente novamente.
+                    </Typography>
 
-                  <Button title="Recarregar" onPress={() => getBalances(database)} />
-                </View>
-              )}
-              {state === ScreenStateEnum.LOADING && (
-                <View style={[styles.center]}>
-                  <Loading />
-                </View>
-              )}
+                    <Button title="Recarregar" onPress={() => getBalances(database)} />
+                  </View>
+                )}
+                {state === ScreenStateEnum.LOADING && (
+                  <View style={[styles.center]}>
+                    <Loading />
+                  </View>
+                )}
 
-              {state === ScreenStateEnum.DEFAULT && (
-                <View style={[styles.center]}>
-                  <LottieView
-                    autoPlay
-                    style={theme.sizes.emptyTransaction}
-                    source={require('../../../../../assets/animations/empty.json')}
-                    loop={false}
-                  />
-                  <Typography variant="section">Nenhuma despesa encontrada.</Typography>
-                </View>
-              )}
-            </View>
-          }
-        />
+                {state === ScreenStateEnum.DEFAULT && (
+                  <View style={[styles.center]}>
+                    <LottieView
+                      autoPlay
+                      style={theme.sizes.emptyTransaction}
+                      source={require('../../../../../assets/animations/empty.json')}
+                      loop={false}
+                    />
+                    <Typography variant="section">Nenhuma despesa encontrada.</Typography>
+                  </View>
+                )}
+              </View>
+            }
+          />
+        </View>
       </Container>
 
       <BotttomSheet isOpen={isOpen} toggleSheet={handleClose}>
@@ -161,6 +174,39 @@ export default function Balances() {
           </Picker>
         </View>
       </BotttomSheet>
+
+      <BotttomSheet
+        title={formatDate(selectedItem?.month!)}
+        isOpen={IsDetailsOpen}
+        toggleSheet={toggleDetailsSheet}>
+        <View style={styles.detailsWrapper}>
+          <View style={styles.detailsTotalContainer}>
+            <Typography variant="section">Total:</Typography>
+            <Typography variant="section" color={selectedItem?.total! < 0 ? 'error' : 'success'}>
+              {formatCurrency(selectedItem?.total!)}
+            </Typography>
+          </View>
+
+          <View style={styles.detailsContainer}>
+            <View style={styles.detailItem}>
+              <ArrowBigUp fill="green" color="green" size={28} />
+              <View>
+                <Typography>Entradas</Typography>
+
+                <Typography>{formatCurrency(selectedItem?.total_in!)}</Typography>
+              </View>
+            </View>
+
+            <View style={styles.detailItem}>
+              <ArrowBigDown fill="red" color="red" size={28} />
+              <View>
+                <Typography>Saidas</Typography>
+                <Typography>{formatCurrency(selectedItem?.total_out!)}</Typography>
+              </View>
+            </View>
+          </View>
+        </View>
+      </BotttomSheet>
     </>
   );
 }
@@ -170,11 +216,13 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.md,
   },
   list: {
-    height: '100%',
+    // height: '100%',
   },
   listContainer: {
     gap: theme.spacing.md,
+    paddingBottom: theme.spacing.xl,
   },
+
   item: {
     backgroundColor: theme.colors.cardBackground,
     borderRadius: theme.radius.lg,
@@ -227,5 +275,31 @@ const styles = StyleSheet.create({
   },
   opacity: {
     opacity: 0.5,
+  },
+
+  detailsWrapper: {
+    gap: theme.spacing.md,
+  },
+
+  detailsContainer: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+
+  detailsTotalContainer: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.background,
+    padding: theme.spacing.lg,
+    borderRadius: theme.radius.lg,
+    gap: theme.spacing.md,
+    width: '50%',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
 });
