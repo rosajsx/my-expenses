@@ -10,6 +10,7 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
+import { Typography } from './Typography';
 
 interface BotttomSheetProps {
   isOpen: SharedValue<boolean>;
@@ -17,6 +18,7 @@ interface BotttomSheetProps {
   duration?: number;
   onClose?: () => void;
   containerHeight?: number;
+  title?: string;
 }
 
 export function BotttomSheet({
@@ -26,6 +28,7 @@ export function BotttomSheet({
   duration = 500,
   onClose,
   containerHeight,
+  title,
 }: PropsWithChildren<BotttomSheetProps>) {
   const height = useSharedValue(0);
   const progress = useDerivedValue(() => withTiming(isOpen.value ? 0 : 1, { duration }));
@@ -55,7 +58,12 @@ export function BotttomSheet({
         }}
         style={[sheetStyles.sheet, sheetStyle, { backgroundColor: theme.colors.cardBackground }]}>
         <View style={sheetStyles.content}>
-          <View style={sheetStyles.header}>
+          <View
+            style={[
+              sheetStyles.header,
+              title ? sheetStyles.headerWithTitle : sheetStyles.headerWithoutTitle,
+            ]}>
+            {title && <Typography variant="section">{title}</Typography>}
             <Pressable onPress={handleClose}>
               <X color={theme.colors.textPrimary} />
             </Pressable>
@@ -114,9 +122,16 @@ const sheetStyles = StyleSheet.create({
   },
   header: {
     padding: theme.spacing.md,
+  },
+  headerWithoutTitle: {
     alignItems: 'flex-end',
+  },
+  headerWithTitle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   main: {
     flex: 1,
+    padding: theme.spacing.md,
   },
 });
