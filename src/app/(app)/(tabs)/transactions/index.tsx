@@ -3,7 +3,7 @@ import { Alert, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } 
 import { Container } from '@/components/Container';
 import { useDatabase } from '@/hooks/useDatabase';
 import { theme } from '@/styles/theme';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 import { BalanceHeader } from '@/components/BalanceHeader';
 import { SelectMonthModal } from '@/components/Sheets/SelectMonthModal';
@@ -17,7 +17,7 @@ import { useBoundStore } from '@/store';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate } from '@/utils';
 import * as Network from 'expo-network';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { Plus, Trash } from 'lucide-react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
@@ -46,8 +46,6 @@ export default function Index() {
       resetFilters: state.resetTransactionFilters,
     })),
   );
-
-  const { update } = useLocalSearchParams<{ update?: string }>();
 
   const [syncTimes, setSyncTimes] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -131,15 +129,17 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    handleGetTransactions();
+    if (selectedMonth?.value || selectedYear || selectedTransactionType) {
+      handleGetTransactions();
+    }
   }, [selectedMonth?.value, selectedYear, selectedTransactionType]);
 
-  // useEffect(() => {
-  //   if (update === 'true') {
-  //     updateData();
-  //     resetFilters();
-  //   }
-  // }, [update]);
+  useFocusEffect(
+    useCallback(() => {
+      handleGetTransactions();
+      handleGetBalances();
+    }, []),
+  );
 
   useLayoutEffect(() => {
     if (isConnected) {
@@ -180,7 +180,9 @@ export default function Index() {
               enableTrackpadTwoFingerGesture
               rightThreshold={40}
               renderRightActions={(prag, drag) => RightAction(prag, drag, item)}>
-              <Pressable style={styles.transactionCard}>
+              <Pressable
+                style={styles.transactionCard}
+                onPress={() => router.push(`/transactions/${item.id}`)}>
                 <View style={styles.transactionContent}>
                   <Text style={styles.transactionName}>
                     {item.name}{' '}
@@ -232,7 +234,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   rightActionText: {
-    color: colors.backgroundWhite,
+    color: colors.white,
     fontFamily: 'Inter_500Medium',
     fontWeight: 500,
     fontSize: 14,

@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   filterTextActive: {
-    color: colors.backgroundWhite,
+    color: colors.white,
   },
   filterTextInactive: {
     color: colors.primary,

@@ -7,7 +7,7 @@ export default function TransactionsLayout() {
         headerShown: false,
       }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="[id]" options={{ presentation: 'transparentModal', animation: 'fade' }} />
+      <Stack.Screen name="[id]" />
       <Stack.Screen name="create" />
       <Stack.Screen name="update/[id]" />
     </Stack>

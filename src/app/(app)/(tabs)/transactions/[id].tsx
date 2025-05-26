@@ -1,25 +1,24 @@
-import { Button } from '@/components/Button';
-import { Loading } from '@/components/Loading';
-import { Typography } from '@/components/Typography';
+import { Container } from '@/components/Container';
 import { deleteTransaction } from '@/database/transactions/deleteTransaction';
 import { getTransactionById } from '@/database/transactions/getTransactionById';
 import { Transaction } from '@/database/types';
 import { ScreenStateEnum } from '@/enums/screenStates';
 import { useDatabase } from '@/hooks/useDatabase';
 import { useScreenState } from '@/hooks/useScreenState';
-import { theme } from '@/styles/theme';
+import { useBoundStore } from '@/store';
 import { formatCurrency, formatDate } from '@/utils';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import LottieView from 'lottie-react-native';
-import { Pen, Trash } from 'lucide-react-native';
-import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
-import { BotttomSheet, useBottomSheet } from '../../../../components/BottomSheet';
+import { ChevronLeft } from 'lucide-react-native';
+import React, { useCallback, useState } from 'react';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { colors } from '../../../../styles/colors';
 
 export default function TransactionDetails() {
   const [transaction, setTransaction] = useState<Transaction>();
   const { database } = useDatabase();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const getBalances = useBoundStore((state) => state.getBalances);
+
   const {
     isScreenStateLoading,
     isScreenStateError,
@@ -28,8 +27,6 @@ export default function TransactionDetails() {
     handleChangeScreenStateToError,
     handleChangeScreenStateToLoading,
   } = useScreenState(ScreenStateEnum.LOADING);
-
-  const { isOpen, toggleSheet } = useBottomSheet(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -46,26 +43,20 @@ export default function TransactionDetails() {
     }, []),
   );
 
-  const handleClose = (haveChange?: boolean) => {
-    toggleSheet();
-
-    setTimeout(() => {
-      router.back();
-      router.setParams({
-        update: !!haveChange,
-      } as any);
-    }, 500);
-  };
-
   const handleEdit = () => {
-    router.back();
-    router.push(`/transactions/update/${transaction?.id}`);
+    router.navigate(`/transactions/update/${transaction?.id}`);
   };
 
   async function handleDelete() {
     try {
       await deleteTransaction(database, transaction!);
-      handleClose(true);
+      await getBalances(database);
+      router.navigate('/transactions', {
+        params: {
+          update: true,
+        },
+      } as any);
+
       Alert.alert('Transação deletada com sucesso!');
     } catch (error) {
       console.log(error);
@@ -87,137 +78,165 @@ export default function TransactionDetails() {
     ]);
   }
 
-  useEffect(() => {
-    toggleSheet();
-  }, []);
-
   return (
-    <BotttomSheet isOpen={isOpen} containerHeight={300} onClose={handleClose}>
-      {isScreenStateDefault && (
-        <View style={styles.content}>
-          <View>
-            <Typography variant="title">
-              {transaction?.name}{' '}
-              {transaction?.installment &&
-                transaction?.installment_qtd &&
-                `${transaction?.installment}/${transaction?.installment_qtd}`}
-            </Typography>
-          </View>
-          {transaction?.date && (
-            <Typography variant="textSmall">
-              {formatDate(transaction?.date, {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </Typography>
-          )}
-          {transaction?.category && (
-            <Typography variant="textSmall">Categoria: {transaction?.category}</Typography>
-          )}
+    <Container style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={router.back} style={styles.iconBack}>
+          <ChevronLeft color={colors.primary} />
+        </TouchableOpacity>
 
-          {transaction?.amount && (
-            <Typography variant="section" color={transaction?.type === 1 ? 'success' : 'error'}>
-              {transaction?.type === 2 && '-'} {formatCurrency(transaction.amount)}
-            </Typography>
-          )}
-
-          <View style={styles.actionsContainer}>
-            <Button
-              variant="secondary"
-              title="Editar"
-              Icon={Pen}
-              style={[styles.actionItem]}
-              onPress={handleEdit}
-            />
-            <Button
-              variant="secondary"
-              title="Apagar"
-              Icon={Trash}
-              style={[styles.actionItem]}
-              onPress={confirmDelete}
-            />
+        <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+          <Text style={styles.editText}>Editar</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>
+          {transaction?.name}{' '}
+          {transaction?.installment &&
+            transaction?.installment_qtd &&
+            `${transaction?.installment}/${transaction?.installment_qtd}`}
+        </Text>
+        <Text
+          style={[
+            styles.amount,
+            transaction?.type === 1 ? styles.amountIncome : styles.amountOutcome,
+          ]}>
+          {transaction?.type === 2 && '- '}
+          {transaction?.amount && formatCurrency(transaction?.amount)}
+        </Text>
+      </View>
+      <View style={styles.detailsContainer}>
+        {transaction?.category && (
+          <View style={styles.detailItem}>
+            <Text style={styles.detailItemLabel}>Categoria</Text>
+            <Text style={styles.detailItemValue}>{transaction.category}</Text>
           </View>
-        </View>
-      )}
-      {isScreenStateLoading && (
-        <View style={styles.loadingOrErrorContainer}>
-          <Loading />
-        </View>
-      )}
-      {isScreenStateError && (
-        <View style={styles.loadingOrErrorContainer}>
-          <LottieView
-            autoPlay
-            style={theme.sizes.errorTransation}
-            source={{ uri: 'error-animation' }}
-            loop={false}
-          />
-          <Typography variant="section" style={styles.errorStateText}>
-            Ocorreu um erro inesperado, por favor, tente novamente.
-          </Typography>
-          <Button variant="secondary" title="Fechar" onPress={handleClose} />
-        </View>
-      )}
-    </BotttomSheet>
+        )}
+        {transaction?.type && (
+          <View style={styles.detailItem}>
+            <Text style={styles.detailItemLabel}>Tipo</Text>
+            <Text style={styles.detailItemValue}>
+              {transaction?.type === 1 ? 'Entrada' : 'Saída'}
+            </Text>
+          </View>
+        )}
+
+        {transaction?.date && (
+          <View style={styles.detailItem}>
+            <Text style={styles.detailItemLabel}>Data</Text>
+            <Text style={styles.detailItemValue}>{formatDate(transaction?.date)}</Text>
+          </View>
+        )}
+        {transaction?.installment && transaction?.installment_qtd && (
+          <View style={styles.detailItem}>
+            <Text style={styles.detailItemLabel}>Parcelamento</Text>
+            <Text style={styles.detailItemValue}>
+              {transaction?.installment}/{transaction.installment_qtd}
+            </Text>
+          </View>
+        )}
+        {transaction?.pendingSync && (
+          <View style={styles.detailItem}>
+            <Text style={styles.detailItemLabel}>Status</Text>
+            <Text style={styles.detailItemValue}>
+              {transaction?.pendingSync === 1 ? 'Pendente de Sincronização' : 'Sincronizado!'}
+            </Text>
+          </View>
+        )}
+      </View>
+      <TouchableOpacity style={styles.deleteBtn} onPress={confirmDelete}>
+        <Text style={styles.deleteText}>Apagar Transação</Text>
+      </TouchableOpacity>
+    </Container>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
+  container: {
+    gap: 24,
   },
-  dateModalContainer: {
-    padding: theme.spacing.md,
-  },
-  dateContent: {
-    gap: theme.spacing.xs,
-  },
-  dateContainer: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
-    paddingVertical: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.md,
-    minHeight: 48,
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  container: {},
-  content: {
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 'auto',
-    marginBottom: 'auto',
-    gap: theme.spacing.xs,
   },
-  closeButton: {
-    minHeight: 'auto',
-    minWidth: 'auto',
+  iconBack: {
+    width: 44,
+    height: 44,
   },
-  loadingOrErrorContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.md,
+  editButton: {
+    width: 44,
+    height: 44,
   },
-  errorStateText: {
+  editText: {
+    fontFamily: 'Inter_400Regular',
+    fontWeight: 400,
+    fontSize: 14,
+    color: colors.primary,
+  },
+  titleContainer: {
+    gap: 4,
+  },
+  title: {
+    fontFamily: 'Inter_600SemiBold',
+    fontWeight: 600,
+    fontSize: 24,
+    color: colors.text,
     textAlign: 'center',
   },
-  tagContainer: {
-    paddingVertical: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.sm,
-    borderRadius: theme.spacing.md,
-    backgroundColor: theme.colors.surface,
+  amount: {
+    fontFamily: 'Inter_600SemiBold',
+    fontWeight: 600,
+    fontSize: 22,
+    textAlign: 'center',
   },
-  actionsContainer: {
-    flexDirection: 'row',
-    gap: theme.spacing.md,
-    paddingTop: theme.spacing.md,
+  amountIncome: {
+    color: colors.green,
   },
-  actionItem: {
+  amountOutcome: {
+    color: colors.red,
+  },
+
+  detailsContainer: {
+    borderRadius: 12,
+
+    paddingHorizontal: 16,
+    backgroundColor: colors.white,
+  },
+  detailItem: {
+    minHeight: 44,
+    paddingVertical: 16,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: theme.spacing.sm,
+    borderBottomWidth: 0.5,
+    borderColor: colors.separator,
+  },
+  detailItemLabel: {
+    fontFamily: 'Inter_400Regular',
+    fontWeight: 400,
+    color: colors.text,
+    fontSize: 15,
+  },
+  detailItemValue: {
+    fontFamily: 'Inter_500Medium',
+    fontWeight: 500,
+    color: colors.textSecondary,
+    fontSize: 15,
+  },
+  deleteBtn: {
+    borderRadius: 12,
+    height: 52,
+    width: '100%',
+
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+  },
+  deleteText: {
+    fontFamily: 'Inter_600SemiBold',
+    fontWeight: 600,
+    fontSize: 17,
+    color: colors.red,
   },
 });

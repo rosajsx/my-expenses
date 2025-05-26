@@ -101,6 +101,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_500Medium',
     fontWeight: 500,
     fontSize: 17,
-    color: colors.backgroundWhite,
+    color: colors.white,
   },
 });
