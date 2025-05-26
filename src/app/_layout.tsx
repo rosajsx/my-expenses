@@ -8,18 +8,14 @@ import {
 } from '@expo-google-fonts/inter';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { useBoundStore } from '@/store';
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetBackdropProps,
-  BottomSheetView,
-} from '@gorhom/bottom-sheet';
-import { StyleSheet, Text } from 'react-native';
+import { BottomSheetBackdrop, BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
+import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Host } from 'react-native-portalize';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
-
 // This is the default configuration
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -40,15 +36,7 @@ export default function RootLayout() {
     Inter_900Black,
   });
 
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['25%', '50%'], []);
-
   const verifyIfHaveAuthHash = useBoundStore((state) => state.verifyIfHaveAuthHash);
-
-  // callbacks
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-  }, []);
 
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
@@ -76,23 +64,14 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: 'fade',
-        }}
-      />
-      <BottomSheet
-        ref={bottomSheetRef}
-        onChange={handleSheetChanges}
-        enablePanDownToClose
-        index={-1}
-        snapPoints={snapPoints}
-        backdropComponent={renderBackdrop}>
-        <BottomSheetView style={styles.contentContainer}>
-          <Text style={{ color: 'red' }}>Texto</Text>
-        </BottomSheetView>
-      </BottomSheet>
+      <Host>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: 'fade',
+          }}
+        />
+      </Host>
     </GestureHandlerRootView>
   );
 }
