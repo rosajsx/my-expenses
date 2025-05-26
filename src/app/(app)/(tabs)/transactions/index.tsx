@@ -6,16 +6,35 @@ import { theme } from '@/styles/theme';
 import { useEffect, useLayoutEffect, useState } from 'react';
 
 import { BalanceHeader } from '@/components/BalanceHeader';
+import { useBottomSheet } from '@/components/BottomSheet';
 import { syncTransactions } from '@/database/transactions/syncTransactions';
 import { useBoundStore } from '@/store';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate } from '@/utils';
 import * as Network from 'expo-network';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Plus } from 'lucide-react-native';
+import { Plus, Trash } from 'lucide-react-native';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { useShallow } from 'zustand/react/shallow';
 
 let isFirstRender = true;
+
+const RightAction = (prog: SharedValue<number>, drag: SharedValue<number>) => {
+  const styleAnimation = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: drag.value + 80 }],
+    };
+  });
+  return (
+    <Reanimated.View style={[styleAnimation, styles.rightAction]}>
+      <TouchableOpacity style={styles.rightActionBtn}>
+        <Trash color={colors.backgroundWhite} size={24} />
+        <Text style={styles.rightActionText}>Apagar</Text>
+      </TouchableOpacity>
+    </Reanimated.View>
+  );
+};
 
 export default function Index() {
   const { transactions, getTransactions, transactionsState } = useBoundStore(
@@ -40,6 +59,7 @@ export default function Index() {
   );
 
   const { update } = useLocalSearchParams<{ update?: string }>();
+  const { isOpen, toggleSheet } = useBottomSheet(true);
 
   const [syncTimes, setSyncTimes] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -118,19 +138,27 @@ export default function Index() {
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             renderItem={({ item }) => (
-              <Pressable style={styles.transactionCard}>
-                <View style={styles.transactionContent}>
-                  <Text style={styles.transactionName}>{item.name}</Text>
-                  <Text style={styles.transactionDate}>{formatDate(item.date)}</Text>
-                </View>
-                <Text
-                  style={[
-                    styles.transactionAmount,
-                    item.type === 1 ? styles.transactionAmountPlus : styles.transactionAmountMinus,
-                  ]}>
-                  {item.type !== 1 && '-'} {formatCurrency(item.amount)}
-                </Text>
-              </Pressable>
+              <ReanimatedSwipeable
+                friction={2}
+                enableTrackpadTwoFingerGesture
+                rightThreshold={40}
+                renderRightActions={RightAction}>
+                <Pressable style={styles.transactionCard}>
+                  <View style={styles.transactionContent}>
+                    <Text style={styles.transactionName}>{item.name}</Text>
+                    <Text style={styles.transactionDate}>{formatDate(item.date)}</Text>
+                  </View>
+                  <Text
+                    style={[
+                      styles.transactionAmount,
+                      item.type === 1
+                        ? styles.transactionAmountPlus
+                        : styles.transactionAmountMinus,
+                    ]}>
+                    {item.type !== 1 && '-'} {formatCurrency(item.amount)}
+                  </Text>
+                </Pressable>
+              </ReanimatedSwipeable>
             )}
           />
         </View>
@@ -147,6 +175,25 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   listContainer: {},
+  rightAction: {
+    width: 80,
+    height: '100%',
+    backgroundColor: colors.red,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+  },
+  rightActionBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+  },
+  rightActionText: {
+    color: colors.backgroundWhite,
+    fontFamily: 'Inter_500Medium',
+    fontWeight: 500,
+    fontSize: 14,
+  },
 
   contentContainer: {
     gap: theme.spacing.md,
@@ -162,6 +209,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 16,
+    paddingRight: 4,
   },
   transactionContent: {
     gap: 4,
