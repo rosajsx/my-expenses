@@ -1,9 +1,9 @@
-import { TouchableOpacity, TouchableOpacityProps, StyleSheet } from 'react-native';
-import { Typography, TypographyVariant } from './Typography';
-import { theme } from '../styles/theme';
-import { Colors, FontWeight } from '../styles/types';
 import { LucideIcon } from 'lucide-react-native';
 import { forwardRef } from 'react';
+import { StyleSheet, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { theme } from '../../styles/theme';
+import { Colors, FontWeight } from '../../styles/types';
+import { Typography, TypographyVariant } from '../Typography';
 
 const textVariantStyle = {
   primary: {
@@ -58,6 +58,7 @@ const ButtonComponent = (
     <TouchableOpacity
       {...props}
       ref={ref}
+      testID="Button"
       style={[styles.base, variantStyle, disabled && styles.disabled, style]}
       activeOpacity={0.7}
       disabled={disabled}>

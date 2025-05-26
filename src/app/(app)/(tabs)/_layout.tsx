@@ -1,7 +1,6 @@
-import { Typography } from '@/components/Typography';
-import { theme } from '@/styles/theme';
+import { colors } from '@/styles/colors';
 import { Tabs } from 'expo-router';
-import { HandCoins, Wallet } from 'lucide-react-native';
+import { StyleSheet, Text } from 'react-native';
 
 export default function TabsLayout() {
   return (
@@ -9,20 +8,19 @@ export default function TabsLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarStyle: {
-            backgroundColor: theme.colors.background,
-            paddingTop: theme.spacing.sm,
+          tabBarStyle: styles.tabBarStyle,
+          tabBarIconStyle: {
+            display: 'none',
           },
         }}>
         <Tabs.Screen
           name="transactions"
           options={{
-            tabBarIcon: ({ color }) => <Wallet color={color} />,
             tabBarLabel: ({ focused }) => {
               return (
-                <Typography variant="label" color={focused ? 'primary' : 'textSecondary'}>
+                <Text style={[styles.label, focused ? styles.active : styles.inactive]}>
                   Transações
-                </Typography>
+                </Text>
               );
             },
           }}
@@ -30,12 +28,11 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="balances"
           options={{
-            tabBarIcon: ({ color }) => <HandCoins color={color} />,
             tabBarLabel: ({ focused }) => {
               return (
-                <Typography variant="label" color={focused ? 'primary' : 'textSecondary'}>
+                <Text style={[styles.label, focused ? styles.active : styles.inactive]}>
                   Saldos
-                </Typography>
+                </Text>
               );
             },
           }}
@@ -44,3 +41,26 @@ export default function TabsLayout() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBarStyle: {
+    paddingTop: 12,
+    paddingBottom: 16,
+    paddingHorizontal: 24,
+    height: 60,
+    backgroundColor: colors.backgroundWhite,
+
+    borderTopWidth: 0,
+  },
+  label: {
+    fontFamily: 'Inter_500Medium',
+    fontWeight: 500,
+    fontSize: 12,
+  },
+  inactive: {
+    color: colors.textSecondary,
+  },
+  active: {
+    color: colors.primary,
+  },
+});

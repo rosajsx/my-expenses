@@ -1,3 +1,4 @@
+import { colors } from '@/styles/colors';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaView, SafeAreaViewProps } from 'react-native-safe-area-context';
 import { theme } from '../styles/theme';
@@ -11,7 +12,7 @@ export const Container = ({ children, style, wrapperStyle, ...props }: Container
 
   return (
     <View style={[styles.wrapper, wrapperStyle]}>
-      <StatusBar animated barStyle="light-content" />
+      <StatusBar animated barStyle="dark-content" />
       <SafeAreaView {...props} style={[styles.container, style]}>
         {children}
       </SafeAreaView>
@@ -21,10 +22,9 @@ export const Container = ({ children, style, wrapperStyle, ...props }: Container
 
 const styles = StyleSheet.create({
   wrapper: {
-    backgroundColor: theme.colors.background,
+    backgroundColor: colors.backgroundWhite,
 
-    paddingLeft: theme.spacing.lg,
-    paddingRight: theme.spacing.lg,
+    paddingHorizontal: 24,
     paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.lg,
   },

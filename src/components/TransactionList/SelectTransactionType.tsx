@@ -1,58 +1,50 @@
 import { colors } from '@/styles/colors';
-import { getAllMonthsOfYear } from '@/utils';
 import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useState } from 'react';
 import { ModalProps, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useShallow } from 'zustand/react/shallow';
 import { useBoundStore } from '../../store';
 import { BotttomSheet, useBottomSheet } from '../BottomSheet';
 
-const months = getAllMonthsOfYear();
-interface SelectMonthModalProps extends ModalProps {}
+interface TransactionTypeModalProps extends ModalProps {}
 
-export const SelectMonthModal = ({ ...rest }: SelectMonthModalProps) => {
-  const { selectedMonth, setSelectedMonth, isSelectMonthModalOpen, closeSelectMonthModal } =
-    useBoundStore(
-      useShallow((state) => ({
-        selectedMonth: state.selectedMonth,
-        setSelectedMonth: state.setSelectedMonth,
-        isSelectMonthModalOpen: state.isSelectMonthModalOpen,
-        closeSelectMonthModal: state.handleCloseSelectMonthModal,
-      })),
-    );
+export const TransactionTypeModal = ({ ...rest }: TransactionTypeModalProps) => {
+  const selectedTransactionType = useBoundStore((state) => state.selectedTransactionType);
+  const setTransactionTypeFilter = useBoundStore((state) => state.setTransactionTypeFilter);
+  const isTransactionTypeFilterOpen = useBoundStore((state) => state.isTransactionTypeFilterOpen);
+  const handleCloseTransactionTypeModal = useBoundStore(
+    (state) => state.handleCloseTransactionTypeModal,
+  );
 
   const { isOpen, toggleSheet } = useBottomSheet();
-
-  const [localMonth, setLocalMonth] = useState(selectedMonth);
+  const [localTransactionType, setLocalTransactionType] = useState(selectedTransactionType);
 
   const handleClose = () => {
-    closeSelectMonthModal();
+    handleCloseTransactionTypeModal();
     toggleSheet();
   };
 
   const handleSelect = () => {
-    setSelectedMonth(localMonth!);
-    closeSelectMonthModal();
+    setTransactionTypeFilter(localTransactionType);
+    handleCloseTransactionTypeModal();
     toggleSheet();
   };
 
   useEffect(() => {
-    isOpen.value = isSelectMonthModalOpen;
-  }, [isSelectMonthModalOpen]);
+    isOpen.value = isTransactionTypeFilterOpen;
+  }, [isTransactionTypeFilterOpen]);
 
   return (
     <BotttomSheet isOpen={isOpen} toggleSheet={handleClose}>
       <View style={styles.modalContent}>
         <Picker
-          selectedValue={localMonth?.id}
+          selectedValue={localTransactionType}
           itemStyle={styles.item}
           onValueChange={(value) => {
-            setLocalMonth(months[value]);
+            setLocalTransactionType(value);
           }}>
           <Picker.Item label="Todos" value={''} />
-          {months.map((month) => (
-            <Picker.Item key={month.id} label={month.value} value={month.id} />
-          ))}
+          <Picker.Item label="Entradas" value={1} />
+          <Picker.Item label="Saidas" value={2} />
         </Picker>
         <TouchableOpacity style={styles.saveBtn} onPress={handleSelect}>
           <Text style={styles.saveBtnLabel}>Salvar</Text>

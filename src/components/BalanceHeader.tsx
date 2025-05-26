@@ -1,108 +1,153 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { theme } from '@/styles/theme';
-import { Typography } from './Typography';
 import { useBoundStore } from '@/store';
-import { useShallow } from 'zustand/react/shallow';
-import { ScreenStateEnum } from '@/enums/screenStates';
+import { colors } from '@/styles/colors';
 import { formatCurrency, getAllMonthsOfYear } from '@/utils';
-import { SQLiteDatabase } from 'expo-sqlite';
-import { useDatabase } from '@/hooks/useDatabase';
-import { Plus, RefreshCcw, RotateCw } from 'lucide-react-native';
-import { Button } from './Button';
-import { router } from 'expo-router';
-import { Loading } from './Loading';
-import Animated from 'react-native-reanimated';
-
-interface BalanceHeaderProps {
-  db?: SQLiteDatabase;
-  onPressSync?: () => void;
-  canSync?: boolean;
-  isSyncing?: boolean;
-}
-
-const AnimatedButton = Animated.createAnimatedComponent(Button);
+import React from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const currentMonth = new Date().getMonth();
+const currentYear = new Date().getFullYear();
 const months = getAllMonthsOfYear();
 
-export const BalanceHeader = ({ db, onPressSync, canSync, isSyncing }: BalanceHeaderProps) => {
-  const { balance, monthBalance, balanceInView, toggleBalanceInView, getBalances, balancesState } =
-    useBoundStore(
-      useShallow((state) => ({
-        balance: state.balance,
-        monthBalance: state.monthBalance,
-        balanceInView: state.balanceInView,
-        toggleBalanceInView: state.toggleBalanceView,
-        getBalances: state.getBalances,
-        balancesState: state.balanceState,
-      })),
-    );
+export const BalanceHeader = () => {
+  const monthBalance = useBoundStore((state) => state.monthBalance);
+  const selectedMonth = useBoundStore((state) => state.selectedMonth);
+  const selectedYear = useBoundStore((state) => state.selectedYear);
+  const selectedTransactionType = useBoundStore((state) => state.selectedTransactionType);
 
-  const { database } = db ? { database: db } : useDatabase();
+  const handleOpenSelectMonthModal = useBoundStore((state) => state.handleOpenSelectMonthModal);
+  const handleOpenYearsModal = useBoundStore((state) => state.handleOpenSelectYearModal);
+  const handleOpenTransactionTypeModal = useBoundStore(
+    (state) => state.handleOpenTransactionTypeModal,
+  );
+
+  const getBalanceStatusColor = () => {
+    if (monthBalance === 0 || !monthBalance) {
+      return colors.text;
+    }
+    if (monthBalance > 0) {
+      return colors.primary;
+    } else {
+      return colors.red;
+    }
+  };
 
   return (
-    <View style={styles.headerContainer}>
+    <View>
       <View>
-        <Pressable style={styles.balanceHeader} onPress={toggleBalanceInView}>
-          <Typography variant="subtitle">
-            {balanceInView === 'GENERAL' ? 'Saldo total:' : `Saldo ${months[currentMonth].value}`}
-          </Typography>
-
-          {balancesState === ScreenStateEnum.DEFAULT && (
-            <Typography variant="subtitle" color={balance < 0 ? 'error' : 'textPrimary'}>
-              {balanceInView === 'GENERAL' ? formatCurrency(balance) : formatCurrency(monthBalance)}
-            </Typography>
-          )}
-        </Pressable>
-        <Typography variant="label">Toque no saldo para mudar a visualização</Typography>
-
-        {balancesState === ScreenStateEnum.LOADING && <Loading size="sm" />}
-        {balancesState === ScreenStateEnum.ERROR && (
-          <Button Icon={RotateCw} variant="secondary" onPress={() => getBalances(database)} />
-        )}
+        <Text style={styles.balanceText}>
+          Saldo {months[currentMonth].value} de {currentYear}
+        </Text>
+        <Text
+          style={[
+            styles.amountText,
+            {
+              color: getBalanceStatusColor(),
+            },
+          ]}>
+          {formatCurrency(monthBalance)}
+        </Text>
       </View>
-      <View style={styles.subHeader}>
-        <Button
-          Icon={Plus}
-          onPress={() => router.navigate('/transactions/create')}
-          title="Nova Transação"
-          style={styles.addButton}
-          variant="secondary"
-        />
-        <Button
-          Icon={RefreshCcw}
-          onPress={onPressSync}
-          title={isSyncing ? 'Sincronizando...' : 'Sincronizar'}
-          style={[styles.addButton, !canSync && { opacity: 0 }]}
-          variant="secondary"
-          disabled={isSyncing || !canSync}
-        />
-      </View>
+      <ScrollView
+        horizontal
+        contentContainerStyle={styles.filterContainer}
+        showsHorizontalScrollIndicator={false}>
+        <TouchableOpacity
+          onPress={handleOpenSelectMonthModal}
+          style={[
+            styles.filterButton,
+            !selectedMonth?.value ? styles.filterButtonInactive : styles.filterButtonActive,
+          ]}>
+          <Text
+            style={[
+              styles.filterText,
+              !selectedMonth?.value ? styles.filterTextInactive : styles.filterTextActive,
+            ]}>
+            Mês: {selectedMonth?.value || 'Todos'}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleOpenYearsModal}
+          style={[
+            styles.filterButton,
+            !selectedYear ? styles.filterButtonInactive : styles.filterButtonActive,
+          ]}>
+          <Text
+            style={[
+              styles.filterText,
+              !selectedYear ? styles.filterTextInactive : styles.filterTextActive,
+            ]}>
+            Ano: {selectedYear || currentYear}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleOpenTransactionTypeModal}
+          style={[
+            styles.filterButton,
+            !selectedTransactionType ? styles.filterButtonInactive : styles.filterButtonActive,
+          ]}>
+          <Text
+            style={[
+              styles.filterText,
+              !selectedTransactionType ? styles.filterTextInactive : styles.filterTextActive,
+            ]}>
+            Tipo:{' '}
+            {selectedTransactionType
+              ? selectedTransactionType === 1
+                ? 'Entradas'
+                : 'Saídas'
+              : 'Todos'}
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  header: {
-    backgroundColor: theme.colors.background,
+  balanceText: {
+    fontFamily: 'Inter_400Regular',
+    fontWeight: 400,
+    fontSize: 15,
+    color: colors.textSecondary,
   },
-  balanceHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  amountText: {
+    fontFamily: 'Inter_700Bold',
+    fontWeight: 700,
+    fontSize: 24,
   },
 
-  addButton: {
+  filterContainer: {
     flexDirection: 'row',
-    flex: 1,
-    gap: theme.spacing.sm,
-    maxWidth: 180,
+    paddingVertical: 16,
+    gap: 8,
   },
-  headerContainer: {
-    gap: theme.spacing.lg,
+
+  filterButton: {
+    paddingHorizontal: 16,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  subHeader: {
-    flexDirection: 'row',
-    gap: theme.spacing.lg,
+
+  filterButtonActive: {
+    backgroundColor: colors.primary,
+  },
+  filterButtonInactive: {
+    backgroundColor: colors.backgroundWhite,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+
+  filterText: {
+    fontFamily: 'Inter_500Medium',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  filterTextActive: {
+    color: colors.backgroundWhite,
+  },
+  filterTextInactive: {
+    color: colors.primary,
   },
 });

@@ -1,3 +1,4 @@
+import { colors } from '@/styles/colors';
 import { theme } from '@/styles/theme';
 import { X } from 'lucide-react-native';
 import { PropsWithChildren } from 'react';
@@ -56,7 +57,7 @@ export function BotttomSheet({
         onLayout={(e) => {
           height.value = e.nativeEvent.layout.height;
         }}
-        style={[sheetStyles.sheet, sheetStyle, { backgroundColor: theme.colors.cardBackground }]}>
+        style={[sheetStyles.sheet, sheetStyle]}>
         <View style={sheetStyles.content}>
           <View
             style={[
@@ -65,7 +66,7 @@ export function BotttomSheet({
             ]}>
             {title && <Typography variant="section">{title}</Typography>}
             <Pressable onPress={handleClose}>
-              <X color={theme.colors.textPrimary} />
+              <X color={colors.backgroundBlack} />
             </Pressable>
           </View>
           <View
@@ -101,7 +102,6 @@ const sheetStyles = StyleSheet.create({
     flex: 1,
   },
   sheet: {
-    padding: theme.spacing.lg,
     minHeight: 150,
     width: '100%',
     position: 'absolute',
@@ -111,6 +111,8 @@ const sheetStyles = StyleSheet.create({
     zIndex: 2,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: colors.backgroundWhite,
+    padding: 24,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -120,9 +122,7 @@ const sheetStyles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  header: {
-    padding: theme.spacing.md,
-  },
+  header: {},
   headerWithoutTitle: {
     alignItems: 'flex-end',
   },

@@ -1,4 +1,7 @@
 import { Loading } from '@/components/Loading';
+import { SelectMonthModal } from '@/components/TransactionList/SelectMonthModal';
+import { TransactionTypeModal } from '@/components/TransactionList/SelectTransactionType';
+import { SelectYearModal } from '@/components/TransactionList/SelectYearModal';
 import { migrateDbIfNeeded } from '@/database';
 import { useBoundStore } from '@/store';
 import { theme } from '@/styles/theme';
@@ -64,6 +67,9 @@ export default function AppLayout() {
               options={{ presentation: 'transparentModal', animation: 'fade' }}
             />
           </Stack>
+          <SelectMonthModal />
+          <SelectYearModal />
+          <TransactionTypeModal />
         </SQLiteProvider>
       </Suspense>
     </View>

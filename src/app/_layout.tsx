@@ -1,6 +1,3 @@
-import { Stack } from 'expo-router';
-import { useEffect } from 'react';
-import * as SplashScreen from 'expo-splash-screen';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -9,11 +6,13 @@ import {
   Inter_900Black,
   useFonts,
 } from '@expo-google-fonts/inter';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
 
+import { useBoundStore } from '@/store';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
-import { useBoundStore } from '@/store';
-import { theme } from '@/styles/theme';
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -21,6 +20,10 @@ configureReanimatedLogger({
   strict: false, // Reanimated runs in strict mode by default
 });
 SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({
+  duration: 1000,
+  fade: true,
+});
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({

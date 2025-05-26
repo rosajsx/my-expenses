@@ -20,7 +20,7 @@ import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 const years = getLastAndFoward5Years();
 
 const formatDate = (date: string): string => {
-  const [ano, mes] = date.split('-');
+  const [ano, mes] = (date || '').split('-');
   const data = new Date(Number(ano), Number(mes) - 1);
   return data.toLocaleDateString('pt-BR', {
     month: 'long',

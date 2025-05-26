@@ -1,12 +1,9 @@
+import { hashKey } from '@/store/slices/authStore';
 import { SQLiteDatabase } from 'expo-sqlite';
-import { createTransactionsTable } from './transactions/createTransactionsTable';
+import Storage from 'expo-sqlite/kv-store';
 import { createAccountSummaryTable } from './accountSummary/createAccountSummaryTable';
 import { createBalanceHistoryTable } from './balanceHistory/createBalanceHistoryTable';
-import Storage from 'expo-sqlite/kv-store';
-import * as Crypto from 'expo-crypto';
-import { syncTransactions } from './transactions/syncTransactions';
-import { removeDeletedTransactions } from './transactions/removeDeletedTransactions';
-import { hashKey } from '@/store/slices/authStore';
+import { createTransactionsTable } from './transactions/createTransactionsTable';
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
   const DATABASE_VERSION = 1;

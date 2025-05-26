@@ -1,10 +1,10 @@
 import { ScreenStateEnum } from '@/enums/screenStates';
-import { View, StyleSheet } from 'react-native';
-import { Loading } from '../Loading';
-import LottieView from 'lottie-react-native';
 import { theme } from '@/styles/theme';
-import { Typography } from '../Typography';
+import LottieView from 'lottie-react-native';
+import { StyleSheet, View } from 'react-native';
 import { Button } from '../Button';
+import { Loading } from '../Loading';
+import { Typography } from '../Typography';
 
 interface EmptyComponentProps {
   transactionsState: keyof typeof ScreenStateEnum;

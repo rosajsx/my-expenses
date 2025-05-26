@@ -1,4 +1,4 @@
-import { create, StateCreator } from 'zustand';
+import { StateCreator } from 'zustand';
 
 type SelectedMonth = {
   id: number;
@@ -8,18 +8,21 @@ type SelectedMonth = {
 export interface TransactionFilterSlice {
   selectedYear: string | undefined;
   selectedMonth: SelectedMonth | undefined;
-  transactionTypeFilter: number | undefined;
+  selectedTransactionType: number | undefined;
   isSelectYearModalOpen: boolean;
   isSelectMonthModalOpen: boolean;
+  isTransactionTypeFilterOpen: boolean;
 
-  toggleTransactionTypeFiler: () => void;
   setSelectedYear: (value: string) => void;
   setSelectedMonth: (month: SelectedMonth) => void;
+  setTransactionTypeFilter: (value: number | undefined) => void;
 
   handleOpenSelectYearModal: () => void;
   handleCloseSelectYearModal: () => void;
   handleOpenSelectMonthModal: () => void;
   handleCloseSelectMonthModal: () => void;
+  handleOpenTransactionTypeModal: () => void;
+  handleCloseTransactionTypeModal: () => void;
 
   resetTransactionFilters: () => void;
 }
@@ -32,36 +35,22 @@ export const createTransactionsFilterSlice: StateCreator<
 > = (set) => ({
   selectedMonth: undefined,
   selectedYear: undefined,
-  transactionTypeFilter: undefined,
+  selectedTransactionType: undefined,
+
   isSelectMonthModalOpen: false,
   isSelectYearModalOpen: false,
+  isTransactionTypeFilterOpen: false,
 
-  toggleTransactionTypeFiler: () => {
-    set((state) => {
-      if (!state.transactionTypeFilter) {
-        return {
-          transactionTypeFilter: 1,
-        };
-      }
-
-      if (state.transactionTypeFilter === 1) {
-        return {
-          transactionTypeFilter: 2,
-        };
-      }
-
-      return {
-        transactionTypeFilter: undefined,
-      };
-    });
-  },
   setSelectedMonth: (month) => set(() => ({ selectedMonth: month })),
   setSelectedYear: (value) => set(() => ({ selectedYear: value })),
+  setTransactionTypeFilter: (value) => set(() => ({ selectedTransactionType: value })),
 
   handleOpenSelectYearModal: () => set(() => ({ isSelectYearModalOpen: true })),
   handleCloseSelectYearModal: () => set(() => ({ isSelectYearModalOpen: false })),
   handleOpenSelectMonthModal: () => set(() => ({ isSelectMonthModalOpen: true })),
   handleCloseSelectMonthModal: () => set(() => ({ isSelectMonthModalOpen: false })),
+  handleOpenTransactionTypeModal: () => set(() => ({ isTransactionTypeFilterOpen: true })),
+  handleCloseTransactionTypeModal: () => set(() => ({ isTransactionTypeFilterOpen: false })),
 
   resetTransactionFilters: () =>
     set(() => ({
