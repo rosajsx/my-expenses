@@ -1,11 +1,15 @@
 import { colors } from '@/styles/colors';
 import { getAllMonthsOfYear } from '@/utils';
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetBackdropProps,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
 import { Picker } from '@react-native-picker/picker';
-import React, { useEffect, useState } from 'react';
-import { ModalProps, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ModalProps, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 import { useBoundStore } from '../../store';
-import { BotttomSheet, useBottomSheet } from '../BottomSheet';
 
 const months = getAllMonthsOfYear();
 interface SelectMonthModalProps extends ModalProps {}
@@ -21,28 +25,58 @@ export const SelectMonthModal = ({ ...rest }: SelectMonthModalProps) => {
       })),
     );
 
-  const { isOpen, toggleSheet } = useBottomSheet();
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ['40%'], []);
 
   const [localMonth, setLocalMonth] = useState(selectedMonth);
+  const [sheetIndex, setSheetIndex] = useState(-1);
 
-  const handleClose = () => {
-    closeSelectMonthModal();
-    toggleSheet();
-  };
+  const openSheet = () => setSheetIndex(0);
+  const closeSheet = () => setSheetIndex(-1);
 
   const handleSelect = () => {
     setSelectedMonth(localMonth!);
     closeSelectMonthModal();
-    toggleSheet();
+    bottomSheetRef.current?.close();
+    closeSheet();
   };
 
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+        pressBehavior="close"
+      />
+    ),
+    [],
+  );
+
   useEffect(() => {
-    isOpen.value = isSelectMonthModalOpen;
+    if (isSelectMonthModalOpen) {
+      bottomSheetRef.current?.expand();
+    }
   }, [isSelectMonthModalOpen]);
 
+  console.log(sheetIndex);
+
   return (
-    <BotttomSheet isOpen={isOpen} toggleSheet={handleClose}>
-      <View style={styles.modalContent}>
+    <BottomSheet
+      ref={bottomSheetRef}
+      onChange={(value) => {
+        if (value === -1) {
+          closeSelectMonthModal();
+        }
+
+        setSheetIndex(value);
+      }}
+      enablePanDownToClose
+      index={sheetIndex}
+      snapPoints={snapPoints}
+      backdropComponent={renderBackdrop}>
+      <BottomSheetView style={styles.modalContent}>
         <Picker
           selectedValue={localMonth?.id}
           itemStyle={styles.item}
@@ -57,8 +91,8 @@ export const SelectMonthModal = ({ ...rest }: SelectMonthModalProps) => {
         <TouchableOpacity style={styles.saveBtn} onPress={handleSelect}>
           <Text style={styles.saveBtnLabel}>Salvar</Text>
         </TouchableOpacity>
-      </View>
-    </BotttomSheet>
+      </BottomSheetView>
+    </BottomSheet>
   );
 };
 
@@ -66,6 +100,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '100%',
     height: '100%',
+    paddingHorizontal: 24,
   },
   item: {
     fontFamily: 'Inter_400Regular',
