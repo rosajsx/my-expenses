@@ -8,4 +8,5 @@ export const colors = {
   green: '#06D6A0',
   textSecondary: '#8A8A8A',
   separator: '#EAEAEA',
+  gray: '#C7C7CC',
 };
