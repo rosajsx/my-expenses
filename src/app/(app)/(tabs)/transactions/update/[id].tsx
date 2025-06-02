@@ -1,45 +1,51 @@
 import { BotttomSheet, useBottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
-import { Input } from '@/components/Input';
-import { Loading } from '@/components/Loading';
-import { TransactionTypeSwitch } from '@/components/TransactionTypeSwitch';
-import { Typography } from '@/components/Typography';
 import { getTransactionById } from '@/database/transactions/getTransactionById';
 import { updateTransaction } from '@/database/transactions/updateTransaction';
 import { useDatabase } from '@/hooks/useDatabase';
+import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { useScreenState } from '@/hooks/useScreenState';
+import { colors } from '@/styles/colors';
 import { theme } from '@/styles/theme';
 import { formatCurrency, formatDate, parseCurrencyToCents } from '@/utils';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import LottieView from 'lottie-react-native';
-import { ArrowLeft, DollarSign } from 'lucide-react-native';
+import { ChevronRight } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { AdvancedCheckbox } from 'react-native-advanced-checkbox';
-import Animated, { Easing, FadeIn, FadeOut } from 'react-native-reanimated';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SharedValue } from 'react-native-reanimated';
 
-const AnimatedTypography = Animated.createAnimatedComponent(Typography);
+const quantitiesOfInstallments = new Array(48).fill(null).map((item, index) => {
+  return index + 1;
+});
 
 export default function UpdateTransaction() {
   const [transactionName, setTransactionName] = useState('');
-  const [transactionType, setTransactionType] = useState<number>();
+  const [transactionType, setTransactionType] = useState<number>(1);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState('');
-  const [haveInstallment, setHaveInstallment] = useState<boolean | string>(false);
-  const [installment, setInstallment] = useState<string | null>();
+  const [haveInstallment, setHaveInstallment] = useState<boolean>(false);
   const [installmentQtd, setInstallmentQtd] = useState<string | null>();
 
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const {
-    handleChangeScreenStateToError,
     handleChangeScreenStateToLoading,
     handleChangeScreenStateToSuccess,
-    isScreenStateDefault,
-    isScreenStateError,
+    handleChangeScreenStateToDefault,
     isScreenStateLoading,
     isScreenStateSuccess,
   } = useScreenState();
@@ -48,8 +54,9 @@ export default function UpdateTransaction() {
   const currencyValueRef = useRef<TextInput>(null);
   const categoryValueRef = useRef<TextInput>(null);
   const { isOpen, toggleSheet } = useBottomSheet();
+  const { isOpen: isInstallmentQtdOpen, toggleSheet: toggleSheetInstallmentQtd } = useBottomSheet();
 
-  const isUpdateButtonDisabled = !transactionType && !transactionName;
+  const isUpdateButtonDisabled = !transactionName || amount === 0;
 
   const handleUpdateTransaction = () => {
     handleChangeScreenStateToLoading();
@@ -67,7 +74,11 @@ export default function UpdateTransaction() {
       })
       .catch((error) => {
         console.log(error);
-        handleChangeScreenStateToError();
+        Alert.alert('Ocorreu um erro inesperado ao atualizar a transação!', error?.message || '', [
+          {
+            text: 'OK',
+          },
+        ]);
       });
   };
 
@@ -82,7 +93,6 @@ export default function UpdateTransaction() {
       if (data?.category) setCategory(data?.category);
 
       if (data?.installment && data?.installment_qtd) {
-        setInstallment(data?.installment.toString());
         setInstallmentQtd(data?.installment_qtd.toString());
         setHaveInstallment(true);
       }
@@ -98,6 +108,8 @@ export default function UpdateTransaction() {
     } as any);
   };
 
+  useHideTabBar();
+
   useFocusEffect(
     useCallback(() => {
       getData();
@@ -106,32 +118,64 @@ export default function UpdateTransaction() {
 
   return (
     <>
-      <Container>
-        {isScreenStateDefault && (
-          <View style={styles.flex}>
-            <View style={styles.modalHeader}>
-              <Button
-                variant="ghost"
-                Icon={ArrowLeft}
-                onPress={() => handleBack(false)}
-                style={{ zIndex: 1, minWidth: 'auto', minHeight: 'auto' }}
-              />
-              <Typography style={styles.title}>Nova Transação</Typography>
-            </View>
-            <View style={styles.content}>
-              <Input
-                label="Nome"
-                returnKeyType="next"
-                value={transactionName}
-                onChangeText={setTransactionName}
-                onSubmitEditing={() => {
-                  currencyValueRef?.current?.focus?.();
-                }}
-              />
-              <Input
-                label="Valor"
+      <Container style={styles.wrapper}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={router.back}
+            disabled={isScreenStateLoading}>
+            <Text
+              style={[
+                styles.headerCancelText,
+                isScreenStateLoading && styles.headerSaveTextDisabled,
+              ]}>
+              Cancelar
+            </Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Nova Transação</Text>
+          <TouchableOpacity
+            style={styles.headerButton}
+            disabled={isUpdateButtonDisabled || isScreenStateLoading}
+            onPress={handleUpdateTransaction}>
+            {isScreenStateLoading ? (
+              <ActivityIndicator color={colors.primary} />
+            ) : (
+              <Text
+                style={[
+                  styles.headerSaveText,
+                  isUpdateButtonDisabled && styles.headerSaveTextDisabled,
+                ]}
+                disabled={isUpdateButtonDisabled}>
+                Atualizar
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+        <View style={styles.main}>
+          <View style={styles.container}>
+            <Text style={[styles.inputLabel]}>Nome da Transação </Text>
+            <View style={styles.divider} />
+            <TextInput
+              style={styles.textInput}
+              placeholder="Digite o nome"
+              placeholderTextColor={colors.textSecondary}
+              returnKeyType="next"
+              value={transactionName}
+              onChangeText={setTransactionName}
+              onSubmitEditing={() => {
+                currencyValueRef?.current?.focus?.();
+              }}
+            />
+          </View>
+
+          <View style={styles.container}>
+            <View style={styles.input}>
+              <Text style={styles.inputLabel}>Valor</Text>
+              <TextInput
+                style={styles.textInput}
+                placeholder="R$ 00,00"
                 keyboardType="number-pad"
-                LeftIcon={DollarSign}
+                placeholderTextColor={colors.textSecondary}
                 value={formatCurrency(amount)}
                 onChangeText={(value) => {
                   const cents = parseCurrencyToCents(value);
@@ -141,123 +185,120 @@ export default function UpdateTransaction() {
                   categoryValueRef?.current?.focus?.();
                 }}
                 ref={currencyValueRef}
-                returnKeyType="next"
               />
-              <Input
-                label="Categoria"
+            </View>
+          </View>
+
+          <View style={styles.container}>
+            <View style={styles.inputTypeContainer}>
+              <Pressable
+                style={[
+                  styles.inputTypeItem,
+                  transactionType === 1 && styles.inputTypeItemSelected,
+                ]}
+                onPress={() => setTransactionType(1)}>
+                <Text
+                  style={[
+                    styles.inputTypeText,
+                    transactionType === 1 && styles.inputTypeTextSelected,
+                  ]}>
+                  Entrada
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[
+                  styles.inputTypeItem,
+                  transactionType === 2 && styles.inputTypeItemSelected,
+                ]}
+                onPress={() => setTransactionType(2)}>
+                <Text
+                  style={[
+                    styles.inputTypeText,
+                    transactionType === 2 && styles.inputTypeTextSelected,
+                  ]}>
+                  Saída
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+
+          <View style={styles.container}>
+            <View style={styles.input}>
+              <Text style={styles.inputLabel}>Data</Text>
+              <Pressable style={styles.inputWithOptions} onPress={toggleSheet}>
+                <Text style={[styles.inputTypeText, styles.inputTypeTextWithItems]}>
+                  {formatDate(selectedDate.toString(), {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                  })}
+                </Text>
+                <ChevronRight color={colors.textSecondary} />
+              </Pressable>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.input}>
+              <Text style={styles.inputLabel}>Categoria</Text>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Digite a categoria"
+                placeholderTextColor={colors.textSecondary}
+                returnKeyType="next"
                 value={category}
                 onChangeText={setCategory}
-                ref={categoryValueRef}
-                returnKeyType="next"
               />
-              <TransactionTypeSwitch onSelect={setTransactionType} initialValue={transactionType} />
-              <View style={styles.dateContent}>
-                <Typography variant="label">Data</Typography>
-                <TouchableOpacity style={styles.dateContainer} onPress={toggleSheet}>
-                  <Typography>{formatDate(selectedDate.toString())}</Typography>
-                </TouchableOpacity>
-              </View>
-              <AdvancedCheckbox
-                label="Transação parcelada?"
-                value={haveInstallment}
-                onValueChange={setHaveInstallment}
-                checkedColor={theme.colors.primary}
-                labelStyle={styles.checkboxLabel}
-                disabled
-              />
-              {haveInstallment && (
-                <Animated.View
-                  style={styles.installmentContainer}
-                  entering={FadeIn.duration(300).easing(Easing.inOut(Easing.quad))}
-                  exiting={FadeOut.duration(300).easing(Easing.inOut(Easing.quad))}>
-                  <Input
-                    label="Parcela atual"
-                    editable={false}
-                    value={installment || ''}
-                    onChangeText={setInstallment}
-                    containerStyle={styles.installmentInput}
-                    keyboardType="number-pad"
-                    returnKeyType="next"
-                  />
-                  <Input
-                    label="Total parcelas"
-                    editable={false}
-                    value={installmentQtd || ''}
-                    onChangeText={setInstallmentQtd}
-                    keyboardType="number-pad"
-                    containerStyle={styles.installmentInput}
-                    returnKeyType="next"
-                  />
-                </Animated.View>
-              )}
             </View>
-            <Button
-              variant="primary"
-              title="Atualizar"
-              disabled={isUpdateButtonDisabled}
-              onPress={handleUpdateTransaction}
-            />
           </View>
-        )}
 
-        {isScreenStateLoading && (
-          <View style={styles.statesContainer}>
-            <Loading />
+          <View style={styles.container}>
+            <View style={styles.input}>
+              <Text style={styles.inputLabel}>Parcelado</Text>
+              <Switch value={haveInstallment} onValueChange={setHaveInstallment} />
+            </View>
+            <View style={styles.divider} />
+            <View style={[styles.input, !haveInstallment && styles.disabledField]}>
+              <Text style={styles.inputLabel}>Qtde de parcelas</Text>
+              <Pressable style={[styles.inputWithOptions]} onPress={toggleSheetInstallmentQtd}>
+                <Text style={[styles.inputTypeText, styles.inputTypeTextWithItems]}>
+                  {installmentQtd || 1}
+                </Text>
+                <ChevronRight color={colors.textSecondary} />
+              </Pressable>
+            </View>
           </View>
-        )}
-        {isScreenStateError && (
-          <View style={styles.statesContainer}>
-            <LottieView
-              autoPlay
-              style={theme.sizes.errorTransation}
-              source={{
-                uri: 'error-animation',
-              }}
-              loop={false}
-            />
-            <Typography variant="section" style={styles.errorStateText}>
-              Ocorreu um erro inesperado, por favor, tente novamente.
-            </Typography>
-            <Button title="Fechar" onPress={() => handleBack(false)} />
-          </View>
-        )}
-
-        {isScreenStateSuccess && (
-          <View style={styles.statesContainer}>
-            <LottieView
-              autoPlay
-              style={theme.sizes.errorTransation}
-              source={{ uri: 'success-animation' }}
-            />
-
-            <AnimatedTypography
-              variant="section"
-              style={styles.errorStateText}
-              entering={FadeIn.duration(3800)}>
-              Transação atualizada com sucesso!
-            </AnimatedTypography>
-            <Animated.View entering={FadeIn.duration(3800)} style={styles.buttonContainer}>
-              <Button
-                title="Fechar"
-                variant="secondary"
-                onPress={() => handleBack(true)}
-                style={styles.buttonStyle}
-              />
-            </Animated.View>
-          </View>
-        )}
+        </View>
       </Container>
+
       <BotttomSheet isOpen={isOpen} toggleSheet={toggleSheet}>
         <View style={styles.dateModalContainer}>
           <DateTimePicker
             display="spinner"
             mode="date"
             value={selectedDate}
+            textColor={colors.text}
             onChange={(_, date) => {
               setSelectedDate(date!);
             }}
           />
-          <Button title="Salvar" onPress={toggleSheet} />
+        </View>
+      </BotttomSheet>
+      <BotttomSheet isOpen={isInstallmentQtdOpen} toggleSheet={toggleSheetInstallmentQtd}>
+        <View style={styles.dateModalContainer}>
+          <Picker selectedValue={installmentQtd} onValueChange={setInstallmentQtd}>
+            {quantitiesOfInstallments.map((item) => (
+              <Picker.Item key={item} label={item.toString()} value={item} />
+            ))}
+          </Picker>
+        </View>
+      </BotttomSheet>
+
+      <BotttomSheet
+        isOpen={{ value: isScreenStateSuccess } as SharedValue<boolean>}
+        toggleSheet={handleChangeScreenStateToDefault}>
+        <View style={styles.sucessModalContainer}>
+          <Text style={styles.successModalTitle}>Transação salva com sucesso!</Text>
+
+          <Button title="Fechar" onPress={router.back} />
         </View>
       </BotttomSheet>
     </>
@@ -265,8 +306,111 @@ export default function UpdateTransaction() {
 }
 
 const styles = StyleSheet.create({
-  flex: {
+  wrapper: {
+    gap: 24,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  main: {
+    gap: 24,
+  },
+  headerButton: {},
+  disabledField: {
+    pointerEvents: 'none',
+    opacity: 0.5,
+  },
+  container: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 12,
+    gap: 12,
+    minHeight: 44,
+  },
+  divider: {
+    borderWidth: 0.5,
+    borderColor: colors.separator,
+    width: '100%',
+  },
+  textInput: {
+    fontSize: 17,
+    fontFamily: 'Inter_400Regular',
+    fontWeight: 400,
+    textAlign: 'left',
+  },
+  input: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    justifyContent: 'space-between',
+  },
+  inputColumn: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 4,
+  },
+  inputLabel: {
+    color: colors.text,
+    fontSize: 15,
+    fontFamily: 'Inter_400Regular',
+    fontWeight: 400,
+    textAlign: 'left',
+  },
+  inputWithOptions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  inputTypeContainer: {
+    flexDirection: 'row',
+  },
+  inputTypeItem: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  inputTypeText: {
+    fontSize: 15,
+    fontFamily: 'Inter_500Medium',
+    fontWeight: 500,
+    color: colors.text,
+  },
+  inputTypeTextWithItems: {
+    color: colors.textSecondary,
+  },
+  inputTypeItemSelected: {
+    backgroundColor: colors.primary,
+  },
+  inputTypeTextSelected: {
+    color: colors.white,
+  },
+
+  headerTitle: {
+    fontFamily: 'Inter_600SemiBold',
+    fontWeight: 600,
+    fontSize: 17,
+    color: colors.text,
+  },
+  headerCancelText: {
+    fontSize: 17,
+    fontFamily: 'Inter_400Regular',
+    fontWeight: 400,
+    color: colors.primary,
+  },
+  headerSaveText: {
+    fontFamily: 'Inter_600SemiBold',
+    fontWeight: 600,
+    fontSize: 17,
+
+    color: colors.primary,
+  },
+  headerSaveTextDisabled: {
+    color: colors.textSecondary,
   },
   dateModalContainer: {
     padding: theme.spacing.md,
@@ -284,85 +428,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
-  installmentContainer: {
-    flexDirection: 'row',
-    gap: theme.spacing.md,
-  },
-  installmentInput: {
-    flex: 1,
-  },
-  title: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
+
+  sucessModalContainer: {},
+  successModalTitle: {
+    color: colors.text,
+    fontFamily: 'Inter_600SemiBold',
+    fontWeight: 600,
     textAlign: 'center',
+    fontSize: 17,
+    marginBottom: 40,
   },
-  checkboxLabel: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.family.regular,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  avoidView: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    gap: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
-  },
-  footer: {
-    borderWidth: 1,
-    borderColor: 'red',
-  },
-  switchContainer: {
-    borderWidth: 1,
-    flexDirection: 'row',
-    borderRadius: theme.radius.xl,
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
-  },
-  switchButton: {
-    flex: 1,
-    padding: theme.spacing.lg,
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  enterIcomeButton: {
-    borderRightWidth: 1,
-    borderRightColor: theme.colors.border,
-    borderTopLeftRadius: theme.radius.xl,
-    borderBottomLeftRadius: theme.radius.xl,
-  },
-  outIncomeButton: {
-    borderTopRightRadius: theme.radius.xl,
-    borderBottomRightRadius: theme.radius.xl,
-  },
-  enterIncomeSelected: {
-    backgroundColor: theme.colors.success50,
-  },
-  outIncomeSelected: {
-    backgroundColor: theme.colors.error50,
-  },
-  statesContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.md,
-  },
-  errorStateText: {
+  successModalSubtitle: {
+    color: colors.textSecondary,
+    fontFamily: 'Inter_400Regular',
+    fontWeight: 400,
     textAlign: 'center',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: theme.spacing.md,
-  },
-  buttonStyle: {
-    flex: 1,
+    fontSize: 15,
+    marginBottom: 24,
   },
 });
