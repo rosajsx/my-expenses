@@ -1,6 +1,6 @@
-import { StateCreator } from 'zustand';
-import Storage from 'expo-sqlite/kv-store';
 import * as Crypto from 'expo-crypto';
+import Storage from 'expo-sqlite/kv-store';
+import { StateCreator } from 'zustand';
 
 export interface AuthSlice {
   authHash: string | null;
@@ -27,7 +27,6 @@ export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set)
   verifyIfHaveAuthHash: async () => {
     const userHash = await Storage.getItem(hashKey);
 
-    console.log({ userHash });
     if (userHash) {
       set((state) => ({
         ...state,

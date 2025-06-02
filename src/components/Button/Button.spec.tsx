@@ -26,8 +26,6 @@ describe('<Button/>', () => {
     const textComponent = screen.getByText('Botão');
     const wrapper = screen.getByTestId('Button');
 
-    console.log(textComponent.props.style);
-
     expect(wrapper).toBeOnTheScreen();
     expect(wrapper.props.style.backgroundColor).toEqual(theme.colors.primary);
 

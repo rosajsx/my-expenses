@@ -1,3 +1,4 @@
+import { getAllMonthsOfYear } from '@/utils';
 import { StateCreator } from 'zustand';
 
 type SelectedMonth = {
@@ -27,13 +28,16 @@ export interface TransactionFilterSlice {
   resetTransactionFilters: () => void;
 }
 
+const allMonths = getAllMonthsOfYear();
+const monthValue = allMonths[new Date().getMonth()];
+
 export const createTransactionsFilterSlice: StateCreator<
   TransactionFilterSlice,
   [],
   [],
   TransactionFilterSlice
 > = (set) => ({
-  selectedMonth: undefined,
+  selectedMonth: monthValue,
   selectedYear: undefined,
   selectedTransactionType: undefined,
 
@@ -54,7 +58,7 @@ export const createTransactionsFilterSlice: StateCreator<
 
   resetTransactionFilters: () =>
     set(() => ({
-      selectedMonth: undefined,
+      selectedMonth: monthValue,
       selectedYear: undefined,
       transactionTypeFilter: undefined,
       isSelectMonthModalOpen: false,

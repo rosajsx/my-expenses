@@ -1,4 +1,3 @@
-import { getCacheAccountBalance } from '@/database/accountSummary/getCachedBalance';
 import { getMonthBalance } from '@/database/accountSummary/getMonthBalance';
 import { ScreenStateEnum } from '@/enums/screenStates';
 import { SQLiteDatabase } from 'expo-sqlite';
@@ -25,10 +24,10 @@ export const createBalanceSlice: StateCreator<BalanceSlice, [], [], BalanceSlice
   getBalances: async (database) => {
     set((state) => ({ balanceState: ScreenStateEnum.LOADING }));
     try {
-      const balance = await getCacheAccountBalance(database);
+      //const balance = await getCacheAccountBalance(database);
       const monthBalance = await getMonthBalance(database, `${currentMonth + 1}`);
       set((state) => ({
-        balance: balance,
+        balance: 0,
         monthBalance: monthBalance?.total,
         balanceState: ScreenStateEnum.DEFAULT,
       }));
