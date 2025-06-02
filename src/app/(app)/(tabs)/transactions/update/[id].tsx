@@ -92,7 +92,7 @@ export default function UpdateTransaction() {
   };
 
   const handleBack = (haveChanges?: boolean) => {
-    router.back();
+    router.navigate('/transactions');
     router.setParams({
       update: !!haveChanges,
     } as any);

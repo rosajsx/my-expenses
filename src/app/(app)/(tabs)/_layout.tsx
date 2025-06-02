@@ -8,7 +8,7 @@ export default function TabsLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarStyle: styles.tabBarStyle,
+          tabBarStyle: [styles.tabBarStyle],
           tabBarIconStyle: {
             display: 'none',
           },
@@ -42,7 +42,7 @@ export default function TabsLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   tabBarStyle: {
     paddingTop: 12,
     paddingBottom: 16,

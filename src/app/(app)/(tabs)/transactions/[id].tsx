@@ -4,6 +4,7 @@ import { getTransactionById } from '@/database/transactions/getTransactionById';
 import { Transaction } from '@/database/types';
 import { ScreenStateEnum } from '@/enums/screenStates';
 import { useDatabase } from '@/hooks/useDatabase';
+import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { useScreenState } from '@/hooks/useScreenState';
 import { useBoundStore } from '@/store';
 import { formatCurrency, formatDate } from '@/utils';
@@ -27,6 +28,8 @@ export default function TransactionDetails() {
     handleChangeScreenStateToError,
     handleChangeScreenStateToLoading,
   } = useScreenState(ScreenStateEnum.LOADING);
+
+  useHideTabBar();
 
   useFocusEffect(
     useCallback(() => {
