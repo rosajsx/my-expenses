@@ -1,7 +1,11 @@
 import { BottomSheet, useBottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
+import { Card } from '@/components/Card';
 import { Container } from '@/components/Container';
 import { PageHeader } from '@/components/Header/index';
+import { Input } from '@/components/Input/index';
+import { InputColumn } from '@/components/Input/InputColumn';
+import { InputSwitch } from '@/components/Input/InputSwitch';
 import { Separator } from '@/components/Separator';
 import { Typography } from '@/components/Typography';
 import { createTransaction } from '@/database/transactions/createTransaction';
@@ -14,14 +18,24 @@ import { formatCurrency, formatDate, parseCurrencyToCents } from '@/utils';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
-import { ChevronRight } from 'lucide-react-native';
 import { useRef, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { SharedValue } from 'react-native-reanimated';
 
 const quantitiesOfInstallments = new Array(48).fill(null).map((item, index) => {
   return index + 1;
 });
+
+const incomeTypeOptions = [
+  {
+    label: 'Entrada',
+    value: 1,
+  },
+  {
+    label: 'Saída',
+    value: 2,
+  },
+];
 
 export default function CreateTransaction() {
   const [transactionName, setTransactionName] = useState('');
@@ -100,13 +114,9 @@ export default function CreateTransaction() {
           onAction={handleCreateTransaction}
         />
         <View style={styles.main}>
-          <View style={styles.container}>
-            <Typography variant="body/md" color="text">
-              Nome da Transação{' '}
-            </Typography>
-            <Separator />
-            <TextInput
-              style={styles.textInput}
+          <Card>
+            <InputColumn
+              label="Nome da Transação"
               placeholder="Digite o nome"
               placeholderTextColor={colors.textSecondary}
               returnKeyType="next"
@@ -116,108 +126,69 @@ export default function CreateTransaction() {
                 currencyValueRef?.current?.focus?.();
               }}
             />
-          </View>
+          </Card>
 
-          <View style={styles.container}>
-            <View style={styles.input}>
-              <Typography variant="body/md" color="text">
-                Valor
-              </Typography>
-              <TextInput
-                style={styles.textInput}
-                placeholder="R$ 00,00"
-                keyboardType="number-pad"
-                placeholderTextColor={colors.textSecondary}
-                value={formatCurrency(amount)}
-                onChangeText={(value) => {
-                  const cents = parseCurrencyToCents(value);
-                  setAmount(cents);
-                }}
-                onEndEditing={() => {
-                  categoryValueRef?.current?.focus?.();
-                }}
-                ref={currencyValueRef}
-              />
-            </View>
-          </View>
+          <Card>
+            <Input
+              label="Valor"
+              placeholder="R$ 00,00"
+              keyboardType="number-pad"
+              value={formatCurrency(amount)}
+              onChangeText={(value) => {
+                const cents = parseCurrencyToCents(value);
+                setAmount(cents);
+              }}
+              onEndEditing={() => {
+                categoryValueRef?.current?.focus?.();
+              }}
+              ref={currencyValueRef}
+            />
+          </Card>
 
-          <View style={styles.container}>
-            <View style={styles.inputTypeContainer}>
-              <Pressable
-                style={[
-                  styles.inputTypeItem,
-                  transactionType === 1 && styles.inputTypeItemSelected,
-                ]}
-                onPress={() => setTransactionType(1)}>
-                <Typography variant="body/md-500" color={transactionType === 1 ? 'white' : 'text'}>
-                  Entrada
-                </Typography>
-              </Pressable>
-              <Pressable
-                style={[
-                  styles.inputTypeItem,
-                  transactionType === 2 && styles.inputTypeItemSelected,
-                ]}
-                onPress={() => setTransactionType(2)}>
-                <Typography variant="body/md-500" color={transactionType === 2 ? 'white' : 'text'}>
-                  Saída
-                </Typography>
-              </Pressable>
-            </View>
-          </View>
+          <Card>
+            <InputSwitch
+              value={transactionType}
+              options={incomeTypeOptions}
+              onChange={(value) => setTransactionType(value as number)}
+            />
+          </Card>
 
-          <View style={styles.container}>
-            <View style={styles.input}>
-              <Typography variant="body/md" color="text">
-                Data
-              </Typography>
-              <Pressable style={styles.inputWithOptions} onPress={toggleSheet}>
-                <Text style={[styles.inputTypeText, styles.inputTypeTextWithItems]}>
-                  {formatDate(selectedDate.toString(), {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                  })}
-                </Text>
-                <ChevronRight color={colors.textSecondary} />
-              </Pressable>
-            </View>
+          <Card>
+            <Input
+              label="Data"
+              valueWithAction
+              value={formatDate(selectedDate.toString(), {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+              })}
+              onAction={toggleSheet}
+            />
             <Separator />
-            <View style={styles.input}>
-              <Typography variant="body/md" color="text">
-                Categoria
-              </Typography>
-              <TextInput
-                style={styles.textInput}
-                placeholder="Digite a categoria"
-                placeholderTextColor={colors.textSecondary}
-                returnKeyType="next"
-                value={category}
-                onChangeText={setCategory}
-              />
-            </View>
-          </View>
+            <Input
+              label="Categoria"
+              placeholder="Digite a categoria"
+              returnKeyType="next"
+              value={category}
+              onChangeText={setCategory}
+            />
+          </Card>
 
-          <View style={styles.container}>
-            <View style={styles.input}>
-              <Typography variant="body/md" color="text">
-                Parcelado
-              </Typography>
-              <Switch value={haveInstallment} onValueChange={setHaveInstallment} />
-            </View>
+          <Card>
+            <Input
+              label="Parcelado"
+              RightComponent={<Switch value={haveInstallment} onValueChange={setHaveInstallment} />}
+            />
+
             <Separator />
-            <View style={[styles.input, !haveInstallment && styles.disabledField]}>
-              <Typography variant="body/md" color="text">
-                Qtde de parcelas
-              </Typography>
-              <Pressable style={[styles.inputWithOptions]} onPress={toggleSheetInstallmentQtd}>
-                <Text style={[styles.inputTypeText, styles.inputTypeTextWithItems]}>
-                  {installmentQtd || 1}
-                </Text>
-                <ChevronRight color={colors.textSecondary} />
-              </Pressable>
-            </View>
-          </View>
+            <Input
+              label="Qtde de parcelas"
+              valueWithAction
+              onAction={toggleSheetInstallmentQtd}
+              value={installmentQtd || '1'}
+              disabled={!haveInstallment}
+            />
+          </Card>
         </View>
       </Container>
 
@@ -275,66 +246,6 @@ const styles = StyleSheet.create({
 
   main: {
     gap: 24,
-  },
-  disabledField: {
-    pointerEvents: 'none',
-    opacity: 0.5,
-  },
-  container: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    padding: 12,
-    gap: 12,
-    minHeight: 44,
-  },
-
-  textInput: {
-    fontSize: 17,
-    fontFamily: 'Inter_400Regular',
-    fontWeight: 400,
-    textAlign: 'left',
-  },
-  input: {
-    flexDirection: 'row',
-    alignItems: 'center',
-
-    justifyContent: 'space-between',
-  },
-  inputColumn: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: 4,
-  },
-
-  inputWithOptions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  inputTypeContainer: {
-    flexDirection: 'row',
-  },
-  inputTypeItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  inputTypeText: {
-    fontSize: 15,
-    fontFamily: 'Inter_500Medium',
-    fontWeight: 500,
-    color: colors.text,
-  },
-  inputTypeTextWithItems: {
-    color: colors.textSecondary,
-  },
-  inputTypeItemSelected: {
-    backgroundColor: colors.primary,
-  },
-  inputTypeTextSelected: {
-    color: colors.white,
   },
 
   dateModalContainer: {
