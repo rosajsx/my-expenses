@@ -20,7 +20,7 @@ import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate } from '@/utils';
 import * as Network from 'expo-network';
 import { router, useFocusEffect } from 'expo-router';
-import { Pen, Plus, Trash } from 'lucide-react-native';
+import { Pen, Plus, RefreshCcw, Trash } from 'lucide-react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { useShallow } from 'zustand/react/shallow';
@@ -49,7 +49,6 @@ export default function Index() {
     })),
   );
 
-  const [syncTimes, setSyncTimes] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
 
   const { database } = useDatabase();
@@ -144,6 +143,21 @@ export default function Index() {
     );
   };
 
+  const handleSync = async () => {
+    try {
+      setIsSyncing(true);
+      await syncTransactions();
+    } catch (error) {
+      console.log('Error syncing transactions:', error);
+      Alert.alert(
+        'Erro ao sincronizar transações',
+        'Ocorreu um erro ao tentar sincronizar as transações. Por favor, tente novamente mais tarde.',
+      );
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   useEffect(() => {
     updateData();
     resetFilters();
@@ -165,28 +179,39 @@ export default function Index() {
   useLayoutEffect(() => {
     if (isConnected) {
       (async () => {
-        setIsSyncing(true);
-        await syncTransactions();
+        handleSync();
         if (!isFirstRender) {
           updateData();
         }
-        setIsSyncing(false);
+
         isFirstRender = false;
       })();
     }
-  }, [syncTimes]);
+  }, []);
 
   return (
     <Container style={styles.container}>
       <View style={styles.content}>
         <View style={styles.headerContainer}>
           <Typography variant="heading/lg">Transações</Typography>
-          <Button
-            variant="ghost"
-            onPress={() => router.navigate('/(app)/(tabs)/transactions/create')}
-            style={{ height: 'auto', padding: 0 }}>
-            <Plus color={colors.primary} size={28} />
-          </Button>
+          <View style={styles.actionButtons}>
+            {canSync && (
+              <Button
+                variant="ghost"
+                disabled={isSyncing}
+                onPress={() => router.navigate('/(app)/(tabs)/transactions/create')}
+                style={{ height: 'auto', padding: 0 }}>
+                <RefreshCcw color={colors.primary} size={28} />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              disabled={isSyncing}
+              onPress={() => router.navigate('/(app)/(tabs)/transactions/create')}
+              style={{ height: 'auto', padding: 0 }}>
+              <Plus color={colors.primary} size={28} />
+            </Button>
+          </View>
         </View>
 
         <BalanceHeader />
@@ -243,6 +268,11 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     gap: 16,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   header: {
     backgroundColor: theme.colors.background,

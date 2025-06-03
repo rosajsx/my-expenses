@@ -135,13 +135,13 @@ export default function TransactionDetails() {
             </Typography>
           </View>
         )}
-        {transaction?.pendingSync && (
+        {typeof transaction?.pendingSync === 'number' && (
           <View style={styles.detailItem}>
             <Typography variant="body/md" color="text">
               Status
             </Typography>
             <Typography variant="body/md">
-              {transaction?.pendingSync === 1 ? 'Pendente de Sincronização' : 'Sincronizado!'}
+              {transaction.pendingSync === 1 ? 'Pendente de Sincronização' : 'Sincronizado!'}
             </Typography>
           </View>
         )}
