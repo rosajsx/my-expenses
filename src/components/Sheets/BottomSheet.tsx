@@ -11,7 +11,7 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import { Typography } from './Typography';
+import { Typography } from '../Typography';
 
 interface BottomSheetProps {
   isOpen: SharedValue<boolean>;
