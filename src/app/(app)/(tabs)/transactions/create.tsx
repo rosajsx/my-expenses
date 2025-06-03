@@ -1,4 +1,3 @@
-import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Container } from '@/components/Container';
 import { PageHeader } from '@/components/Header/index';
@@ -6,25 +5,17 @@ import { Input } from '@/components/Input/index';
 import { InputColumn } from '@/components/Input/InputColumn';
 import { InputSwitch } from '@/components/Input/InputSwitch';
 import { Separator } from '@/components/Separator';
-import { BottomSheet, useBottomSheet } from '@/components/Sheets/BottomSheet';
-import { Typography } from '@/components/Typography';
+import { CreateTransactionSuccessModal } from '@/components/Sheets/CreateTransactionSuccessModal';
+import { SelectDateModal } from '@/components/Sheets/SelectDateModal';
+import { SelectInstallmentsModal } from '@/components/Sheets/SelectInstallmentsModal';
 import { createTransaction } from '@/database/transactions/createTransaction';
 import { useDatabase } from '@/hooks/useDatabase';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { useScreenState } from '@/hooks/useScreenState';
 import { colors } from '@/styles/colors';
-import { theme } from '@/styles/theme';
 import { formatCurrency, formatDate, parseCurrencyToCents } from '@/utils';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
-import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Alert, StyleSheet, Switch, TextInput, View } from 'react-native';
-import { SharedValue } from 'react-native-reanimated';
-
-const quantitiesOfInstallments = new Array(48).fill(null).map((item, index) => {
-  return index + 1;
-});
 
 const incomeTypeOptions = [
   {
@@ -46,6 +37,9 @@ export default function CreateTransaction() {
   const [haveInstallment, setHaveInstallment] = useState<boolean>(false);
   const [installmentQtd, setInstallmentQtd] = useState<string | null>();
 
+  const [isDateModalOpen, setIsDateModalOpen] = useState(false);
+  const [isInstallmentsModalOpen, setIsInstallmentsModalOpen] = useState(false);
+
   const {
     handleChangeScreenStateToLoading,
     handleChangeScreenStateToSuccess,
@@ -57,9 +51,6 @@ export default function CreateTransaction() {
 
   const currencyValueRef = useRef<TextInput>(null);
   const categoryValueRef = useRef<TextInput>(null);
-
-  const { isOpen, toggleSheet } = useBottomSheet();
-  const { isOpen: isInstallmentQtdOpen, toggleSheet: toggleSheetInstallmentQtd } = useBottomSheet();
 
   const isCreateButtonDisabled = !transactionName || amount === 0;
 
@@ -162,7 +153,7 @@ export default function CreateTransaction() {
                 month: '2-digit',
                 year: 'numeric',
               })}
-              onAction={toggleSheet}
+              onAction={() => setIsDateModalOpen(true)}
             />
             <Separator />
             <Input
@@ -184,7 +175,7 @@ export default function CreateTransaction() {
             <Input
               label="Qtde de parcelas"
               valueWithAction
-              onAction={toggleSheetInstallmentQtd}
+              onAction={() => setIsInstallmentsModalOpen(true)}
               value={installmentQtd || '1'}
               disabled={!haveInstallment}
             />
@@ -192,49 +183,25 @@ export default function CreateTransaction() {
         </View>
       </Container>
 
-      <BottomSheet isOpen={isOpen} toggleSheet={toggleSheet}>
-        <View style={styles.dateModalContainer}>
-          <DateTimePicker
-            display="spinner"
-            mode="date"
-            value={selectedDate}
-            textColor={colors.text}
-            onChange={(_, date) => {
-              setSelectedDate(date!);
-            }}
-          />
-        </View>
-      </BottomSheet>
-      <BottomSheet isOpen={isInstallmentQtdOpen} toggleSheet={toggleSheetInstallmentQtd}>
-        <View style={styles.dateModalContainer}>
-          <Picker selectedValue={installmentQtd} onValueChange={setInstallmentQtd}>
-            {quantitiesOfInstallments.map((item) => (
-              <Picker.Item key={item} label={item.toString()} value={item} />
-            ))}
-          </Picker>
-        </View>
-      </BottomSheet>
+      <SelectDateModal
+        isOpen={isDateModalOpen}
+        toggleSheet={() => setIsDateModalOpen(false)}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
 
-      <BottomSheet
-        isOpen={{ value: isScreenStateSuccess } as SharedValue<boolean>}
-        toggleSheet={handleChangeScreenStateToDefault}>
-        <View style={styles.sucessModalContainer}>
-          <Typography align="center" variant="heading/md" style={{ marginBottom: 8 }}>
-            Transação salva com sucesso!
-          </Typography>
-          <Typography align="center" variant="body/md" style={{ marginBottom: 32 }}>
-            O que deseja fazer agora?
-          </Typography>
+      <SelectInstallmentsModal
+        isOpen={isInstallmentsModalOpen}
+        toggleSheet={() => setIsInstallmentsModalOpen(false)}
+        installmentQtd={installmentQtd}
+        setInstallmentQtd={setInstallmentQtd}
+      />
 
-          <Button
-            variant="primary"
-            title="Criar nova transação"
-            onPress={handleReset}
-            style={{ marginBottom: 18 }}
-          />
-          <Button variant="ghost" title="Fechar" onPress={router.back} />
-        </View>
-      </BottomSheet>
+      <CreateTransactionSuccessModal
+        isOpen={isScreenStateSuccess}
+        toggleSheet={handleChangeScreenStateToDefault}
+        onReset={handleReset}
+      />
     </>
   );
 }
@@ -247,23 +214,4 @@ const styles = StyleSheet.create({
   main: {
     gap: 24,
   },
-
-  dateModalContainer: {
-    padding: theme.spacing.md,
-  },
-  dateContent: {
-    gap: theme.spacing.xs,
-  },
-  dateContainer: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
-    paddingVertical: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.md,
-    minHeight: 48,
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-
-  sucessModalContainer: {},
 });
