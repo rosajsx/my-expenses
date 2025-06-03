@@ -1,4 +1,3 @@
-import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Container } from '@/components/Container';
 import { PageHeader } from '@/components/Header/index';
@@ -6,26 +5,19 @@ import { Input } from '@/components/Input/index';
 import { InputColumn } from '@/components/Input/InputColumn';
 import { InputSwitch } from '@/components/Input/InputSwitch';
 import { Separator } from '@/components/Separator';
-import { BottomSheet, useBottomSheet } from '@/components/Sheets/BottomSheet';
-import { Typography } from '@/components/Typography';
+import { SelectDateModal } from '@/components/Sheets/SelectDateModal';
+import { SelectInstallmentsModal } from '@/components/Sheets/SelectInstallmentsModal';
+import { UpdateTransactionSuccessModal } from '@/components/Sheets/UpdateTransactionSuccessModal';
 import { getTransactionById } from '@/database/transactions/getTransactionById';
 import { updateTransaction } from '@/database/transactions/updateTransaction';
 import { useDatabase } from '@/hooks/useDatabase';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { useScreenState } from '@/hooks/useScreenState';
 import { colors } from '@/styles/colors';
-import { theme } from '@/styles/theme';
 import { formatCurrency, formatDate, parseCurrencyToCents } from '@/utils';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { Alert, StyleSheet, Switch, TextInput, View } from 'react-native';
-import { SharedValue } from 'react-native-reanimated';
-
-const quantitiesOfInstallments = new Array(48).fill(null).map((item, index) => {
-  return index + 1;
-});
 
 const incomeTypeOptions = [
   {
@@ -46,6 +38,8 @@ export default function UpdateTransaction() {
   const [category, setCategory] = useState('');
   const [haveInstallment, setHaveInstallment] = useState<boolean>(false);
   const [installmentQtd, setInstallmentQtd] = useState<string | null>();
+  const [isDateModalOpen, setIsDateModalOpen] = useState(false);
+  const [isInstallmentsModalOpen, setIsInstallmentsModalOpen] = useState(false);
 
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -60,8 +54,6 @@ export default function UpdateTransaction() {
 
   const currencyValueRef = useRef<TextInput>(null);
   const categoryValueRef = useRef<TextInput>(null);
-  const { isOpen, toggleSheet } = useBottomSheet();
-  const { isOpen: isInstallmentQtdOpen, toggleSheet: toggleSheetInstallmentQtd } = useBottomSheet();
 
   const isUpdateButtonDisabled = !transactionName || amount === 0;
 
@@ -106,13 +98,6 @@ export default function UpdateTransaction() {
     } catch (error) {
       console.log('error');
     }
-  };
-
-  const handleBack = (haveChanges?: boolean) => {
-    router.navigate('/transactions');
-    router.setParams({
-      update: !!haveChanges,
-    } as any);
   };
 
   useHideTabBar();
@@ -184,7 +169,7 @@ export default function UpdateTransaction() {
                 month: '2-digit',
                 year: 'numeric',
               })}
-              onAction={toggleSheet}
+              onAction={() => setIsDateModalOpen(true)}
             />
             <Separator />
             <Input
@@ -206,48 +191,31 @@ export default function UpdateTransaction() {
             <Input
               label="Qtde de parcelas"
               valueWithAction
-              onAction={toggleSheetInstallmentQtd}
+              onAction={() => setIsInstallmentsModalOpen(true)}
               value={installmentQtd || '1'}
               disabled={!haveInstallment}
             />
           </Card>
         </View>
       </Container>
+      <SelectDateModal
+        isOpen={isDateModalOpen}
+        toggleSheet={() => setIsDateModalOpen(false)}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
 
-      <BottomSheet isOpen={isOpen} toggleSheet={toggleSheet}>
-        <View style={styles.dateModalContainer}>
-          <DateTimePicker
-            display="spinner"
-            mode="date"
-            value={selectedDate}
-            textColor={colors.text}
-            onChange={(_, date) => {
-              setSelectedDate(date!);
-            }}
-          />
-        </View>
-      </BottomSheet>
-      <BottomSheet isOpen={isInstallmentQtdOpen} toggleSheet={toggleSheetInstallmentQtd}>
-        <View style={styles.dateModalContainer}>
-          <Picker selectedValue={installmentQtd} onValueChange={setInstallmentQtd}>
-            {quantitiesOfInstallments.map((item) => (
-              <Picker.Item key={item} label={item.toString()} value={item} />
-            ))}
-          </Picker>
-        </View>
-      </BottomSheet>
+      <SelectInstallmentsModal
+        isOpen={isInstallmentsModalOpen}
+        toggleSheet={() => setIsInstallmentsModalOpen(false)}
+        installmentQtd={installmentQtd}
+        setInstallmentQtd={setInstallmentQtd}
+      />
 
-      <BottomSheet
-        isOpen={{ value: isScreenStateSuccess } as SharedValue<boolean>}
-        toggleSheet={handleChangeScreenStateToDefault}>
-        <View style={styles.sucessModalContainer}>
-          <Typography align="center" variant="heading/md" style={{ marginBottom: 24 }}>
-            Transação atualizada com sucesso!
-          </Typography>
-
-          <Button title="Fechar" onPress={router.back} />
-        </View>
-      </BottomSheet>
+      <UpdateTransactionSuccessModal
+        isOpen={isScreenStateSuccess}
+        toggleSheet={handleChangeScreenStateToDefault}
+      />
     </>
   );
 }
@@ -259,23 +227,6 @@ const styles = StyleSheet.create({
 
   main: {
     gap: 24,
-  },
-
-  dateModalContainer: {
-    padding: theme.spacing.md,
-  },
-  dateContent: {
-    gap: theme.spacing.xs,
-  },
-  dateContainer: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
-    paddingVertical: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.md,
-    minHeight: 48,
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
   },
 
   sucessModalContainer: {},
