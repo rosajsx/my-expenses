@@ -5,8 +5,8 @@ import { useDatabase } from '@/hooks/useDatabase';
 import { theme } from '@/styles/theme';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
-import { BalanceHeader } from '@/components/BalanceHeader';
 import { Button } from '@/components/Button';
+import { BalanceHeader } from '@/components/Header/BalanceHeader';
 import { Separator } from '@/components/Separator';
 import { SelectMonthModal } from '@/components/Sheets/SelectMonthModal';
 import { TransactionTypeModal } from '@/components/Sheets/SelectTransactionType';

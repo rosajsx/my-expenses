@@ -1,4 +1,4 @@
-import { BotttomSheet, useBottomSheet } from '@/components/BottomSheet';
+import { BottomSheet, useBottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
 import { Separator } from '@/components/Separator';
@@ -259,7 +259,7 @@ export default function UpdateTransaction() {
         </View>
       </Container>
 
-      <BotttomSheet isOpen={isOpen} toggleSheet={toggleSheet}>
+      <BottomSheet isOpen={isOpen} toggleSheet={toggleSheet}>
         <View style={styles.dateModalContainer}>
           <DateTimePicker
             display="spinner"
@@ -271,8 +271,8 @@ export default function UpdateTransaction() {
             }}
           />
         </View>
-      </BotttomSheet>
-      <BotttomSheet isOpen={isInstallmentQtdOpen} toggleSheet={toggleSheetInstallmentQtd}>
+      </BottomSheet>
+      <BottomSheet isOpen={isInstallmentQtdOpen} toggleSheet={toggleSheetInstallmentQtd}>
         <View style={styles.dateModalContainer}>
           <Picker selectedValue={installmentQtd} onValueChange={setInstallmentQtd}>
             {quantitiesOfInstallments.map((item) => (
@@ -280,9 +280,9 @@ export default function UpdateTransaction() {
             ))}
           </Picker>
         </View>
-      </BotttomSheet>
+      </BottomSheet>
 
-      <BotttomSheet
+      <BottomSheet
         isOpen={{ value: isScreenStateSuccess } as SharedValue<boolean>}
         toggleSheet={handleChangeScreenStateToDefault}>
         <View style={styles.sucessModalContainer}>
@@ -292,7 +292,7 @@ export default function UpdateTransaction() {
 
           <Button title="Fechar" onPress={router.back} />
         </View>
-      </BotttomSheet>
+      </BottomSheet>
     </>
   );
 }

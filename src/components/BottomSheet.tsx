@@ -13,7 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Typography } from './Typography';
 
-interface BotttomSheetProps {
+interface BottomSheetProps {
   isOpen: SharedValue<boolean>;
   toggleSheet?: () => void;
   duration?: number;
@@ -22,7 +22,7 @@ interface BotttomSheetProps {
   title?: string;
 }
 
-export function BotttomSheet({
+export function BottomSheet({
   isOpen,
   toggleSheet,
   children,
@@ -30,7 +30,7 @@ export function BotttomSheet({
   onClose,
   containerHeight,
   title,
-}: PropsWithChildren<BotttomSheetProps>) {
+}: PropsWithChildren<BottomSheetProps>) {
   const height = useSharedValue(0);
   const progress = useDerivedValue(() => withTiming(isOpen.value ? 0 : 1, { duration }));
 

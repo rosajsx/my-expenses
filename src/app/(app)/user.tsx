@@ -1,4 +1,4 @@
-import { BotttomSheet, useBottomSheet } from '@/components/BottomSheet';
+import { BottomSheet, useBottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Typography } from '@/components/Typography';
@@ -42,7 +42,7 @@ export default function User() {
   }, []);
 
   return (
-    <BotttomSheet isOpen={isOpen} containerHeight={300} onClose={handleClose}>
+    <BottomSheet isOpen={isOpen} containerHeight={300} onClose={handleClose}>
       <View style={styles.container}>
         <View style={styles.content}>
           <Typography>ID de usuário</Typography>
@@ -66,7 +66,7 @@ export default function User() {
           <Button variant="secondary" title="Sair" color="textPrimary" onPress={handleLogout} />
         </View>
       </View>
-    </BotttomSheet>
+    </BottomSheet>
   );
 }
 

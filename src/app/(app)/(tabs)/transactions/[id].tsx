@@ -1,5 +1,6 @@
 import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
+import { PageHeader } from '@/components/Header/index';
 import { Typography } from '@/components/Typography';
 import { deleteTransaction } from '@/database/transactions/deleteTransaction';
 import { getTransactionById } from '@/database/transactions/getTransactionById';
@@ -11,7 +12,6 @@ import { useScreenState } from '@/hooks/useScreenState';
 import { useBoundStore } from '@/store';
 import { formatCurrency, formatDate } from '@/utils';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
 import React, { useCallback, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import { colors } from '../../../../styles/colors';
@@ -82,13 +82,7 @@ export default function TransactionDetails() {
 
   return (
     <Container style={styles.container}>
-      <View style={styles.header}>
-        <Button variant="ghost" onPress={router.back} style={{ height: 'auto', padding: 0 }}>
-          <ChevronLeft color={colors.primary} />
-        </Button>
-
-        <Button title="Editar" variant="ghost" onPress={handleEdit} />
-      </View>
+      <PageHeader actionText="Editar" onAction={handleEdit} />
       <View style={styles.titleContainer}>
         <Typography variant="heading/lg" align="center">
           {transaction?.name}{' '}
@@ -159,16 +153,6 @@ export default function TransactionDetails() {
 const styles = StyleSheet.create({
   container: {
     gap: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
-  editButton: {
-    width: 44,
-    height: 44,
   },
 
   titleContainer: {

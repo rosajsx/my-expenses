@@ -1,6 +1,7 @@
-import { BotttomSheet, useBottomSheet } from '@/components/BottomSheet';
+import { BottomSheet, useBottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
+import { PageHeader } from '@/components/Header/index';
 import { Separator } from '@/components/Separator';
 import { Typography } from '@/components/Typography';
 import { createTransaction } from '@/database/transactions/createTransaction';
@@ -15,16 +16,7 @@ import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import { useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Alert, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { SharedValue } from 'react-native-reanimated';
 
 const quantitiesOfInstallments = new Array(48).fill(null).map((item, index) => {
@@ -98,23 +90,15 @@ export default function CreateTransaction() {
   return (
     <>
       <Container style={styles.wrapper}>
-        <View style={styles.header}>
-          <Button
-            variant="ghost"
-            onPress={router.back}
-            disabled={isScreenStateLoading}
-            title="Cancelar"
-          />
-
-          <Typography variant="body/lg">Nova Transação</Typography>
-          <Button
-            variant="ghost"
-            disabled={isCreateButtonDisabled || isScreenStateLoading}
-            onPress={handleCreateTransaction}
-            title={isScreenStateLoading ? undefined : 'Salvar'}>
-            {isScreenStateLoading && <ActivityIndicator color={colors.primary} />}
-          </Button>
-        </View>
+        <PageHeader
+          title="Nova Transação"
+          actionText="Salvar"
+          cancelText="Cancelar"
+          isActionButtonDisabled={isCreateButtonDisabled || isScreenStateLoading}
+          isActionButtonLoading={isScreenStateLoading}
+          isCancelButtonDisabled={isScreenStateLoading}
+          onAction={handleCreateTransaction}
+        />
         <View style={styles.main}>
           <View style={styles.container}>
             <Typography variant="body/md" color="text">
@@ -237,7 +221,7 @@ export default function CreateTransaction() {
         </View>
       </Container>
 
-      <BotttomSheet isOpen={isOpen} toggleSheet={toggleSheet}>
+      <BottomSheet isOpen={isOpen} toggleSheet={toggleSheet}>
         <View style={styles.dateModalContainer}>
           <DateTimePicker
             display="spinner"
@@ -249,8 +233,8 @@ export default function CreateTransaction() {
             }}
           />
         </View>
-      </BotttomSheet>
-      <BotttomSheet isOpen={isInstallmentQtdOpen} toggleSheet={toggleSheetInstallmentQtd}>
+      </BottomSheet>
+      <BottomSheet isOpen={isInstallmentQtdOpen} toggleSheet={toggleSheetInstallmentQtd}>
         <View style={styles.dateModalContainer}>
           <Picker selectedValue={installmentQtd} onValueChange={setInstallmentQtd}>
             {quantitiesOfInstallments.map((item) => (
@@ -258,9 +242,9 @@ export default function CreateTransaction() {
             ))}
           </Picker>
         </View>
-      </BotttomSheet>
+      </BottomSheet>
 
-      <BotttomSheet
+      <BottomSheet
         isOpen={{ value: isScreenStateSuccess } as SharedValue<boolean>}
         toggleSheet={handleChangeScreenStateToDefault}>
         <View style={styles.sucessModalContainer}>
@@ -279,7 +263,7 @@ export default function CreateTransaction() {
           />
           <Button variant="ghost" title="Fechar" onPress={router.back} />
         </View>
-      </BotttomSheet>
+      </BottomSheet>
     </>
   );
 }
@@ -288,17 +272,10 @@ const styles = StyleSheet.create({
   wrapper: {
     gap: 24,
   },
-  header: {
-    flexDirection: 'row',
-
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
 
   main: {
     gap: 24,
   },
-  headerButton: {},
   disabledField: {
     pointerEvents: 'none',
     opacity: 0.5,

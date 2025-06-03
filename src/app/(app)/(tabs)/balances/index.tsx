@@ -1,4 +1,4 @@
-import { BotttomSheet, useBottomSheet } from '@/components/BottomSheet';
+import { BottomSheet, useBottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
 import { Header } from '@/components/Header';
@@ -160,7 +160,7 @@ export default function Balances() {
         </View>
       </Container>
 
-      <BotttomSheet isOpen={isOpen} toggleSheet={handleClose}>
+      <BottomSheet isOpen={isOpen} toggleSheet={handleClose}>
         <View>
           <Picker
             selectedValue={selectedYear}
@@ -173,9 +173,9 @@ export default function Balances() {
             ))}
           </Picker>
         </View>
-      </BotttomSheet>
+      </BottomSheet>
 
-      <BotttomSheet
+      <BottomSheet
         title={formatDate(selectedItem?.month!)}
         isOpen={IsDetailsOpen}
         toggleSheet={toggleDetailsSheet}>
@@ -206,7 +206,7 @@ export default function Balances() {
             </View>
           </View>
         </View>
-      </BotttomSheet>
+      </BottomSheet>
     </>
   );
 }
