@@ -1,6 +1,8 @@
 import { BotttomSheet, useBottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
+import { Separator } from '@/components/Separator';
+import { Typography } from '@/components/Typography';
 import { getTransactionById } from '@/database/transactions/getTransactionById';
 import { updateTransaction } from '@/database/transactions/updateTransaction';
 import { useDatabase } from '@/hooks/useDatabase';
@@ -22,7 +24,6 @@ import {
   Switch,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { SharedValue } from 'react-native-reanimated';
@@ -120,41 +121,28 @@ export default function UpdateTransaction() {
     <>
       <Container style={styles.wrapper}>
         <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.headerButton}
+          <Button
+            variant="ghost"
             onPress={router.back}
-            disabled={isScreenStateLoading}>
-            <Text
-              style={[
-                styles.headerCancelText,
-                isScreenStateLoading && styles.headerSaveTextDisabled,
-              ]}>
-              Cancelar
-            </Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Nova Transação</Text>
-          <TouchableOpacity
-            style={styles.headerButton}
+            disabled={isScreenStateLoading}
+            title="Cancelar"
+          />
+
+          <Typography variant="body/lg">Nova Transação</Typography>
+          <Button
+            variant="ghost"
             disabled={isUpdateButtonDisabled || isScreenStateLoading}
-            onPress={handleUpdateTransaction}>
-            {isScreenStateLoading ? (
-              <ActivityIndicator color={colors.primary} />
-            ) : (
-              <Text
-                style={[
-                  styles.headerSaveText,
-                  isUpdateButtonDisabled && styles.headerSaveTextDisabled,
-                ]}
-                disabled={isUpdateButtonDisabled}>
-                Atualizar
-              </Text>
-            )}
-          </TouchableOpacity>
+            onPress={handleUpdateTransaction}
+            title={isScreenStateLoading ? undefined : 'Salvar'}>
+            {isScreenStateLoading && <ActivityIndicator color={colors.primary} />}
+          </Button>
         </View>
         <View style={styles.main}>
           <View style={styles.container}>
-            <Text style={[styles.inputLabel]}>Nome da Transação </Text>
-            <View style={styles.divider} />
+            <Typography variant="body/md" color="text">
+              Nome da Transação{' '}
+            </Typography>
+            <Separator />
             <TextInput
               style={styles.textInput}
               placeholder="Digite o nome"
@@ -170,7 +158,9 @@ export default function UpdateTransaction() {
 
           <View style={styles.container}>
             <View style={styles.input}>
-              <Text style={styles.inputLabel}>Valor</Text>
+              <Typography variant="body/md" color="text">
+                Valor
+              </Typography>
               <TextInput
                 style={styles.textInput}
                 placeholder="R$ 00,00"
@@ -197,13 +187,9 @@ export default function UpdateTransaction() {
                   transactionType === 1 && styles.inputTypeItemSelected,
                 ]}
                 onPress={() => setTransactionType(1)}>
-                <Text
-                  style={[
-                    styles.inputTypeText,
-                    transactionType === 1 && styles.inputTypeTextSelected,
-                  ]}>
+                <Typography variant="body/md-500" color={transactionType === 1 ? 'white' : 'text'}>
                   Entrada
-                </Text>
+                </Typography>
               </Pressable>
               <Pressable
                 style={[
@@ -211,20 +197,18 @@ export default function UpdateTransaction() {
                   transactionType === 2 && styles.inputTypeItemSelected,
                 ]}
                 onPress={() => setTransactionType(2)}>
-                <Text
-                  style={[
-                    styles.inputTypeText,
-                    transactionType === 2 && styles.inputTypeTextSelected,
-                  ]}>
+                <Typography variant="body/md-500" color={transactionType === 2 ? 'white' : 'text'}>
                   Saída
-                </Text>
+                </Typography>
               </Pressable>
             </View>
           </View>
 
           <View style={styles.container}>
             <View style={styles.input}>
-              <Text style={styles.inputLabel}>Data</Text>
+              <Typography variant="body/md" color="text">
+                Data
+              </Typography>
               <Pressable style={styles.inputWithOptions} onPress={toggleSheet}>
                 <Text style={[styles.inputTypeText, styles.inputTypeTextWithItems]}>
                   {formatDate(selectedDate.toString(), {
@@ -236,9 +220,11 @@ export default function UpdateTransaction() {
                 <ChevronRight color={colors.textSecondary} />
               </Pressable>
             </View>
-            <View style={styles.divider} />
+            <Separator />
             <View style={styles.input}>
-              <Text style={styles.inputLabel}>Categoria</Text>
+              <Typography variant="body/md" color="text">
+                Categoria
+              </Typography>
               <TextInput
                 style={styles.textInput}
                 placeholder="Digite a categoria"
@@ -252,12 +238,16 @@ export default function UpdateTransaction() {
 
           <View style={styles.container}>
             <View style={styles.input}>
-              <Text style={styles.inputLabel}>Parcelado</Text>
+              <Typography variant="body/md" color="text">
+                Parcelado
+              </Typography>
               <Switch value={haveInstallment} onValueChange={setHaveInstallment} />
             </View>
-            <View style={styles.divider} />
+            <Separator />
             <View style={[styles.input, !haveInstallment && styles.disabledField]}>
-              <Text style={styles.inputLabel}>Qtde de parcelas</Text>
+              <Typography variant="body/md" color="text">
+                Qtde de parcelas
+              </Typography>
               <Pressable style={[styles.inputWithOptions]} onPress={toggleSheetInstallmentQtd}>
                 <Text style={[styles.inputTypeText, styles.inputTypeTextWithItems]}>
                   {installmentQtd || 1}
@@ -296,7 +286,9 @@ export default function UpdateTransaction() {
         isOpen={{ value: isScreenStateSuccess } as SharedValue<boolean>}
         toggleSheet={handleChangeScreenStateToDefault}>
         <View style={styles.sucessModalContainer}>
-          <Text style={styles.successModalTitle}>Transação salva com sucesso!</Text>
+          <Typography align="center" variant="heading/md" style={{ marginBottom: 24 }}>
+            Transação atualizada com sucesso!
+          </Typography>
 
           <Button title="Fechar" onPress={router.back} />
         </View>
@@ -330,11 +322,7 @@ const styles = StyleSheet.create({
     gap: 12,
     minHeight: 44,
   },
-  divider: {
-    borderWidth: 0.5,
-    borderColor: colors.separator,
-    width: '100%',
-  },
+
   textInput: {
     fontSize: 17,
     fontFamily: 'Inter_400Regular',
@@ -390,25 +378,6 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
 
-  headerTitle: {
-    fontFamily: 'Inter_600SemiBold',
-    fontWeight: 600,
-    fontSize: 17,
-    color: colors.text,
-  },
-  headerCancelText: {
-    fontSize: 17,
-    fontFamily: 'Inter_400Regular',
-    fontWeight: 400,
-    color: colors.primary,
-  },
-  headerSaveText: {
-    fontFamily: 'Inter_600SemiBold',
-    fontWeight: 600,
-    fontSize: 17,
-
-    color: colors.primary,
-  },
   headerSaveTextDisabled: {
     color: colors.textSecondary,
   },
@@ -430,20 +399,4 @@ const styles = StyleSheet.create({
   },
 
   sucessModalContainer: {},
-  successModalTitle: {
-    color: colors.text,
-    fontFamily: 'Inter_600SemiBold',
-    fontWeight: 600,
-    textAlign: 'center',
-    fontSize: 17,
-    marginBottom: 40,
-  },
-  successModalSubtitle: {
-    color: colors.textSecondary,
-    fontFamily: 'Inter_400Regular',
-    fontWeight: 400,
-    textAlign: 'center',
-    fontSize: 15,
-    marginBottom: 24,
-  },
 });

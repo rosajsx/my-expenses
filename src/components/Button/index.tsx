@@ -1,80 +1,43 @@
-import { LucideIcon } from 'lucide-react-native';
+import { colors } from '@/styles/colors';
 import { forwardRef } from 'react';
 import { StyleSheet, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import { theme } from '../../styles/theme';
-import { Colors, FontWeight } from '../../styles/types';
 import { Typography, TypographyVariant } from '../Typography';
 
-const textVariantStyle = {
-  primary: {
-    color: 'textPrimary',
-    variant: 'text',
-    weight: 'section',
-  },
-  icon: {
-    color: 'textPrimary',
-    variant: 'text',
-    weight: 'section',
-  },
-  secondary: {
-    color: 'textSecondary',
-    variant: 'text',
-    weight: 'section',
-  },
-  ghost: {
-    color: 'primary',
-    variant: 'textSmall',
-    weight: 'section',
-  },
-};
-
 export interface ButtonProps extends TouchableOpacityProps {
-  variant?: keyof typeof variantStyles;
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   title?: string;
-  Icon?: LucideIcon;
-  fontWeight?: FontWeight;
-  color?: Colors;
-  iconColor?: Colors;
+  textVariant?: TypographyVariant;
 }
 
 const ButtonComponent = (
   {
     variant = 'primary',
-    Icon,
     title,
+    textVariant = 'button',
     disabled,
     style,
-    color,
-    fontWeight,
-    iconColor,
+    children,
     ...props
   }: ButtonProps,
   ref: any,
 ) => {
   const variantStyle = variantStyles[variant];
-  const typographyStyle = textVariantStyle[variant];
-
+  const textStyle = variantTextStyles[variant];
   return (
     <TouchableOpacity
-      {...props}
+      style={[styles.base, variantStyle, disabled && styles.disabled, style]}
       ref={ref}
       testID="Button"
-      style={[styles.base, variantStyle, disabled && styles.disabled, style]}
       activeOpacity={0.7}
-      disabled={disabled}>
-      {Icon && <Icon color={iconColor ? theme.colors[iconColor] : theme.colors.textPrimary} />}
+      disabled={disabled}
+      {...props}>
       {title && (
-        <Typography
-          variant={typographyStyle.variant as TypographyVariant}
-          color={color ? color : (typographyStyle.color as Colors)}
-          weight={
-            fontWeight
-              ? (theme.fonts.weight[fontWeight] as FontWeight)
-              : (typographyStyle.weight as FontWeight)
-          }>
+        <Typography variant={textVariant} style={textStyle}>
           {title}
         </Typography>
       )}
+      {children}
     </TouchableOpacity>
   );
 };
@@ -82,17 +45,16 @@ const ButtonComponent = (
 export const Button = forwardRef(ButtonComponent);
 
 const styles = StyleSheet.create({
-  disabled: {
-    opacity: 0.6,
-  },
   base: {
-    minHeight: 48,
-    minWidth: 64,
+    height: 44,
+    paddingHorizontal: 16,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: theme.radius.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
+  },
+  disabled: {
+    opacity: 0.4,
+    pointerEvents: 'none',
   },
 });
 
@@ -100,22 +62,33 @@ const variantStyles = StyleSheet.create({
   primary: {
     backgroundColor: theme.colors.primary,
   },
+
   secondary: {
-    backgroundColor: theme.colors.background,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+    backgroundColor: colors.white,
+    color: colors.primary,
+  },
+  danger: {
+    backgroundColor: colors.white,
+    color: colors.red,
   },
   ghost: {
     backgroundColor: 'transparent',
-    paddingVertical: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.sm,
+    padding: 0,
+    height: 'auto',
   },
-  icon: {
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.radius['2xl'],
-    width: theme.sizes.button.icon.width,
-    height: theme.sizes.button.icon.height,
-    minWidth: theme.sizes.button.icon.minWidth,
-    elevation: 6,
+});
+
+const variantTextStyles = StyleSheet.create({
+  primary: {},
+  secondary: {},
+  danger: {
+    color: colors.red,
+    textAlign: 'center',
+  },
+  ghost: {
+    color: colors.primary,
+    fontFamily: 'Inter_500Medium',
+    fontWeight: 500,
+    fontSize: 14,
   },
 });

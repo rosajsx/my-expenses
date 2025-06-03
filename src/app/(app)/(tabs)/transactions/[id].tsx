@@ -1,4 +1,6 @@
+import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
+import { Typography } from '@/components/Typography';
 import { deleteTransaction } from '@/database/transactions/deleteTransaction';
 import { getTransactionById } from '@/database/transactions/getTransactionById';
 import { Transaction } from '@/database/types';
@@ -11,7 +13,7 @@ import { formatCurrency, formatDate } from '@/utils';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import React, { useCallback, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { colors } from '../../../../styles/colors';
 
 export default function TransactionDetails() {
@@ -21,9 +23,6 @@ export default function TransactionDetails() {
   const getBalances = useBoundStore((state) => state.getBalances);
 
   const {
-    isScreenStateLoading,
-    isScreenStateError,
-    isScreenStateDefault,
     handleChangeScreenStateToDefault,
     handleChangeScreenStateToError,
     handleChangeScreenStateToLoading,
@@ -84,72 +83,75 @@ export default function TransactionDetails() {
   return (
     <Container style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={router.back} style={styles.iconBack}>
+        <Button variant="ghost" onPress={router.back} style={{ height: 'auto', padding: 0 }}>
           <ChevronLeft color={colors.primary} />
-        </TouchableOpacity>
+        </Button>
 
-        <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-          <Text style={styles.editText}>Editar</Text>
-        </TouchableOpacity>
+        <Button title="Editar" variant="ghost" onPress={handleEdit} />
       </View>
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>
+        <Typography variant="heading/lg" align="center">
           {transaction?.name}{' '}
           {transaction?.installment &&
             transaction?.installment_qtd &&
             `${transaction?.installment}/${transaction?.installment_qtd}`}
-        </Text>
-        <Text
-          style={[
-            styles.amount,
-            transaction?.type === 1 ? styles.amountIncome : styles.amountOutcome,
-          ]}>
+        </Typography>
+        <Typography
+          align="center"
+          variant="heading/lg"
+          color={transaction?.type === 1 ? 'green' : 'red'}>
           {transaction?.type === 2 && '- '}
           {transaction?.amount && formatCurrency(transaction?.amount)}
-        </Text>
+        </Typography>
       </View>
       <View style={styles.detailsContainer}>
         {transaction?.category && (
           <View style={styles.detailItem}>
-            <Text style={styles.detailItemLabel}>Categoria</Text>
-            <Text style={styles.detailItemValue}>{transaction.category}</Text>
+            <Typography variant="body/md">Categoria</Typography>
+            <Typography variant="body/md">{transaction.category}</Typography>
           </View>
         )}
         {transaction?.type && (
           <View style={styles.detailItem}>
-            <Text style={styles.detailItemLabel}>Tipo</Text>
-            <Text style={styles.detailItemValue}>
+            <Typography variant="body/md" color="text">
+              Tipo
+            </Typography>
+            <Typography variant="body/md">
               {transaction?.type === 1 ? 'Entrada' : 'Saída'}
-            </Text>
+            </Typography>
           </View>
         )}
 
         {transaction?.date && (
           <View style={styles.detailItem}>
-            <Text style={styles.detailItemLabel}>Data</Text>
-            <Text style={styles.detailItemValue}>{formatDate(transaction?.date)}</Text>
+            <Typography variant="body/md" color="text">
+              Data
+            </Typography>
+            <Typography variant="body/md">{formatDate(transaction?.date)}</Typography>
           </View>
         )}
         {transaction?.installment && transaction?.installment_qtd && (
           <View style={styles.detailItem}>
-            <Text style={styles.detailItemLabel}>Parcelamento</Text>
-            <Text style={styles.detailItemValue}>
+            <Typography variant="body/md" color="text">
+              Parcelamento
+            </Typography>
+            <Typography variant="body/md">
               {transaction?.installment}/{transaction.installment_qtd}
-            </Text>
+            </Typography>
           </View>
         )}
         {transaction?.pendingSync && (
           <View style={styles.detailItem}>
-            <Text style={styles.detailItemLabel}>Status</Text>
-            <Text style={styles.detailItemValue}>
+            <Typography variant="body/md" color="text">
+              Status
+            </Typography>
+            <Typography variant="body/md">
               {transaction?.pendingSync === 1 ? 'Pendente de Sincronização' : 'Sincronizado!'}
-            </Text>
+            </Typography>
           </View>
         )}
       </View>
-      <TouchableOpacity style={styles.deleteBtn} onPress={confirmDelete}>
-        <Text style={styles.deleteText}>Apagar Transação</Text>
-      </TouchableOpacity>
+      <Button title="Apagar Transação" variant="danger" onPress={confirmDelete} />
     </Container>
   );
 }
@@ -163,41 +165,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  iconBack: {
-    width: 44,
-    height: 44,
-  },
+
   editButton: {
     width: 44,
     height: 44,
   },
-  editText: {
-    fontFamily: 'Inter_400Regular',
-    fontWeight: 400,
-    fontSize: 14,
-    color: colors.primary,
-  },
+
   titleContainer: {
     gap: 4,
-  },
-  title: {
-    fontFamily: 'Inter_600SemiBold',
-    fontWeight: 600,
-    fontSize: 24,
-    color: colors.text,
-    textAlign: 'center',
-  },
-  amount: {
-    fontFamily: 'Inter_600SemiBold',
-    fontWeight: 600,
-    fontSize: 22,
-    textAlign: 'center',
-  },
-  amountIncome: {
-    color: colors.green,
-  },
-  amountOutcome: {
-    color: colors.red,
   },
 
   detailsContainer: {
@@ -214,32 +189,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 0.5,
     borderColor: colors.separator,
-  },
-  detailItemLabel: {
-    fontFamily: 'Inter_400Regular',
-    fontWeight: 400,
-    color: colors.text,
-    fontSize: 15,
-  },
-  detailItemValue: {
-    fontFamily: 'Inter_500Medium',
-    fontWeight: 500,
-    color: colors.textSecondary,
-    fontSize: 15,
-  },
-  deleteBtn: {
-    borderRadius: 12,
-    height: 52,
-    width: '100%',
-
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.white,
-  },
-  deleteText: {
-    fontFamily: 'Inter_600SemiBold',
-    fontWeight: 600,
-    fontSize: 17,
-    color: colors.red,
   },
 });

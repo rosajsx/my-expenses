@@ -10,3 +10,5 @@ export const colors = {
   separator: '#EAEAEA',
   gray: '#C7C7CC',
 };
+
+export type IColors = keyof typeof colors;

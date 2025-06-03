@@ -6,13 +6,15 @@ import { theme } from '@/styles/theme';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 import { BalanceHeader } from '@/components/BalanceHeader';
+import { Button } from '@/components/Button';
+import { Separator } from '@/components/Separator';
 import { SelectMonthModal } from '@/components/Sheets/SelectMonthModal';
 import { TransactionTypeModal } from '@/components/Sheets/SelectTransactionType';
 import { SelectYearModal } from '@/components/Sheets/SelectYearModal';
+import { Typography } from '@/components/Typography';
 import { deleteTransaction } from '@/database/transactions/deleteTransaction';
 import { syncTransactions } from '@/database/transactions/syncTransactions';
 import { Transaction } from '@/database/types';
-import { useBottomSheet } from '@/hooks/useBottomSheet';
 import { useBoundStore } from '@/store';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate } from '@/utils';
@@ -53,9 +55,6 @@ export default function Index() {
   const { database } = useDatabase();
 
   const canSync = transactions.some((transaction) => transaction.pendingSync === 1);
-
-  const { bottomSheetRef, closeSheet, openSheet, renderBackdrop, sheetIndex, updateSheetIndex } =
-    useBottomSheet({});
 
   const handleGetTransactions = () => {
     const filters = {
@@ -159,10 +158,13 @@ export default function Index() {
     <Container style={styles.container}>
       <View style={styles.content}>
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Transações</Text>
-          <TouchableOpacity onPress={() => router.navigate('/(app)/(tabs)/transactions/create')}>
+          <Typography variant="heading/lg">Transações</Typography>
+          <Button
+            variant="ghost"
+            onPress={() => router.navigate('/(app)/(tabs)/transactions/create')}
+            style={{ height: 'auto', padding: 0 }}>
             <Plus color={colors.primary} size={28} />
-          </TouchableOpacity>
+          </Button>
         </View>
 
         <BalanceHeader />
@@ -173,7 +175,7 @@ export default function Index() {
           bounces={false}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ItemSeparatorComponent={() => <Separator />}
           renderItem={({ item }) => (
             <ReanimatedSwipeable
               friction={2}
@@ -184,21 +186,17 @@ export default function Index() {
                 style={styles.transactionCard}
                 onPress={() => router.push(`/transactions/${item.id}`)}>
                 <View style={styles.transactionContent}>
-                  <Text style={styles.transactionName}>
+                  <Typography variant="heading/sm">
                     {item.name}{' '}
                     {item.installment &&
                       item.installment_qtd &&
                       `${item.installment}/${item.installment_qtd}`}
-                  </Text>
-                  <Text style={styles.transactionDate}>{formatDate(item.date)}</Text>
+                  </Typography>
+                  <Typography variant="body/sm">{formatDate(item.date)}</Typography>
                 </View>
-                <Text
-                  style={[
-                    styles.transactionAmount,
-                    item.type === 1 ? styles.transactionAmountPlus : styles.transactionAmountMinus,
-                  ]}>
+                <Typography variant="heading/sm" color={item.type === 1 ? 'text' : 'red'}>
                   {item.type !== 1 && '-'} {formatCurrency(item.amount)}
-                </Text>
+                </Typography>
               </Pressable>
             </ReanimatedSwipeable>
           )}
@@ -244,12 +242,6 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
 
-  separator: {
-    width: '100%',
-    borderWidth: 0.5,
-    borderColor: colors.separator,
-  },
-
   transactionCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -258,27 +250,6 @@ const styles = StyleSheet.create({
   },
   transactionContent: {
     gap: 4,
-  },
-  transactionName: {
-    fontFamily: 'Inter_500Medium',
-    fontWeight: 500,
-    fontSize: 18,
-  },
-  transactionDate: {
-    fontFamily: 'Inter_400Regular',
-    fontWeight: 400,
-    fontSize: 14,
-  },
-  transactionAmount: {
-    fontFamily: 'Inter_500Medium',
-    fontWeight: 500,
-    fontSize: 18,
-  },
-  transactionAmountPlus: {
-    color: colors.text,
-  },
-  transactionAmountMinus: {
-    color: colors.red,
   },
 
   content: {
@@ -289,10 +260,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  title: {
-    fontFamily: 'Inter_700Bold',
-    fontWeight: 700,
-    fontSize: 24,
   },
 });
