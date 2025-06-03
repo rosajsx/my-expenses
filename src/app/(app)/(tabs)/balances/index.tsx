@@ -2,18 +2,17 @@ import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
 import { Header } from '@/components/Header';
 import { Loading } from '@/components/Loading';
-import { BottomSheet, useBottomSheet } from '@/components/Sheets/BottomSheet';
+// import { BottomSheet, useBottomSheet } from '@/components/Sheets/BottomSheet';
 import { Typography } from '@/components/Typography';
 import { BalanceType } from '@/database/balances/getBalancePerMonth';
 import { ScreenStateEnum } from '@/enums/screenStates';
 import { useDatabase } from '@/hooks/useDatabase';
 import { useBoundStore } from '@/store';
 import { theme } from '@/styles/theme';
-import { formatCurrency, getLastAndFoward5Years } from '@/utils';
-import { Picker } from '@react-native-picker/picker';
+import { getLastAndFoward5Years } from '@/utils';
 import { useFocusEffect } from 'expo-router';
 import LottieView from 'lottie-react-native';
-import { ArrowBigDown, ArrowBigUp, Calendar, Filter } from 'lucide-react-native';
+import { Calendar, Filter } from 'lucide-react-native';
 import { useCallback, useEffect } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -44,8 +43,8 @@ export default function Balances() {
   const selectedItem = useBoundStore((state) => state.balancePage.selectedItem);
   const setSelectedItem = useBoundStore((state) => state.balancePage.setSelectedItem);
 
-  const { isOpen, toggleSheet } = useBottomSheet();
-  const { isOpen: IsDetailsOpen, toggleSheet: toggleDetailsSheet } = useBottomSheet();
+  // const { isOpen, toggleSheet } = useBottomSheet();
+  // const { isOpen: IsDetailsOpen, toggleSheet: toggleDetailsSheet } = useBottomSheet();
 
   const handleClose = () => {
     toggleSelectYearOpen();
@@ -83,7 +82,7 @@ export default function Balances() {
             stickyHeaderIndices={[0]}
             ListHeaderComponent={
               <View style={styles.header}>
-                <Typography variant="title">Saldos</Typography>
+                {/* <Typography variant="title">Saldos</Typography> */}
                 <View style={styles.filterItems}>
                   <TouchableOpacity style={styles.filterItem} onPress={toggleSelectYearOpen}>
                     <Calendar color={theme.colors.textSecondary} size="20px" />
@@ -111,10 +110,10 @@ export default function Balances() {
             renderItem={({ item }) => {
               return (
                 <TouchableOpacity style={styles.item} onPress={() => handleSelectItem(item)}>
-                  <Typography variant="section">{formatDate(item.month)}</Typography>
+                  {/* <Typography variant="section">{formatDate(item.month)}</Typography>
                   <Typography variant="section" color={item.total > 0 ? 'success' : 'error'}>
                     {formatCurrency(item.total)}
-                  </Typography>
+                  </Typography> */}
                 </TouchableOpacity>
               );
             }}
@@ -130,9 +129,9 @@ export default function Balances() {
                       }}
                       loop={false}
                     />
-                    <Typography variant="section" style={styles.textCenter}>
+                    {/* <Typography variant="section" style={styles.textCenter}>
                       Ocorreu um erro inesperado, por favor, tente novamente.
-                    </Typography>
+                    </Typography> */}
 
                     <Button title="Recarregar" onPress={() => getBalances(database)} />
                   </View>
@@ -151,7 +150,7 @@ export default function Balances() {
                       source={require('../../../../../assets/animations/empty.json')}
                       loop={false}
                     />
-                    <Typography variant="section">Nenhuma despesa encontrada.</Typography>
+                    {/* <Typography variant="section">Nenhuma despesa encontrada.</Typography> */}
                   </View>
                 )}
               </View>
@@ -160,7 +159,7 @@ export default function Balances() {
         </View>
       </Container>
 
-      <BottomSheet isOpen={isOpen} toggleSheet={handleClose}>
+      {/* <BottomSheet isOpen={isOpen} toggleSheet={handleClose}>
         <View>
           <Picker
             selectedValue={selectedYear}
@@ -206,7 +205,7 @@ export default function Balances() {
             </View>
           </View>
         </View>
-      </BottomSheet>
+      </BottomSheet> */}
     </>
   );
 }
