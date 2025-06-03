@@ -1,13 +1,7 @@
-import { Button } from '@/components/Button';
-import { Input } from '@/components/Input';
-import { BottomSheet, useBottomSheet } from '@/components/Sheets/BottomSheet';
-import { Typography } from '@/components/Typography';
 import { useBoundStore } from '@/store';
 import { theme } from '@/styles/theme';
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
-import { Copy, Link } from 'lucide-react-native';
-import { useEffect } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
 export default function User() {
@@ -29,44 +23,45 @@ export default function User() {
     }
   };
 
-  const { isOpen, toggleSheet } = useBottomSheet(false);
+  //const { isOpen, toggleSheet } = useBottomSheet(false);
 
   const handleClose = () => {
-    toggleSheet();
+    //toggleSheet();
 
     setTimeout(() => router.back(), 500);
   };
 
-  useEffect(() => {
-    toggleSheet();
-  }, []);
+  // useEffect(() => {
+  //   toggleSheet();
+  // }, []);
 
   return (
-    <BottomSheet isOpen={isOpen} containerHeight={300} onClose={handleClose}>
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Typography>ID de usuário</Typography>
-          <Input
-            value={hash || ''}
-            editable={false}
-            placeholder="ID usuário"
-            LeftIcon={Link}
-            returnKeyType="done"
-          />
-          <Button
-            variant="ghost"
-            Icon={Copy}
-            title="Copiar ID"
-            iconColor="primary"
-            style={styles.copyButton}
-            onPress={copyToClipboard}
-          />
-        </View>
-        <View>
-          <Button variant="secondary" title="Sair" color="textPrimary" onPress={handleLogout} />
-        </View>
-      </View>
-    </BottomSheet>
+    <View />
+    // <BottomSheet isOpen={isOpen} containerHeight={300} onClose={handleClose}>
+    //   <View style={styles.container}>
+    //     <View style={styles.content}>
+    //       <Typography>ID de usuário</Typography>
+    //       <Input
+    //         value={hash || ''}
+    //         editable={false}
+    //         placeholder="ID usuário"
+    //         LeftIcon={Link}
+    //         returnKeyType="done"
+    //       />
+    //       <Button
+    //         variant="ghost"
+    //         Icon={Copy}
+    //         title="Copiar ID"
+    //         iconColor="primary"
+    //         style={styles.copyButton}
+    //         onPress={copyToClipboard}
+    //       />
+    //     </View>
+    //     <View>
+    //       <Button variant="secondary" title="Sair" color="textPrimary" onPress={handleLogout} />
+    //     </View>
+    //   </View>
+    // </BottomSheet>
   );
 }
 
