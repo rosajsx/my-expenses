@@ -1,4 +1,5 @@
 import { Button } from '@/components/Button';
+import { Card } from '@/components/Card';
 import { Container } from '@/components/Container';
 import { PageHeader } from '@/components/Header/index';
 import { Typography } from '@/components/Typography';
@@ -98,7 +99,7 @@ export default function TransactionDetails() {
           {transaction?.amount && formatCurrency(transaction?.amount)}
         </Typography>
       </View>
-      <View style={styles.detailsContainer}>
+      <Card spacing={0} paddingVertical={0} paddingHorizontal={16}>
         {transaction?.category && (
           <View style={styles.detailItem}>
             <Typography variant="body/md">Categoria</Typography>
@@ -144,7 +145,7 @@ export default function TransactionDetails() {
             </Typography>
           </View>
         )}
-      </View>
+      </Card>
       <Button title="Apagar Transação" variant="danger" onPress={confirmDelete} />
     </Container>
   );
@@ -159,12 +160,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
 
-  detailsContainer: {
-    borderRadius: 12,
-
-    paddingHorizontal: 16,
-    backgroundColor: colors.white,
-  },
   detailItem: {
     minHeight: 44,
     paddingVertical: 16,
