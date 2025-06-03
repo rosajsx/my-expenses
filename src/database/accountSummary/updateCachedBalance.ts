@@ -1,14 +1,13 @@
-import { hashKey } from '@/store/slices/authStore';
+import { useBoundStore } from '@/store';
 import { SQLiteDatabase } from 'expo-sqlite';
-import Storage from 'expo-sqlite/kv-store';
 
 export async function updateCachedBalance(db: SQLiteDatabase, changeAmount: number) {
   const now = new Date().toISOString();
 
-  const user_id = await Storage.getItem(hashKey);
+  const { session } = useBoundStore.getState();
 
-  if (!user_id) {
-    throw new Error('User Hash not found');
+  if (!session?.user) {
+    throw new Error('User  not found');
   }
 
   return db.withTransactionAsync(async () => {
@@ -18,7 +17,7 @@ export async function updateCachedBalance(db: SQLiteDatabase, changeAmount: numb
       SET total = total + ?, last_updated = ?
       WHERE id = 1 AND id = ?
       `,
-      [changeAmount, now, user_id],
+      [changeAmount, now, session.user.id],
     );
 
     await db.runAsync(

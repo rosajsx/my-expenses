@@ -1,20 +1,18 @@
-import { useBoundStore } from '@/store';
 import { theme } from '@/styles/theme';
-import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { Alert, StyleSheet, View } from 'react-native';
 
 export default function User() {
-  const hash = useBoundStore((state) => state.authHash);
-  const logout = useBoundStore((state) => state.logout);
+  //const hash = useBoundStore((state) => state.authHash);
+  //const logout = useBoundStore((state) => state.logout);
 
   const copyToClipboard = async () => {
-    await Clipboard.setStringAsync(hash || '');
+    //  await Clipboard.setStringAsync(hash || '');
   };
 
   const handleLogout = async () => {
     try {
-      await logout();
+      //   await logout();
       router.back();
       router.replace('/sign-in');
     } catch (error) {

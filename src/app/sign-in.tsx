@@ -1,31 +1,35 @@
 import { Button } from '@/components/Button';
+import { Card } from '@/components/Card';
 import { Container } from '@/components/Container';
-import { Input } from '@/components/Input';
+import { InputColumn } from '@/components/Input/InputColumn';
 import { Loading } from '@/components/Loading';
+import { Separator } from '@/components/Separator';
 import { Typography } from '@/components/Typography';
-import { useBoundStore } from '@/store';
-import { theme } from '@/styles/theme';
-import { router } from 'expo-router';
-import { Link } from 'lucide-react-native';
+import { colors } from '@/styles/colors';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
+
+import { useBoundStore } from '@/store';
 
 export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
-  const [hash, setHash] = useState<string>();
-  const setAuthHash = useBoundStore((state) => state.setAuthHash);
-  const createAuthHash = useBoundStore((state) => state.createAuthHash);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (haveHash = true) => {
-    setIsLoading(true);
-    if (!!hash && haveHash) {
-      await setAuthHash(hash);
-    } else {
-      await createAuthHash();
+  const signIn = useBoundStore((state) => state.signIn);
+
+  const handleSubmit = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      await signIn(email, password);
+    } catch (error) {
+      setError('Credenciais inválidas. Tente novamente.');
+      console.log('Error during sign in:', error);
+    } finally {
+      setIsLoading(false);
     }
-    setTimeout(() => {
-      router.replace('/');
-    }, 2000);
   };
 
   return (
@@ -35,36 +39,33 @@ export default function SignIn() {
       ) : (
         <>
           <View style={styles.titleContainer}>
-            <Typography variant="title" color="primary" style={styles.title}>
-              Bem vindo ao, MyExpenses
-            </Typography>
-            <Typography variant="section" style={styles.title} color="textSecondary">
-              Entre com seu ID de usuário
-            </Typography>
+            <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
+            <Typography variant="heading/lg">Bem vindo ao MyExpenses</Typography>
           </View>
-          <View style={styles.inputContainer}>
-            <Input
-              value={hash}
-              onChangeText={setHash}
-              placeholder="ID usuário"
-              LeftIcon={Link}
-              returnKeyType="done"
-              onSubmitEditing={() => handleSubmit(true)}
+          <Card>
+            <InputColumn
+              placeholder="Digite seu e-mail"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
             />
-            <Button
-              title="Entrar"
-              disabled={!hash}
-              style={styles.submit}
-              onPress={() => handleSubmit(true)}
+            <Separator />
+            <InputColumn
+              placeholder="Digite sua senha"
+              secureTextEntry
+              autoCapitalize="none"
+              value={password}
+              onChangeText={setPassword}
             />
-            <Button
-              title="Não possuo ID"
-              style={styles.dontHaveID}
-              variant="ghost"
-              fontWeight="title"
-              onPress={() => handleSubmit(false)}
-            />
-          </View>
+          </Card>
+          {error && (
+            <Typography variant="body/sm" color="red" align="center">
+              {error}
+            </Typography>
+          )}
+          <Button title="Entrar" onPress={handleSubmit} />
+          <Button variant="ghost" title="Não possuo cadastro" />
         </>
       )}
     </Container>
@@ -72,15 +73,22 @@ export default function SignIn() {
 }
 
 const styles = StyleSheet.create({
+  logo: {
+    width: 150,
+    height: 150,
+    borderRadius: 12,
+    borderWidth: 0.5,
+    borderColor: colors.separator,
+  },
   center: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: theme.spacing.xl,
+    gap: 24,
   },
   titleContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: theme.spacing.md,
+    gap: 12,
   },
   title: {
     textAlign: 'center',
@@ -88,7 +96,7 @@ const styles = StyleSheet.create({
 
   inputContainer: {
     width: '100%',
-    gap: theme.spacing.md,
+    gap: 24,
   },
   submit: {
     width: '100%',

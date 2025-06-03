@@ -1,50 +1,51 @@
-import * as Crypto from 'expo-crypto';
-import Storage from 'expo-sqlite/kv-store';
+import { Session } from '@supabase/supabase-js';
 import { StateCreator } from 'zustand';
+import { supabase } from '../../utils/supabase';
 
 export interface AuthSlice {
-  authHash: string | null;
-  setAuthHash: (hash: string) => Promise<void>;
+  session: Session | null;
 
-  verifyIfHaveAuthHash: () => Promise<boolean>;
-  createAuthHash: () => Promise<void>;
+  setSession: (session: Session | null) => void;
 
-  logout: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
-export const hashKey = 'my-expenses-user-hash';
-
 export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set) => ({
-  authHash: null,
-  setAuthHash: async (hash) => {
-    await Storage.setItem(hashKey, hash);
+  session: null,
+
+  setSession: (session) => {
     set((state) => ({
       ...state,
-      authHash: hash,
+      session,
     }));
   },
 
-  verifyIfHaveAuthHash: async () => {
-    const userHash = await Storage.getItem(hashKey);
+  signIn: async (email, password) => {
+    const { error, data } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    if (userHash) {
-      set((state) => ({
-        ...state,
-        authHash: userHash,
-      }));
+    if (error) {
+      throw new Error(error.message);
     }
 
-    return !!userHash;
+    set((state) => ({
+      ...state,
+      session: data.session,
+    }));
   },
-  createAuthHash: async () => {
-    const hash = Crypto.randomUUID();
-    await Storage.setItem(hashKey, hash);
-    console.log('User Hash was Created', hash);
-    set((state) => ({ ...state, authHash: hash }));
-  },
+  signOut: async () => {
+    const { error } = await supabase.auth.signOut();
 
-  logout: async () => {
-    await Storage.removeItem(hashKey);
-    set((state) => ({ authHash: null }));
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    set((state) => ({
+      ...state,
+      session: null,
+    }));
   },
 });

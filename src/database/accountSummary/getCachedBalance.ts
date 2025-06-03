@@ -1,14 +1,13 @@
-import { hashKey } from '@/store/slices/authStore';
+import { useBoundStore } from '@/store';
 import { SQLiteDatabase } from 'expo-sqlite';
-import Storage from 'expo-sqlite/kv-store';
 
 export async function getCacheAccountBalance(db: SQLiteDatabase) {
   let balance = 0;
 
-  const user_id = await Storage.getItem(hashKey);
+  const { session } = useBoundStore.getState();
 
-  if (!user_id) {
-    throw new Error('User Hash not found');
+  if (!session?.user) {
+    throw new Error('User  not found');
   }
 
   await db.withTransactionAsync(async () => {
@@ -22,7 +21,7 @@ export async function getCacheAccountBalance(db: SQLiteDatabase) {
         SET total=?, last_updated=?
         WHERE id = ?
         `,
-      [total.balance, now, user_id],
+      [total.balance, now, session.user.id],
     );
 
     await db.runAsync(
@@ -30,7 +29,7 @@ export async function getCacheAccountBalance(db: SQLiteDatabase) {
         INSERT INTO balance_history (balance, updated_at, user_id)
         VALUES (?, ?, ?)
         `,
-      [total.balance, now, user_id],
+      [total.balance, now, session.user.id],
     );
     balance = total.balance;
   });
@@ -39,10 +38,10 @@ export async function getCacheAccountBalance(db: SQLiteDatabase) {
 }
 
 async function getBalance(db: SQLiteDatabase) {
-  const user_id = await Storage.getItem(hashKey);
+  const { session } = useBoundStore.getState();
 
-  if (!user_id) {
-    throw new Error('User Hash not found');
+  if (!session?.user) {
+    throw new Error('User  not found');
   }
   return db.getFirstAsync(
     `
@@ -52,6 +51,6 @@ async function getBalance(db: SQLiteDatabase) {
     AS balance
     FROM transactions WHERE deleted = 0 AND user_id = ?
     `,
-    [user_id],
+    [session.user.id],
   );
 }

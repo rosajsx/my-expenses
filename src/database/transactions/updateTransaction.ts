@@ -12,7 +12,6 @@ interface UpdateTransactionInput {
 
 export async function updateTransaction(db: SQLiteDatabase, input: UpdateTransactionInput) {
   try {
-    console.log({ input });
     await db
       .runAsync(
         'UPDATE transactions SET name = ?, amount = ?, type = ?, date = ?, updated_at = ?, pendingSync = 1, category = ? WHERE id = ? AND deleted = 0',

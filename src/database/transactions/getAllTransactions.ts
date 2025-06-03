@@ -1,7 +1,6 @@
+import { useBoundStore } from '@/store';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { Transaction } from '../types';
-import Storage from 'expo-sqlite/kv-store';
-import { hashKey } from '@/store/slices/authStore';
 
 export interface FilterParams {
   year?: number;
@@ -13,10 +12,10 @@ export async function getAllTransactions(db: SQLiteDatabase, filter?: FilterPara
   let query = '';
   let params = [];
 
-  const user_id = await Storage.getItem(hashKey);
+  const { session } = useBoundStore.getState();
 
-  if (!user_id) {
-    throw new Error('User Hash not found');
+  if (!session?.user?.id) {
+    throw new Error('User  not found');
   }
 
   if (typeof filter?.month === 'number') {
@@ -39,6 +38,6 @@ export async function getAllTransactions(db: SQLiteDatabase, filter?: FilterPara
 
   return db.getAllAsync<Transaction>(
     `SELECT * FROM transactions  WHERE user_id = ? ${query} ORDER BY date DESC;`,
-    [user_id, ...params],
+    [session?.user?.id, ...params],
   );
 }

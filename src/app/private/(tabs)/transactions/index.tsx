@@ -135,7 +135,7 @@ export default function Index() {
       <Reanimated.View style={[styleAnimation, styles.leftAction]}>
         <TouchableOpacity
           style={styles.rightActionBtn}
-          onPress={() => router.navigate(`/transactions/update/${transaction?.id}`)}>
+          onPress={() => router.navigate(`/private/transactions/update/${transaction?.id}`)}>
           <Pen color={colors.backgroundWhite} size={24} />
           <Text style={styles.rightActionText}>Editar</Text>
         </TouchableOpacity>
@@ -199,7 +199,8 @@ export default function Index() {
               <Button
                 variant="ghost"
                 disabled={isSyncing}
-                onPress={() => router.navigate('/(app)/(tabs)/transactions/create')}
+                onPress={handleSync}
+                paddingHorizontal={0}
                 style={{ height: 'auto', padding: 0 }}>
                 <RefreshCcw color={colors.primary} size={28} />
               </Button>
@@ -207,7 +208,7 @@ export default function Index() {
             <Button
               variant="ghost"
               disabled={isSyncing}
-              onPress={() => router.navigate('/(app)/(tabs)/transactions/create')}
+              onPress={() => router.navigate('/private/(tabs)/transactions/create')}
               style={{ height: 'auto', padding: 0 }}>
               <Plus color={colors.primary} size={28} />
             </Button>
@@ -239,7 +240,7 @@ export default function Index() {
               renderRightActions={(prag, drag) => RightAction(prag, drag, item)}>
               <Pressable
                 style={styles.transactionCard}
-                onPress={() => router.push(`/transactions/${item.id}`)}>
+                onPress={() => router.push(`/private/transactions/${item.id}`)}>
                 <View style={styles.transactionContent}>
                   <Typography variant="heading/sm">
                     {item.name}{' '}

@@ -1,10 +1,9 @@
-import { SQLiteDatabase } from 'expo-sqlite';
-import { Transaction } from '../types';
-import { updateCachedBalance } from '../accountSummary/updateCachedBalance';
+import { useBoundStore } from '@/store';
 import { formatDateForSQLite } from '@/utils';
 import * as Crypto from 'expo-crypto';
-import Storage from 'expo-sqlite/kv-store';
-import { hashKey } from '@/store/slices/authStore';
+import { SQLiteDatabase } from 'expo-sqlite';
+import { updateCachedBalance } from '../accountSummary/updateCachedBalance';
+import { Transaction } from '../types';
 
 export async function createTransaction(
   db: SQLiteDatabase,
@@ -21,10 +20,10 @@ export async function createTransaction(
   try {
     const transactions: Omit<Transaction, 'created_at' | 'updated_at' | 'deleted'>[] = [];
 
-    const user_id = await Storage.getItem(hashKey);
+    const { session } = useBoundStore.getState();
 
-    if (!user_id) {
-      throw new Error('User Hash not found');
+    if (!session?.user) {
+      throw new Error('User  not found');
     }
 
     const formattedDate = formatDateForSQLite(new Date(date));
@@ -41,7 +40,7 @@ export async function createTransaction(
         installment,
         installment_qtd,
         date: formattedDate,
-        user_id,
+        user_id: session.user.id,
         type,
         category,
       });
@@ -58,7 +57,7 @@ export async function createTransaction(
           installment: installment + (i + 1),
           installment_qtd,
           date: formatDateForSQLite(newDate),
-          user_id,
+          user_id: session.user.id,
           type,
           category,
         });
@@ -73,7 +72,7 @@ export async function createTransaction(
         installment,
         installment_qtd,
         date: formattedDate,
-        user_id,
+        user_id: session.user.id,
         type,
         category,
       });

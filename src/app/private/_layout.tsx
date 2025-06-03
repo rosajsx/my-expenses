@@ -1,31 +1,14 @@
 import { Loading } from '@/components/Loading';
 import { migrateDbIfNeeded } from '@/database';
-import { useBoundStore } from '@/store';
 import { theme } from '@/styles/theme';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
-import { Suspense, useEffect, useLayoutEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { AppState, View } from 'react-native';
-import { useShallow } from 'zustand/react/shallow';
 
 export default function AppLayout() {
   const appState = useRef(AppState.currentState);
-  const { verifyIfHaveAuthHash } = useBoundStore(
-    useShallow((state) => ({
-      verifyIfHaveAuthHash: state.verifyIfHaveAuthHash,
-    })),
-  );
-
-  useLayoutEffect(() => {
-    (async () => {
-      const haveHash = await verifyIfHaveAuthHash();
-      if (!haveHash) {
-        router.replace('/sign-in');
-      } else {
-      }
-    })();
-  }, []);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', async (nextAppState) => {

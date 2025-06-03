@@ -1,32 +1,30 @@
 import { colors } from '@/styles/colors';
 import { forwardRef } from 'react';
-import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
+import { StyleSheet, TextInput, TextInputProps, View, ViewProps } from 'react-native';
 import { Separator } from '../Separator';
 import { Typography } from '../Typography';
 
 interface InputColumnProps extends TextInputProps {
-  label: string;
+  label?: string;
+  separator?: boolean;
+  wrapperStyle?: ViewProps['style'];
 }
 
 export const InputColumn = forwardRef<TextInput, InputColumnProps>(
   (
-    {
-      label,
-      placeholderTextColor,
-      style,
-
-      value,
-
-      ...props
-    },
+    { label, placeholderTextColor, style, separator = true, wrapperStyle, value, ...props },
     ref,
   ) => {
     return (
-      <View style={[styles.input]}>
-        <Typography variant="body/md" color="text">
-          {label}
-        </Typography>
-        <Separator />
+      <View style={[styles.input, wrapperStyle]}>
+        {label && (
+          <Typography variant="body/md" color="text">
+            {label}
+          </Typography>
+        )}
+
+        {separator && label && <Separator />}
+
         <TextInput
           {...props}
           ref={ref}

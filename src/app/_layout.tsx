@@ -6,12 +6,12 @@ import {
   Inter_900Black,
   useFonts,
 } from '@expo-google-fonts/inter';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { useBoundStore } from '@/store';
-import { BottomSheetBackdrop, BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
+import { supabase } from '@/utils/supabase';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Host } from 'react-native-portalize';
@@ -36,24 +36,31 @@ export default function RootLayout() {
     Inter_900Black,
   });
 
-  const verifyIfHaveAuthHash = useBoundStore((state) => state.verifyIfHaveAuthHash);
-
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        opacity={0.5}
-        pressBehavior="close"
-      />
-    ),
-    [],
-  );
+  const setSession = useBoundStore((state) => state.setSession);
+  const session = useBoundStore((state) => state.session);
 
   useEffect(() => {
     if (loaded || error) {
-      verifyIfHaveAuthHash();
+      supabase.auth.getSession().then(({ data }) => {
+        setSession(data.session);
+        if (!data.session) {
+          console.log('User is not logged in, navigating to sign-in');
+          router.replace('/sign-in');
+        } else {
+          console.log('User is logged in, navigating to transactions 1');
+          router.replace('/private');
+        }
+      });
+      supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+        if (session) {
+          console.log('User is logged in, navigating to transactions 2');
+          router.replace('/sign-in');
+        } else {
+          console.log('User is logged in, navigating to transactions 2');
+          router.replace('/private');
+        }
+      });
       SplashScreen.hideAsync();
     }
   }, [loaded, error]);
@@ -69,8 +76,14 @@ export default function RootLayout() {
           screenOptions={{
             headerShown: false,
             animation: 'fade',
-          }}
-        />
+          }}>
+          <Stack.Protected guard={!session}>
+            <Stack.Screen name="sign-in" />
+          </Stack.Protected>
+          <Stack.Protected guard={!!session}>
+            <Stack.Screen name="private" />
+          </Stack.Protected>
+        </Stack>
       </Host>
     </GestureHandlerRootView>
   );

@@ -1,6 +1,4 @@
-import { hashKey } from '@/store/slices/authStore';
 import { SQLiteDatabase } from 'expo-sqlite';
-import Storage from 'expo-sqlite/kv-store';
 import { createAccountSummaryTable } from './accountSummary/createAccountSummaryTable';
 import { createBalanceHistoryTable } from './balanceHistory/createBalanceHistoryTable';
 import { createTransactionsTable } from './transactions/createTransactionsTable';
@@ -23,11 +21,6 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
       await createAccountSummaryTable(db);
 
       await createBalanceHistoryTable(db);
-
-      const userHash = await Storage.getItem(hashKey);
-      if (!userHash) {
-        throw new Error("User hash wasn't created");
-      }
 
       console.log('Database created and migrated to version 1');
       // await db.runAsync('INSERT INTO todos (value, intValue) VALUES (?, ?)', 'hello', 1);

@@ -23,7 +23,6 @@ export const Container = ({ children, style, wrapperStyle, ...props }: Container
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: colors.backgroundWhite,
-
     paddingHorizontal: 24,
     paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.lg,

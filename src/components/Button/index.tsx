@@ -8,6 +8,7 @@ export interface ButtonProps extends TouchableOpacityProps {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   title?: string;
   textVariant?: TypographyVariant;
+  paddingHorizontal?: number;
 }
 
 const ButtonComponent = (
@@ -18,6 +19,7 @@ const ButtonComponent = (
     disabled,
     style,
     children,
+    paddingHorizontal = 16,
     ...props
   }: ButtonProps,
   ref: any,
@@ -26,7 +28,7 @@ const ButtonComponent = (
   const textStyle = variantTextStyles[variant];
   return (
     <TouchableOpacity
-      style={[styles.base, variantStyle, disabled && styles.disabled, style]}
+      style={[styles.base, { paddingHorizontal }, variantStyle, disabled && styles.disabled, style]}
       ref={ref}
       testID="Button"
       activeOpacity={0.7}
@@ -47,7 +49,7 @@ export const Button = forwardRef(ButtonComponent);
 const styles = StyleSheet.create({
   base: {
     height: 44,
-    paddingHorizontal: 16,
+
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',

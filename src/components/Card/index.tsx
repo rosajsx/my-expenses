@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
     borderRadius: 12,
-
+    width: '100%',
     minHeight: 44,
   },
 });

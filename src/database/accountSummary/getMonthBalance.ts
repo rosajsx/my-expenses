@@ -1,16 +1,15 @@
-import { hashKey } from '@/store/slices/authStore';
+import { useBoundStore } from '@/store';
 import { SQLiteDatabase } from 'expo-sqlite';
-import Storage from 'expo-sqlite/kv-store';
 
 export const getMonthBalance = async (db: SQLiteDatabase, month: string) => {
   const year = new Date().getFullYear();
 
   const haveMonthTwoDigits = month.length > 1;
 
-  const user_id = await Storage.getItem(hashKey);
+  const { session } = useBoundStore.getState();
 
-  if (!user_id) {
-    throw new Error('User Hash not found');
+  if (!session?.user) {
+    throw new Error('User  not found');
   }
 
   return db.getFirstAsync<{ total: number }>(
@@ -23,6 +22,6 @@ export const getMonthBalance = async (db: SQLiteDatabase, month: string) => {
        AND user_id = ?
        AND deleted = 0
        `,
-    [`${year}`, haveMonthTwoDigits ? month : `0${month}`, user_id],
+    [`${year}`, haveMonthTwoDigits ? month : `0${month}`, session.user.id],
   );
 };

@@ -1,11 +1,10 @@
-import { hashKey } from '@/store/slices/authStore';
 import { SQLiteDatabase } from 'expo-sqlite';
-import Storage from 'expo-sqlite/kv-store';
+import { useBoundStore } from '../../store/index';
 
 export async function createAccountSummaryTable(db: SQLiteDatabase) {
-  const user_id = await Storage.getItem(hashKey);
+  const { session } = useBoundStore.getState();
 
-  if (!user_id) {
+  if (!session?.user) {
     throw new Error('User Hash not found');
   }
   return db
@@ -20,7 +19,7 @@ export async function createAccountSummaryTable(db: SQLiteDatabase) {
       `);
       await db.runAsync(
         `INSERT OR IGNORE INTO account_summary (id, total, last_updated) VALUES (?, 0, datetime('now'))`,
-        [user_id],
+        [session.user.id],
       );
     })
     .then(() => console.log('account_summary Table Created'))
