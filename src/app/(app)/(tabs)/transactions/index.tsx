@@ -20,7 +20,7 @@ import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate } from '@/utils';
 import * as Network from 'expo-network';
 import { router, useFocusEffect } from 'expo-router';
-import { Plus, Trash } from 'lucide-react-native';
+import { Pen, Plus, Trash } from 'lucide-react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { useShallow } from 'zustand/react/shallow';
@@ -122,6 +122,28 @@ export default function Index() {
     );
   };
 
+  const LeftAction = (
+    prog: SharedValue<number>,
+    drag: SharedValue<number>,
+    transaction: Transaction,
+  ) => {
+    const styleAnimation = useAnimatedStyle(() => {
+      return {
+        transform: [{ translateX: drag.value - 82 }],
+      };
+    });
+    return (
+      <Reanimated.View style={[styleAnimation, styles.leftAction]}>
+        <TouchableOpacity
+          style={styles.rightActionBtn}
+          onPress={() => router.navigate(`/transactions/update/${transaction?.id}`)}>
+          <Pen color={colors.backgroundWhite} size={24} />
+          <Text style={styles.rightActionText}>Editar</Text>
+        </TouchableOpacity>
+      </Reanimated.View>
+    );
+  };
+
   useEffect(() => {
     updateData();
     resetFilters();
@@ -181,6 +203,7 @@ export default function Index() {
               friction={2}
               enableTrackpadTwoFingerGesture
               rightThreshold={40}
+              renderLeftActions={(prag, drag) => LeftAction(prag, drag, item)}
               renderRightActions={(prag, drag) => RightAction(prag, drag, item)}>
               <Pressable
                 style={styles.transactionCard}
@@ -222,6 +245,14 @@ const styles = StyleSheet.create({
     width: 80,
     height: '100%',
     backgroundColor: colors.red,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+  },
+  leftAction: {
+    width: 80,
+    height: '100%',
+    backgroundColor: colors.green,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
