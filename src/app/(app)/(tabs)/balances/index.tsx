@@ -1,8 +1,8 @@
-import { BottomSheet, useBottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
 import { Header } from '@/components/Header';
 import { Loading } from '@/components/Loading';
+import { BottomSheet, useBottomSheet } from '@/components/Sheets/BottomSheet';
 import { Typography } from '@/components/Typography';
 import { BalanceType } from '@/database/balances/getBalancePerMonth';
 import { ScreenStateEnum } from '@/enums/screenStates';

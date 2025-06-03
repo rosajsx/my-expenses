@@ -1,6 +1,6 @@
-import { BottomSheet, useBottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { BottomSheet, useBottomSheet } from '@/components/Sheets/BottomSheet';
 import { Typography } from '@/components/Typography';
 import { useBoundStore } from '@/store';
 import { theme } from '@/styles/theme';
