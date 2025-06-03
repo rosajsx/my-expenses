@@ -267,7 +267,7 @@ export default function CreateTransaction() {
           <Typography align="center" variant="heading/md" style={{ marginBottom: 8 }}>
             Transação salva com sucesso!
           </Typography>
-          <Typography align="center" variant="body/md" style={{ marginBottom: 24 }}>
+          <Typography align="center" variant="body/md" style={{ marginBottom: 32 }}>
             O que deseja fazer agora?
           </Typography>
 
@@ -275,7 +275,7 @@ export default function CreateTransaction() {
             variant="primary"
             title="Criar nova transação"
             onPress={handleReset}
-            style={{ marginBottom: 8 }}
+            style={{ marginBottom: 18 }}
           />
           <Button variant="ghost" title="Fechar" onPress={router.back} />
         </View>

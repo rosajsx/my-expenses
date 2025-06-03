@@ -198,6 +198,13 @@ export default function Index() {
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <Separator />}
+          ListEmptyComponent={() => (
+            <View>
+              <Typography variant="body/md" align="center">
+                Nenhuma transação encontrada!
+              </Typography>
+            </View>
+          )}
           renderItem={({ item }) => (
             <ReanimatedSwipeable
               friction={2}
