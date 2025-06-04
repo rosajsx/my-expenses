@@ -8,10 +8,10 @@ import { Separator } from '@/components/Separator';
 import { CreateTransactionSuccessModal } from '@/components/Sheets/CreateTransactionSuccessModal';
 import { SelectDateModal } from '@/components/Sheets/SelectDateModal';
 import { SelectInstallmentsModal } from '@/components/Sheets/SelectInstallmentsModal';
-import { createTransaction } from '@/database/transactions/createTransaction';
-import { useDatabase } from '@/hooks/useDatabase';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { useScreenState } from '@/hooks/useScreenState';
+import { createTransaction } from '@/services/transactions/createTransaction';
+import { useBoundStore } from '@/store';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate, parseCurrencyToCents } from '@/utils';
 import { useRef, useState } from 'react';
@@ -47,7 +47,7 @@ export default function CreateTransaction() {
     isScreenStateLoading,
     isScreenStateSuccess,
   } = useScreenState();
-  const { database } = useDatabase();
+  const session = useBoundStore((state) => state.session);
 
   const currencyValueRef = useRef<TextInput>(null);
   const categoryValueRef = useRef<TextInput>(null);
@@ -70,7 +70,7 @@ export default function CreateTransaction() {
   const handleCreateTransaction = () => {
     handleChangeScreenStateToLoading();
 
-    createTransaction(database, {
+    createTransaction(session?.user?.id!, {
       name: transactionName,
       amount,
       installment: haveInstallment ? 1 : null,

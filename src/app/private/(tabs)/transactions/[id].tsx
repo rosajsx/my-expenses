@@ -3,14 +3,13 @@ import { Card } from '@/components/Card';
 import { Container } from '@/components/Container';
 import { PageHeader } from '@/components/Header/index';
 import { Typography } from '@/components/Typography';
-import { deleteTransaction } from '@/database/transactions/deleteTransaction';
-import { getTransactionById } from '@/database/transactions/getTransactionById';
-import { Transaction } from '@/database/types';
 import { ScreenStateEnum } from '@/enums/screenStates';
-import { useDatabase } from '@/hooks/useDatabase';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { useScreenState } from '@/hooks/useScreenState';
+import { deleteTransactionById } from '@/services/transactions/deleteTransaction';
+import { getTransactionById } from '@/services/transactions/getTransactionById';
 import { useBoundStore } from '@/store';
+import { ITransaction } from '@/store/slices/transactionsSlice';
 import { formatCurrency, formatDate } from '@/utils';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
@@ -18,10 +17,9 @@ import { Alert, StyleSheet, View } from 'react-native';
 import { colors } from '../../../../styles/colors';
 
 export default function TransactionDetails() {
-  const [transaction, setTransaction] = useState<Transaction>();
-  const { database } = useDatabase();
+  const [transaction, setTransaction] = useState<ITransaction>();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const getBalances = useBoundStore((state) => state.getBalances);
+  const session = useBoundStore((state) => state.session);
 
   const {
     handleChangeScreenStateToDefault,
@@ -34,9 +32,10 @@ export default function TransactionDetails() {
   useFocusEffect(
     useCallback(() => {
       handleChangeScreenStateToLoading();
-      getTransactionById(database, id)
+      getTransactionById(session?.user?.id!, Number(id))
         .then((response) => {
-          setTransaction(response!);
+          console.log({ response });
+          setTransaction(response.data as ITransaction);
           handleChangeScreenStateToDefault();
         })
         .catch((error) => {
@@ -47,18 +46,13 @@ export default function TransactionDetails() {
   );
 
   const handleEdit = () => {
-    router.navigate(`/transactions/update/${transaction?.id}`);
+    router.navigate(`/private/transactions/update/${transaction?.id}`);
   };
 
   async function handleDelete() {
     try {
-      await deleteTransaction(database, transaction!);
-      await getBalances(database);
-      router.navigate('/transactions', {
-        params: {
-          update: true,
-        },
-      } as any);
+      await deleteTransactionById(session?.user?.id!, transaction?.id!);
+      router.navigate('/private/transactions');
 
       Alert.alert('Transação deletada com sucesso!');
     } catch (error) {
@@ -132,16 +126,6 @@ export default function TransactionDetails() {
             </Typography>
             <Typography variant="body/md">
               {transaction?.installment}/{transaction.installment_qtd}
-            </Typography>
-          </View>
-        )}
-        {typeof transaction?.pendingSync === 'number' && (
-          <View style={styles.detailItem}>
-            <Typography variant="body/md" color="text">
-              Status
-            </Typography>
-            <Typography variant="body/md">
-              {transaction.pendingSync === 1 ? 'Pendente de Sincronização' : 'Sincronizado!'}
             </Typography>
           </View>
         )}
