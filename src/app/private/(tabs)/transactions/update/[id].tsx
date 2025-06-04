@@ -8,11 +8,11 @@ import { Separator } from '@/components/Separator';
 import { SelectDateModal } from '@/components/Sheets/SelectDateModal';
 import { SelectInstallmentsModal } from '@/components/Sheets/SelectInstallmentsModal';
 import { UpdateTransactionSuccessModal } from '@/components/Sheets/UpdateTransactionSuccessModal';
-import { getTransactionById } from '@/database/transactions/getTransactionById';
-import { updateTransaction } from '@/database/transactions/updateTransaction';
-import { useDatabase } from '@/hooks/useDatabase';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { useScreenState } from '@/hooks/useScreenState';
+import { getTransactionById } from '@/services/transactions/getTransactionById';
+import { updateTransaction } from '@/services/transactions/updateTransaction';
+import { useBoundStore } from '@/store';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate, parseCurrencyToCents } from '@/utils';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
@@ -40,6 +40,7 @@ export default function UpdateTransaction() {
   const [installmentQtd, setInstallmentQtd] = useState<string | null>();
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
   const [isInstallmentsModalOpen, setIsInstallmentsModalOpen] = useState(false);
+  const session = useBoundStore((state) => state.session);
 
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -50,7 +51,6 @@ export default function UpdateTransaction() {
     isScreenStateLoading,
     isScreenStateSuccess,
   } = useScreenState();
-  const { database } = useDatabase();
 
   const currencyValueRef = useRef<TextInput>(null);
   const categoryValueRef = useRef<TextInput>(null);
@@ -60,10 +60,10 @@ export default function UpdateTransaction() {
   const handleUpdateTransaction = () => {
     handleChangeScreenStateToLoading();
 
-    updateTransaction(database, {
+    updateTransaction(session?.user?.id!, {
       name: transactionName,
       amount,
-      id,
+      id: Number(id),
       type: transactionType!,
       date: selectedDate.toISOString(),
       category,
@@ -83,8 +83,8 @@ export default function UpdateTransaction() {
 
   const getData = async () => {
     try {
-      const data = await getTransactionById(database, id);
-
+      const response = await getTransactionById(session?.user?.id!, Number(id));
+      const data = response?.data;
       if (data?.name) setTransactionName(data?.name);
       if (data?.amount) setAmount(data?.amount);
       if (data?.date) setSelectedDate(new Date(data?.date));
