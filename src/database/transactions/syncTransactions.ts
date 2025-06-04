@@ -1,10 +1,10 @@
+import { supabase } from '@/services/supabase';
 import { openDatabaseAsync } from 'expo-sqlite';
-import { getPendingTransactions } from './getPendingTransactions';
-import { supabase } from '../../utils/supabase';
-import { markSyncTransactions } from './markTransactionsAsSync';
-import { upsertTransactionsFromServer } from './upsertTransactionsFromServer';
 import { Transaction } from '../types';
+import { getPendingTransactions } from './getPendingTransactions';
+import { markSyncTransactions } from './markTransactionsAsSync';
 import { removeDeletedTransactions } from './removeDeletedTransactions';
+import { upsertTransactionsFromServer } from './upsertTransactionsFromServer';
 
 export async function syncTransactions() {
   const db = await openDatabaseAsync('my-expenses.db');

@@ -10,8 +10,8 @@ import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
+import { supabase } from '@/services/supabase';
 import { useBoundStore } from '@/store';
-import { supabase } from '@/utils/supabase';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Host } from 'react-native-portalize';
