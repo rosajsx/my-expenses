@@ -1,6 +1,6 @@
+import { supabase } from '@/services/supabase';
 import { Session } from '@supabase/supabase-js';
 import { StateCreator } from 'zustand';
-import { supabase } from '../../utils/supabase';
 
 export interface AuthSlice {
   session: Session | null;

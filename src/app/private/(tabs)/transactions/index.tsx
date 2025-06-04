@@ -3,7 +3,7 @@ import { Alert, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } 
 import { Container } from '@/components/Container';
 import { useDatabase } from '@/hooks/useDatabase';
 import { theme } from '@/styles/theme';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/Button';
 import { BalanceHeader } from '@/components/Header/BalanceHeader';
@@ -13,19 +13,15 @@ import { TransactionTypeModal } from '@/components/Sheets/SelectTransactionType'
 import { SelectYearModal } from '@/components/Sheets/SelectYearModal';
 import { Typography } from '@/components/Typography';
 import { deleteTransaction } from '@/database/transactions/deleteTransaction';
-import { syncTransactions } from '@/database/transactions/syncTransactions';
 import { Transaction } from '@/database/types';
 import { useBoundStore } from '@/store';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate } from '@/utils';
-import * as Network from 'expo-network';
 import { router, useFocusEffect } from 'expo-router';
-import { Pen, Plus, RefreshCcw, Trash } from 'lucide-react-native';
+import { Pen, Plus, Trash } from 'lucide-react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { useShallow } from 'zustand/react/shallow';
-
-let isFirstRender = true;
 
 export default function Index() {
   const { transactions, getTransactions, transactionsState } = useBoundStore(
@@ -36,9 +32,10 @@ export default function Index() {
     })),
   );
 
-  const { isConnected } = Network.useNetworkState();
+  // const { isConnected } = Network.useNetworkState();
 
   const getBalances = useBoundStore((state) => state.getBalances);
+  const session = useBoundStore((state) => state.session);
 
   const { selectedMonth, selectedYear, resetFilters, selectedTransactionType } = useBoundStore(
     useShallow((state) => ({
@@ -53,8 +50,6 @@ export default function Index() {
 
   const { database } = useDatabase();
 
-  const canSync = transactions.some((transaction) => transaction.pendingSync === 1);
-
   const handleGetTransactions = () => {
     const filters = {
       month: selectedMonth?.id,
@@ -62,11 +57,11 @@ export default function Index() {
       transactionType: selectedTransactionType,
     };
 
-    getTransactions(database, filters);
+    getTransactions(session?.user?.id!, filters);
   };
 
   const handleGetBalances = () => {
-    getBalances(database);
+    getBalances(session?.user?.id!);
   };
 
   const updateData = () => {
@@ -143,26 +138,6 @@ export default function Index() {
     );
   };
 
-  const handleSync = async () => {
-    try {
-      setIsSyncing(true);
-      await syncTransactions();
-    } catch (error) {
-      console.log('Error syncing transactions:', error);
-      Alert.alert(
-        'Erro ao sincronizar transações',
-        'Ocorreu um erro ao tentar sincronizar as transações. Por favor, tente novamente mais tarde.',
-      );
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  useEffect(() => {
-    updateData();
-    resetFilters();
-  }, []);
-
   useEffect(() => {
     if (selectedMonth?.value || selectedYear || selectedTransactionType) {
       handleGetTransactions();
@@ -176,35 +151,12 @@ export default function Index() {
     }, []),
   );
 
-  useLayoutEffect(() => {
-    if (isConnected) {
-      (async () => {
-        handleSync();
-        if (!isFirstRender) {
-          updateData();
-        }
-
-        isFirstRender = false;
-      })();
-    }
-  }, []);
-
   return (
     <Container style={styles.container}>
       <View style={styles.content}>
         <View style={styles.headerContainer}>
           <Typography variant="heading/lg">Transações</Typography>
           <View style={styles.actionButtons}>
-            {canSync && (
-              <Button
-                variant="ghost"
-                disabled={isSyncing}
-                onPress={handleSync}
-                paddingHorizontal={0}
-                style={{ height: 'auto', padding: 0 }}>
-                <RefreshCcw color={colors.primary} size={28} />
-              </Button>
-            )}
             <Button
               variant="ghost"
               disabled={isSyncing}
@@ -219,7 +171,7 @@ export default function Index() {
       </View>
       <View style={styles.listContainer}>
         <FlatList
-          data={transactions.filter((transaction) => transaction.deleted === 0)}
+          data={transactions}
           bounces={false}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}

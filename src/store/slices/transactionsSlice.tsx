@@ -1,13 +1,18 @@
+import { getAllTransactions } from '@/services/transactions/getAllTransactions';
 import { StateCreator } from 'zustand';
+import { Database } from '../../../database.types';
 import { ScreenStateEnum } from '../../enums/screenStates';
-import { Transaction } from '../../database/types';
-import { SQLiteDatabase } from 'expo-sqlite';
-import { FilterParams, getAllTransactions } from '../../database/transactions/getAllTransactions';
+
+export interface IFilter {
+  year?: number;
+  month?: number;
+  transactionType?: number;
+}
 
 export interface TransactionsSlice {
   transactionsState: keyof typeof ScreenStateEnum;
-  transactions: Transaction[];
-  getTransactions: (database: SQLiteDatabase, filters?: FilterParams) => Promise<void>;
+  transactions: Database['public']['Tables']['transactions']['Row'][];
+  getTransactions: (user_id: string, filters?: IFilter) => Promise<void>;
 }
 
 export const createTransactionsSlice: StateCreator<TransactionsSlice, [], [], TransactionsSlice> = (
@@ -16,14 +21,13 @@ export const createTransactionsSlice: StateCreator<TransactionsSlice, [], [], Tr
   transactionsState: ScreenStateEnum.LOADING,
   transactions: [],
   getTransactions: async (database, filters) => {
-    set(() => ({ transactionsState: ScreenStateEnum.LOADING }));
-    getAllTransactions(database, filters)
-      .then((response) => {
-        set(() => ({ transactions: response, transactionsState: ScreenStateEnum.DEFAULT }));
-      })
-      .catch((error) => {
-        console.log('Error on getTransactions', error);
-        set(() => ({ transactionsState: ScreenStateEnum.ERROR }));
-      });
+    try {
+      set(() => ({ transactionsState: ScreenStateEnum.LOADING }));
+      const response = await getAllTransactions(database, filters);
+      set(() => ({ transactions: response.data, transactionsState: ScreenStateEnum.DEFAULT }));
+    } catch (error) {
+      console.log('Error on getTransactions', error);
+      set(() => ({ transactionsState: ScreenStateEnum.ERROR }));
+    }
   },
 });

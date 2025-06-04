@@ -1,18 +1,18 @@
-import { getMonthBalance } from '@/database/accountSummary/getMonthBalance';
 import { ScreenStateEnum } from '@/enums/screenStates';
-import { SQLiteDatabase } from 'expo-sqlite';
+import { getMonthBalance } from '@/services/balances/getMonthBalance'; // Assuming this is a placeholder for future use
 import { StateCreator } from 'zustand';
 
 type BalanceInView = 'GENERAL' | 'MONTH';
 
 const currentMonth = new Date().getMonth();
+const currentYear = new Date().getFullYear();
 
 export interface BalanceSlice {
   balanceState: keyof typeof ScreenStateEnum;
   balance: number;
   monthBalance: number;
   balanceInView: BalanceInView;
-  getBalances: (database: SQLiteDatabase) => Promise<void>;
+  getBalances: (user_id: string) => Promise<void>;
   toggleBalanceView: () => void;
 }
 
@@ -21,14 +21,13 @@ export const createBalanceSlice: StateCreator<BalanceSlice, [], [], BalanceSlice
   balance: 0,
   monthBalance: 0,
   balanceInView: 'MONTH',
-  getBalances: async (database) => {
+  getBalances: async (user_id) => {
     set((state) => ({ balanceState: ScreenStateEnum.LOADING }));
     try {
-      //const balance = await getCacheAccountBalance(database);
-      const monthBalance = await getMonthBalance(database, `${currentMonth + 1}`);
+      const monthBalance = await getMonthBalance(user_id, currentMonth + 1, currentYear);
       set((state) => ({
         balance: 0,
-        monthBalance: monthBalance?.total,
+        monthBalance: monthBalance,
         balanceState: ScreenStateEnum.DEFAULT,
       }));
     } catch (error) {
