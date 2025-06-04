@@ -1,9 +1,8 @@
 import { Alert, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Container } from '@/components/Container';
-import { useDatabase } from '@/hooks/useDatabase';
 import { theme } from '@/styles/theme';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { Button } from '@/components/Button';
 import { BalanceHeader } from '@/components/Header/BalanceHeader';
@@ -12,9 +11,9 @@ import { SelectMonthModal } from '@/components/Sheets/SelectMonthModal';
 import { TransactionTypeModal } from '@/components/Sheets/SelectTransactionType';
 import { SelectYearModal } from '@/components/Sheets/SelectYearModal';
 import { Typography } from '@/components/Typography';
-import { deleteTransaction } from '@/database/transactions/deleteTransaction';
-import { Transaction } from '@/database/types';
+import { deleteTransactionById } from '@/services/transactions/deleteTransaction';
 import { useBoundStore } from '@/store';
+import { ITransaction } from '@/store/slices/transactionsSlice';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate } from '@/utils';
 import { router, useFocusEffect } from 'expo-router';
@@ -32,8 +31,6 @@ export default function Index() {
     })),
   );
 
-  // const { isConnected } = Network.useNetworkState();
-
   const getBalances = useBoundStore((state) => state.getBalances);
   const session = useBoundStore((state) => state.session);
 
@@ -46,43 +43,34 @@ export default function Index() {
     })),
   );
 
-  const [isSyncing, setIsSyncing] = useState(false);
-
-  const { database } = useDatabase();
-
-  const handleGetTransactions = () => {
+  const handleGetTransactions = async () => {
     const filters = {
       month: selectedMonth?.id,
       year: selectedYear ? Number(selectedYear) : undefined,
       transactionType: selectedTransactionType,
     };
 
-    getTransactions(session?.user?.id!, filters);
+    await getTransactions(session?.user?.id!, filters);
   };
 
-  const handleGetBalances = () => {
-    getBalances(session?.user?.id!);
+  const handleGetBalances = async () => {
+    await getBalances(session?.user?.id!);
   };
 
-  const updateData = () => {
-    //handleGetTransactions();
-    handleGetBalances();
-  };
-
-  async function handleDelete(transaction: Transaction) {
+  async function handleDelete(transaction: ITransaction) {
     try {
-      await deleteTransaction(database, transaction!);
+      await deleteTransactionById(session?.user?.id!, transaction.id);
 
       Alert.alert('Transação deletada com sucesso!');
-      handleGetTransactions();
-      handleGetBalances();
+      await handleGetTransactions();
+      await handleGetBalances();
     } catch (error) {
       console.log(error);
       Alert.alert('Ocorreu um erro inesperado', JSON.stringify(error));
     }
   }
 
-  function confirmDelete(transaction: Transaction) {
+  function confirmDelete(transaction: ITransaction) {
     Alert.alert(`Tem certeza que deseja apagar esta transação: ${transaction?.name} `, '', [
       {
         text: 'Cancelar',
@@ -99,7 +87,7 @@ export default function Index() {
   const RightAction = (
     prog: SharedValue<number>,
     drag: SharedValue<number>,
-    transaction: Transaction,
+    transaction: ITransaction,
   ) => {
     const styleAnimation = useAnimatedStyle(() => {
       return {
@@ -119,7 +107,7 @@ export default function Index() {
   const LeftAction = (
     prog: SharedValue<number>,
     drag: SharedValue<number>,
-    transaction: Transaction,
+    transaction: ITransaction,
   ) => {
     const styleAnimation = useAnimatedStyle(() => {
       return {
@@ -159,7 +147,6 @@ export default function Index() {
           <View style={styles.actionButtons}>
             <Button
               variant="ghost"
-              disabled={isSyncing}
               onPress={() => router.navigate('/private/(tabs)/transactions/create')}
               style={{ height: 'auto', padding: 0 }}>
               <Plus color={colors.primary} size={28} />

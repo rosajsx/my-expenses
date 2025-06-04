@@ -9,9 +9,11 @@ export interface IFilter {
   transactionType?: number;
 }
 
+export type ITransaction = Database['public']['Tables']['transactions']['Row'];
+
 export interface TransactionsSlice {
   transactionsState: keyof typeof ScreenStateEnum;
-  transactions: Database['public']['Tables']['transactions']['Row'][];
+  transactions: ITransaction[];
   getTransactions: (user_id: string, filters?: IFilter) => Promise<void>;
 }
 

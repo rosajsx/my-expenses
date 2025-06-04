@@ -25,5 +25,5 @@ export const getMonthBalance = async (
     { income: 0, outcome: 0 },
   );
 
-  return data?.income && data?.outcome ? data?.income - data?.outcome : 0;
+  return data?.income! - data?.outcome! || 0;
 };
