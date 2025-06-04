@@ -1,12 +1,11 @@
-import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
 import { Header } from '@/components/Header';
 import { Loading } from '@/components/Loading';
 // import { BottomSheet, useBottomSheet } from '@/components/Sheets/BottomSheet';
 import { Typography } from '@/components/Typography';
-import { BalanceType } from '@/database/balances/getBalancePerMonth';
+//import { BalanceType } from '@/database/balances/getBalancePerMonth';
 import { ScreenStateEnum } from '@/enums/screenStates';
-import { useDatabase } from '@/hooks/useDatabase';
+//import { useDatabase } from '@/hooks/useDatabase';
 import { useBoundStore } from '@/store';
 import { theme } from '@/styles/theme';
 import { getLastAndFoward5Years } from '@/utils';
@@ -28,7 +27,7 @@ const formatDate = (date: string): string => {
 };
 
 export default function Balances() {
-  const { database } = useDatabase();
+  // const { database } = useDatabase();
 
   const filteredBalances = useBoundStore((state) => state.balancePage.filteredBalances);
 
@@ -48,23 +47,23 @@ export default function Balances() {
 
   const handleClose = () => {
     toggleSelectYearOpen();
-    toggleSheet();
+    //toggleSheet();
   };
 
   const handleSelectItem = (item: BalanceType) => {
     setSelectedItem(item);
     setTimeout(() => {
-      toggleDetailsSheet();
+      // toggleDetailsSheet();
     }, 500);
   };
 
   useEffect(() => {
-    isOpen.value = isSelectYearOpen;
+    // isOpen.value = isSelectYearOpen;
   }, [isSelectYearOpen]);
 
   useFocusEffect(
     useCallback(() => {
-      getBalances(database);
+      //    getBalances(database);
     }, []),
   );
 
@@ -133,7 +132,7 @@ export default function Balances() {
                       Ocorreu um erro inesperado, por favor, tente novamente.
                     </Typography> */}
 
-                    <Button title="Recarregar" onPress={() => getBalances(database)} />
+                    {/* <Button title="Recarregar" onPress={() => getBalances(database)} /> */}
                   </View>
                 )}
                 {state === ScreenStateEnum.LOADING && (
