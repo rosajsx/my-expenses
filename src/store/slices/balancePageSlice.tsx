@@ -1,12 +1,11 @@
-import { BalanceType, getBalancePerMonth } from '@/database/balances/getBalancePerMonth';
 import { ScreenStateEnum } from '@/enums/screenStates';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { StateCreator } from 'zustand';
 
 export interface BalancePageSlice {
   balancePage: {
-    balances: BalanceType[];
-    filteredBalances: BalanceType[];
+    balances: any[];
+    filteredBalances: any[];
     state: keyof typeof ScreenStateEnum;
     clearFilters: () => void;
     getBalances: (database: SQLiteDatabase) => Promise<void>;
@@ -15,8 +14,8 @@ export interface BalancePageSlice {
     setSelectedYear: (value: string) => void;
     isSelectYearOpen: boolean;
     toggleSelectYearOpen: () => void;
-    selectedItem?: BalanceType;
-    setSelectedItem: (item: BalanceType) => void;
+    selectedItem?: any;
+    setSelectedItem: (item: any) => void;
   };
 }
 
@@ -43,12 +42,12 @@ export const createBalancePageSlice: StateCreator<BalancePageSlice, [], [], Bala
         balancePage: { ...state.balancePage, state: ScreenStateEnum.LOADING, balances: [] },
       }));
       try {
-        const data = await getBalancePerMonth(database);
+        // const data = await getBalancePerMonth(database);
         set((state) => ({
           balancePage: {
             ...state.balancePage,
-            balances: data,
-            filteredBalances: data,
+            balances: [],
+            filteredBalances: [],
             state: ScreenStateEnum.DEFAULT,
           },
         }));

@@ -1,8 +1,22 @@
 import LottieView from 'lottie-react-native';
-import { theme } from '../styles/theme';
+
+const sizes = {
+  lg: {
+    width: 200,
+    height: 200,
+  },
+  md: {
+    width: 100,
+    height: 100,
+  },
+  sm: {
+    width: 50,
+    height: 50,
+  },
+};
 
 interface LoadingProps {
-  size?: keyof typeof theme.sizes.loading;
+  size?: keyof typeof sizes;
 }
 
 export function Loading({ size = 'lg' }: LoadingProps) {
@@ -10,7 +24,7 @@ export function Loading({ size = 'lg' }: LoadingProps) {
     <LottieView
       autoPlay
       loop={true}
-      style={theme.sizes.loading[size]}
+      style={sizes[size]}
       source={require('../../assets/animations/loading.json')}
     />
   );
