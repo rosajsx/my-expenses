@@ -8,14 +8,14 @@ import { ScreenStateEnum } from '@/enums/screenStates';
 //import { useDatabase } from '@/hooks/useDatabase';
 import { useBoundStore } from '@/store';
 import { theme } from '@/styles/theme';
-import { getLastAndFoward5Years } from '@/utils';
+import { getLastAndForward5Years } from '@/utils';
 import { useFocusEffect } from 'expo-router';
 import LottieView from 'lottie-react-native';
 import { Calendar, Filter } from 'lucide-react-native';
 import { useCallback, useEffect } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
-const years = getLastAndFoward5Years();
+const years = getLastAndForward5Years();
 
 const formatDate = (date: string): string => {
   const [ano, mes] = (date || '').split('-');
