@@ -60,7 +60,7 @@ export const createTransactionsFilterSlice: StateCreator<
     set(() => ({
       selectedMonth: monthValue,
       selectedYear: undefined,
-      transactionTypeFilter: undefined,
+      selectedTransactionType: undefined,
       isSelectMonthModalOpen: false,
       isSelectYearModalOpen: false,
     })),
