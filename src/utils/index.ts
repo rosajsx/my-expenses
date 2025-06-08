@@ -41,7 +41,7 @@ export function getAllMonthsOfYear() {
   return months;
 }
 
-export function getLastAndFoward5Years() {
+export function getLastAndForward5Years() {
   const currentYear = new Date().getFullYear() + 5;
   const years = [];
 
