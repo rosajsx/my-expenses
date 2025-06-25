@@ -1,5 +1,4 @@
 import { ScreenStateEnum } from '@/enums/screenStates';
-import { SQLiteDatabase } from 'expo-sqlite';
 import { StateCreator } from 'zustand';
 
 export interface BalancePageSlice {
@@ -8,7 +7,7 @@ export interface BalancePageSlice {
     filteredBalances: any[];
     state: keyof typeof ScreenStateEnum;
     clearFilters: () => void;
-    getBalances: (database: SQLiteDatabase) => Promise<void>;
+    getBalances: (database: any) => Promise<void>;
     getFilteredBalances: () => void;
     selectedYear: string | undefined;
     setSelectedYear: (value: string) => void;
