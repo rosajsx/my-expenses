@@ -12,8 +12,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useSyncQueriesExternal } from 'react-query-external-sync';
 
+import { useAuth } from '@/hooks/features/useAuth';
 import { supabase } from '@/services/supabase';
-import { useAuth } from '@/store/auth/auth.hook';
 import NetInfo from '@react-native-community/netinfo';
 import {
   focusManager,

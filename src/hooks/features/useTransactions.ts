@@ -1,8 +1,8 @@
 import { ScreenStateEnum } from '@/enums/screenStates';
 import { getAllTransactions } from '@/services/transactions/getAllTransactions';
+import { useTransactionsStore } from '@/store/transactions/trasactions.store';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../auth/auth.hook';
-import { useTransactionsStore } from './trasactions.store';
+import { useAuth } from './useAuth';
 
 export const useTransactions = () => {
   const {

@@ -1,5 +1,5 @@
+import { useTransactions } from '@/hooks/features/useTransactions';
 import { useBottomSheet } from '@/hooks/useBottomSheet';
-import { useTransactions } from '@/store/transactions/transactions.hook';
 import { colors } from '@/styles/colors';
 import { getLast5Years } from '@/utils';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';

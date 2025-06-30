@@ -1,5 +1,5 @@
 import { supabase } from '@/services/supabase';
-import { useAuthStore } from './auth.store';
+import { useAuthStore } from '@/store/auth/auth.store';
 
 export const useAuth = () => {
   const { session, setSession } = useAuthStore();

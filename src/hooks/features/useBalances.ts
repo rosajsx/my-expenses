@@ -1,8 +1,8 @@
 import { ScreenStateEnum } from '@/enums/screenStates';
 import { getMonthBalance } from '@/services/balances/getMonthBalance';
+import { useBalancesStore } from '@/store/balances/balances.store';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../auth/auth.hook';
-import { useBalancesStore } from './balances.store';
+import { useAuth } from './useAuth';
 
 const currentMonth = new Date().getMonth();
 const currentYear = new Date().getFullYear();

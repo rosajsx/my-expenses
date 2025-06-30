@@ -1,5 +1,5 @@
-import { useBalances } from '@/store/balances/balances.hook';
-import { useTransactions } from '@/store/transactions/transactions.hook';
+import { useBalances } from '@/hooks/features/useBalances';
+import { useTransactions } from '@/hooks/features/useTransactions';
 import { colors } from '@/styles/colors';
 import { formatCurrency, getAllMonthsOfYear } from '@/utils';
 import React from 'react';
