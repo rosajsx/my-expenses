@@ -1,4 +1,5 @@
 import { useBoundStore } from '@/store';
+import { useTransactions } from '@/store/transactions/transactions.hook';
 import { colors } from '@/styles/colors';
 import { formatCurrency, getAllMonthsOfYear } from '@/utils';
 import React from 'react';
@@ -9,16 +10,16 @@ const currentYear = new Date().getFullYear();
 const months = getAllMonthsOfYear();
 
 export const BalanceHeader = () => {
-  const monthBalance = useBoundStore((state) => state.monthBalance);
-  const selectedMonth = useBoundStore((state) => state.selectedMonth);
-  const selectedYear = useBoundStore((state) => state.selectedYear);
-  const selectedTransactionType = useBoundStore((state) => state.selectedTransactionType);
+  const {
+    selectedMonth,
+    selectedYear,
+    selectedTransactionType,
+    handleOpenTransactionTypeModal,
+    handleOpenSelectMonthModal,
+    handleOpenSelectYearModal,
+  } = useTransactions();
 
-  const handleOpenSelectMonthModal = useBoundStore((state) => state.handleOpenSelectMonthModal);
-  const handleOpenYearsModal = useBoundStore((state) => state.handleOpenSelectYearModal);
-  const handleOpenTransactionTypeModal = useBoundStore(
-    (state) => state.handleOpenTransactionTypeModal,
-  );
+  const monthBalance = useBoundStore((state) => state.monthBalance);
 
   const getBalanceStatusColor = () => {
     if (monthBalance === 0 || !monthBalance) {
@@ -66,7 +67,7 @@ export const BalanceHeader = () => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={handleOpenYearsModal}
+          onPress={handleOpenSelectYearModal}
           style={[
             styles.filterButton,
             !selectedYear ? styles.filterButtonInactive : styles.filterButtonActive,

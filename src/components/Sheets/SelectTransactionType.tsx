@@ -1,19 +1,19 @@
 import { useBottomSheet } from '@/hooks/useBottomSheet';
+import { useTransactions } from '@/store/transactions/transactions.hook';
 import { colors } from '@/styles/colors';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Portal } from 'react-native-portalize';
-import { useBoundStore } from '../../store';
 
 export const TransactionTypeModal = () => {
-  const selectedTransactionType = useBoundStore((state) => state.selectedTransactionType);
-  const setTransactionTypeFilter = useBoundStore((state) => state.setTransactionTypeFilter);
-  const isTransactionTypeFilterOpen = useBoundStore((state) => state.isTransactionTypeFilterOpen);
-  const handleCloseTransactionTypeModal = useBoundStore(
-    (state) => state.handleCloseTransactionTypeModal,
-  );
+  const {
+    selectedTransactionType,
+    setTransactionTypeFilter,
+    isTransactionTypeFilterOpen,
+    handleCloseTransactionTypeModal,
+  } = useTransactions();
 
   const [localTransactionType, setLocalTransactionType] = useState(selectedTransactionType);
   const { bottomSheetRef, closeSheet, openSheet, updateSheetIndex, renderBackdrop, sheetIndex } =

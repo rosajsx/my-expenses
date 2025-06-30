@@ -1,4 +1,5 @@
 import { useBottomSheet } from '@/hooks/useBottomSheet';
+import { useTransactions } from '@/store/transactions/transactions.hook';
 import { colors } from '@/styles/colors';
 import { getLast5Years } from '@/utils';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -6,21 +7,12 @@ import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Portal } from 'react-native-portalize';
-import { useShallow } from 'zustand/react/shallow';
-import { useBoundStore } from '../../store';
 
 const years = getLast5Years();
 
 export const SelectYearModal = () => {
-  const { selectedYear, setSelectedYear, isSelectYearModalOpen, closeSelectYearModal } =
-    useBoundStore(
-      useShallow((state) => ({
-        selectedYear: state.selectedYear,
-        setSelectedYear: state.setSelectedYear,
-        isSelectYearModalOpen: state.isSelectYearModalOpen,
-        closeSelectYearModal: state.handleCloseSelectYearModal,
-      })),
-    );
+  const { selectedYear, setSelectedYear, isSelectYearModalOpen, handleCloseSelectYearModal } =
+    useTransactions();
 
   const [localYear, setLocalYear] = useState(selectedYear);
   const { bottomSheetRef, closeSheet, openSheet, updateSheetIndex, renderBackdrop, sheetIndex } =
@@ -30,7 +22,7 @@ export const SelectYearModal = () => {
 
   const handleSelect = () => {
     setSelectedYear(localYear!);
-    closeSelectYearModal();
+    handleCloseSelectYearModal();
     closeSheet();
   };
 
@@ -46,7 +38,7 @@ export const SelectYearModal = () => {
         ref={bottomSheetRef}
         onChange={(value) => {
           if (value === -1) {
-            closeSelectYearModal();
+            handleCloseSelectYearModal();
           }
 
           updateSheetIndex(value);

@@ -74,7 +74,7 @@ export default function RootLayout() {
     extraDeviceInfo: {
       appVersion: pkgConfig.version,
     },
-    enableLogs: false,
+    enableLogs: true,
     envVariables: {
       NODE_ENV: process.env.NODE_ENV,
     },

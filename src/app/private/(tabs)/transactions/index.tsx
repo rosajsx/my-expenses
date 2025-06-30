@@ -2,7 +2,7 @@ import { Alert, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } 
 
 import { Container } from '@/components/Container';
 import { theme } from '@/styles/theme';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 
 import { Button } from '@/components/Button';
 import { BalanceHeader } from '@/components/Header/BalanceHeader';
@@ -21,7 +21,6 @@ import { router, useFocusEffect } from 'expo-router';
 import { Pen, Plus, Trash } from 'lucide-react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import { useShallow } from 'zustand/react/shallow';
 
 export default function Index() {
   const { transactions, pageState } = useTransactions();
@@ -29,23 +28,6 @@ export default function Index() {
 
   const getBalances = useBoundStore((state) => state.getBalances);
   const session = useBoundStore((state) => state.session);
-
-  const { selectedMonth, selectedYear, resetFilters, selectedTransactionType } = useBoundStore(
-    useShallow((state) => ({
-      selectedYear: state.selectedYear,
-      selectedMonth: state.selectedMonth,
-      selectedTransactionType: state.selectedTransactionType,
-      resetFilters: state.resetTransactionFilters,
-    })),
-  );
-
-  const handleGetTransactions = async () => {
-    const filters = {
-      month: selectedMonth?.id,
-      year: selectedYear ? Number(selectedYear) : undefined,
-      transactionType: selectedTransactionType,
-    };
-  };
 
   const handleGetBalances = async () => {
     await getBalances(session?.user?.id!);
@@ -56,7 +38,7 @@ export default function Index() {
       await deleteTransactionById(session?.user?.id!, transaction.id);
 
       Alert.alert('Transação deletada com sucesso!');
-      await handleGetTransactions();
+      //await handleGetTransactions();
       await handleGetBalances();
     } catch (error) {
       console.log(error);
@@ -120,15 +102,9 @@ export default function Index() {
     );
   };
 
-  useEffect(() => {
-    if (selectedMonth?.value || selectedYear || selectedTransactionType) {
-      handleGetTransactions();
-    }
-  }, [selectedMonth?.value, selectedYear, selectedTransactionType]);
-
   useFocusEffect(
     useCallback(() => {
-      handleGetTransactions();
+      //handleGetTransactions();
       handleGetBalances();
     }, []),
   );

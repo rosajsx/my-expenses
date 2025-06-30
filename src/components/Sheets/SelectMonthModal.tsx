@@ -1,4 +1,5 @@
 import { useBottomSheet } from '@/hooks/useBottomSheet';
+import { useTransactions } from '@/store/transactions/transactions.hook';
 import { colors } from '@/styles/colors';
 import { getAllMonthsOfYear } from '@/utils';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -6,21 +7,12 @@ import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Portal } from 'react-native-portalize';
-import { useShallow } from 'zustand/react/shallow';
-import { useBoundStore } from '../../store';
 
 const months = getAllMonthsOfYear();
 
 export const SelectMonthModal = () => {
-  const { selectedMonth, setSelectedMonth, isSelectMonthModalOpen, closeSelectMonthModal } =
-    useBoundStore(
-      useShallow((state) => ({
-        selectedMonth: state.selectedMonth,
-        setSelectedMonth: state.setSelectedMonth,
-        isSelectMonthModalOpen: state.isSelectMonthModalOpen,
-        closeSelectMonthModal: state.handleCloseSelectMonthModal,
-      })),
-    );
+  const { selectedMonth, setSelectedMonth, isSelectMonthModalOpen, handleCloseSelectMonthModal } =
+    useTransactions();
 
   const { bottomSheetRef, closeSheet, openSheet, updateSheetIndex, renderBackdrop, sheetIndex } =
     useBottomSheet({});
@@ -31,7 +23,7 @@ export const SelectMonthModal = () => {
 
   const handleSelect = () => {
     setSelectedMonth(localMonth!);
-    closeSelectMonthModal();
+    handleCloseSelectMonthModal();
     closeSheet();
   };
 
@@ -47,7 +39,7 @@ export const SelectMonthModal = () => {
         ref={bottomSheetRef}
         onChange={(value) => {
           if (value === -1) {
-            closeSelectMonthModal();
+            handleCloseSelectMonthModal();
           }
 
           updateSheetIndex(value);
