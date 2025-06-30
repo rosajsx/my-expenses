@@ -1,4 +1,4 @@
-import { useBoundStore } from '@/store';
+import { useBalances } from '@/store/balances/balances.hook';
 import { useTransactions } from '@/store/transactions/transactions.hook';
 import { colors } from '@/styles/colors';
 import { formatCurrency, getAllMonthsOfYear } from '@/utils';
@@ -19,7 +19,8 @@ export const BalanceHeader = () => {
     handleOpenSelectYearModal,
   } = useTransactions();
 
-  const monthBalance = useBoundStore((state) => state.monthBalance);
+  const { response } = useBalances();
+  const monthBalance = response.data || 0;
 
   const getBalanceStatusColor = () => {
     if (monthBalance === 0 || !monthBalance) {
