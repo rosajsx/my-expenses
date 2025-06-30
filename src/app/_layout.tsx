@@ -6,9 +6,11 @@ import {
   Inter_900Black,
   useFonts,
 } from '@expo-google-fonts/inter';
+import * as ExpoDevice from 'expo-device';
 import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { useSyncQueriesExternal } from 'react-query-external-sync';
 
 import { supabase } from '@/services/supabase';
 import { useAuth } from '@/store/auth/auth.hook';
@@ -24,6 +26,8 @@ import { AppState, Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Host } from 'react-native-portalize';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
+
+import pkgConfig from '../../package.json';
 // This is the default configuration
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -59,6 +63,22 @@ export default function RootLayout() {
   });
 
   const { session, setSession } = useAuth();
+
+  useSyncQueriesExternal({
+    queryClient,
+    socketURL: 'http://localhost:42831',
+    deviceName: Platform?.OS || 'web',
+    platform: Platform?.OS || 'web',
+    deviceId: Platform?.OS || 'web',
+    isDevice: ExpoDevice.isDevice,
+    extraDeviceInfo: {
+      appVersion: pkgConfig.version,
+    },
+    enableLogs: false,
+    envVariables: {
+      NODE_ENV: process.env.NODE_ENV,
+    },
+  });
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', onAppStateChange);
