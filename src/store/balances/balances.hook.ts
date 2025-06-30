@@ -24,6 +24,7 @@ export const useBalances = () => {
         setState(ScreenStateEnum.ERROR);
       }
     },
+    staleTime: 1000 * 60 * 24,
   });
 
   return {
