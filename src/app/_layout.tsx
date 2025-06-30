@@ -11,8 +11,16 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
 import { supabase } from '@/services/supabase';
-import { useBoundStore } from '@/store';
-import { StyleSheet } from 'react-native';
+import { useAuth } from '@/store/auth/auth.hook';
+import NetInfo from '@react-native-community/netinfo';
+import {
+  focusManager,
+  onlineManager,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
+import type { AppStateStatus } from 'react-native';
+import { AppState, Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Host } from 'react-native-portalize';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
@@ -27,6 +35,20 @@ SplashScreen.setOptions({
   fade: true,
 });
 
+onlineManager.setEventListener((setOnline) => {
+  return NetInfo.addEventListener((state) => {
+    setOnline(!!state.isConnected);
+  });
+});
+
+function onAppStateChange(status: AppStateStatus) {
+  if (Platform.OS !== 'web') {
+    focusManager.setFocused(status === 'active');
+  }
+}
+
+const queryClient = new QueryClient();
+
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     Inter_400Regular,
@@ -36,8 +58,13 @@ export default function RootLayout() {
     Inter_900Black,
   });
 
-  const setSession = useBoundStore((state) => state.setSession);
-  const session = useBoundStore((state) => state.session);
+  const { session, setSession } = useAuth();
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', onAppStateChange);
+
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     if (loaded || error) {
@@ -71,20 +98,22 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView>
-      <Host>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            animation: 'fade',
-          }}>
-          <Stack.Protected guard={!session}>
-            <Stack.Screen name="sign-in" />
-          </Stack.Protected>
-          <Stack.Protected guard={!!session}>
-            <Stack.Screen name="private" />
-          </Stack.Protected>
-        </Stack>
-      </Host>
+      <QueryClientProvider client={queryClient}>
+        <Host>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: 'fade',
+            }}>
+            <Stack.Protected guard={!session}>
+              <Stack.Screen name="sign-in" />
+            </Stack.Protected>
+            <Stack.Protected guard={!!session}>
+              <Stack.Screen name="private" />
+            </Stack.Protected>
+          </Stack>
+        </Host>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }

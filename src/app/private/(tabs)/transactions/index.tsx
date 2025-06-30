@@ -2,7 +2,7 @@ import { Alert, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } 
 
 import { Container } from '@/components/Container';
 import { theme } from '@/styles/theme';
-import { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { Button } from '@/components/Button';
 import { BalanceHeader } from '@/components/Header/BalanceHeader';
@@ -14,6 +14,7 @@ import { Typography } from '@/components/Typography';
 import { deleteTransactionById } from '@/services/transactions/deleteTransaction';
 import { useBoundStore } from '@/store';
 import { ITransaction } from '@/store/slices/transactionsSlice';
+import { useTransactions } from '@/store/transactions/transactions.hook';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate } from '@/utils';
 import { router, useFocusEffect } from 'expo-router';
@@ -23,13 +24,8 @@ import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimat
 import { useShallow } from 'zustand/react/shallow';
 
 export default function Index() {
-  const { transactions, getTransactions, transactionsState } = useBoundStore(
-    useShallow((state) => ({
-      transactions: state.transactions,
-      getTransactions: state.getTransactions,
-      transactionsState: state.transactionsState,
-    })),
-  );
+  const { transactions, pageState } = useTransactions();
+  const { data: response } = transactions;
 
   const getBalances = useBoundStore((state) => state.getBalances);
   const session = useBoundStore((state) => state.session);
@@ -49,8 +45,6 @@ export default function Index() {
       year: selectedYear ? Number(selectedYear) : undefined,
       transactionType: selectedTransactionType,
     };
-
-    await getTransactions(session?.user?.id!, filters);
   };
 
   const handleGetBalances = async () => {
@@ -158,7 +152,7 @@ export default function Index() {
       </View>
       <View style={styles.listContainer}>
         <FlatList
-          data={transactions}
+          data={response?.data}
           bounces={false}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
