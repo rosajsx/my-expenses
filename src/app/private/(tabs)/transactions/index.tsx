@@ -5,6 +5,7 @@ import React from 'react';
 
 import { Button } from '@/components/Button';
 import { BalanceHeader } from '@/components/Header/BalanceHeader';
+import { Loading } from '@/components/Loading';
 import { Separator } from '@/components/Separator';
 import { SelectMonthModal } from '@/components/Sheets/SelectMonthModal';
 import { TransactionTypeModal } from '@/components/Sheets/SelectTransactionType';
@@ -41,7 +42,6 @@ export default function Index() {
     handleCloseSelectYearModal,
   } = useTransactions();
   const { data: response } = transactions;
-  const status = transactions?.status;
 
   const session = useBoundStore((state) => state.session);
 
@@ -140,17 +140,17 @@ export default function Index() {
       </View>
       <View style={styles.listContainer}>
         <FlatList
-          data={response?.data}
+          data={response?.data || []}
           bounces={false}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <Separator />}
           ListEmptyComponent={() => (
             <View>
-              {status === 'pending' ? (
-                <Typography variant="body/md" align="center">
-                  Carregando...
-                </Typography>
+              {transactions.isLoading ? (
+                <View style={styles.center}>
+                  <Loading />
+                </View>
               ) : (
                 <Typography variant="body/md" align="center">
                   Nenhuma transação encontrada!
@@ -217,10 +217,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  header: {
-    // backgroundColor: theme.colors.background,
+
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  listContainer: {},
+
+  listContainer: {
+    maxHeight: '88%',
+    paddingBottom: 50,
+  },
   rightAction: {
     width: 80,
     height: '100%',
@@ -247,10 +254,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_500Medium',
     fontWeight: 500,
     fontSize: 14,
-  },
-
-  contentContainer: {
-    // gap: theme.spacing.md,
   },
 
   transactionCard: {

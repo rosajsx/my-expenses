@@ -4,6 +4,7 @@ import { colors } from '@/styles/colors';
 import { formatCurrency, getAllMonthsOfYear } from '@/utils';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Loading } from '../Loading';
 
 const currentMonth = new Date().getMonth();
 const currentYear = new Date().getFullYear();
@@ -43,19 +44,29 @@ export const BalanceHeader = ({
   return (
     <View>
       <View>
-        <Text style={styles.balanceText}>
-          Saldo {months[currentMonth].value} de {currentYear}
-        </Text>
-        <Text
-          style={[
-            styles.amountText,
-            {
-              color: getBalanceStatusColor(),
-            },
-          ]}>
-          {formatCurrency(monthBalance)}
-        </Text>
+        {response?.isLoading && <Loading size="sm" />}
+        {response?.isSuccess && (
+          <>
+            <Text style={styles.balanceText}>
+              Saldo {months[currentMonth].value} de {currentYear}
+            </Text>
+
+            <Text
+              style={[
+                styles.amountText,
+                {
+                  color: getBalanceStatusColor(),
+                },
+              ]}>
+              {formatCurrency(monthBalance)}
+            </Text>
+          </>
+        )}
+        {response?.isError && (
+          <Text style={[styles.amountText, { color: colors.red }]}>Erro ao carregar saldo</Text>
+        )}
       </View>
+
       <ScrollView
         horizontal
         contentContainerStyle={styles.filterContainer}
