@@ -1,7 +1,6 @@
 import { colors } from '@/styles/colors';
 import { forwardRef } from 'react';
 import { StyleSheet, TouchableOpacity, TouchableOpacityProps } from 'react-native';
-import { theme } from '../../styles/theme';
 import { Typography, TypographyVariant } from '../Typography';
 
 export interface ButtonProps extends TouchableOpacityProps {
@@ -62,7 +61,7 @@ const styles = StyleSheet.create({
 
 const variantStyles = StyleSheet.create({
   primary: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: colors.primary,
   },
 
   secondary: {

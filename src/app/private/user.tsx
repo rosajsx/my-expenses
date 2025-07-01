@@ -1,4 +1,3 @@
-import { theme } from '@/styles/theme';
 import { router } from 'expo-router';
 import { Alert, StyleSheet, View } from 'react-native';
 
@@ -66,16 +65,16 @@ export default function User() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: theme.spacing.md,
+    // padding: theme.spacing.md,
   },
   content: {
     flex: 1,
-    gap: theme.spacing.md,
+    //gap: theme.spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   copyButton: {
     flexDirection: 'row',
-    gap: theme.spacing.lg,
+    // gap: theme.spacing.lg,
   },
 });

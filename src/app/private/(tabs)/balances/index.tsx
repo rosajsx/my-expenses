@@ -7,11 +7,9 @@ import { Typography } from '@/components/Typography';
 import { ScreenStateEnum } from '@/enums/screenStates';
 //import { useDatabase } from '@/hooks/useDatabase';
 import { useBoundStore } from '@/store';
-import { theme } from '@/styles/theme';
 import { getLastAndForward5Years } from '@/utils';
 import { useFocusEffect } from 'expo-router';
 import LottieView from 'lottie-react-native';
-import { Calendar, Filter } from 'lucide-react-native';
 import { useCallback, useEffect } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -84,7 +82,7 @@ export default function Balances() {
                 {/* <Typography variant="title">Saldos</Typography> */}
                 <View style={styles.filterItems}>
                   <TouchableOpacity style={styles.filterItem} onPress={toggleSelectYearOpen}>
-                    <Calendar color={theme.colors.textSecondary} size="20px" />
+                    {/* <Calendar color={theme.colors.textSecondary} size="20px" /> */}
                     <Typography>{selectedYear ? selectedYear : 'Ano'}</Typography>
                   </TouchableOpacity>
 
@@ -92,7 +90,7 @@ export default function Balances() {
                     style={[styles.filterItem, !selectedYear && styles.opacity]}
                     disabled={!selectedYear}
                     onPress={clearFilters}>
-                    <Filter color={theme.colors.textSecondary} size="20px" />
+                    {/* <Filter color={theme.colors.textSecondary} size="20px" /> */}
                     <Typography>Limpar filtros</Typography>
                   </TouchableOpacity>
                 </View>
@@ -100,7 +98,7 @@ export default function Balances() {
                   style={[styles.filterItem, !selectedYear && styles.opacity]}
                   disabled={!selectedYear}
                   onPress={filterBalance}>
-                  <Filter color={theme.colors.textSecondary} size="20px" />
+                  {/* <Filter color={theme.colors.textSecondary} size="20px" /> */}
                   <Typography>Filtrar</Typography>
                 </TouchableOpacity>
               </View>
@@ -122,7 +120,7 @@ export default function Balances() {
                   <View style={[styles.center, styles.errorContainer]}>
                     <LottieView
                       autoPlay
-                      style={theme.sizes.errorTransation}
+                      // style={theme.sizes.errorTransation}
                       source={{
                         uri: '../../../../../assets/animations/error.json',
                       }}
@@ -145,7 +143,7 @@ export default function Balances() {
                   <View style={[styles.center]}>
                     <LottieView
                       autoPlay
-                      style={theme.sizes.emptyTransaction}
+                      // style={theme.sizes.emptyTransaction}
                       source={require('../../../../../assets/animations/empty.json')}
                       loop={false}
                     />
@@ -211,34 +209,34 @@ export default function Balances() {
 
 const styles = StyleSheet.create({
   titleContainer: {
-    paddingVertical: theme.spacing.md,
+    // paddingVertical: theme.spacing.md,
   },
   list: {
     // height: '100%',
   },
   listContainer: {
-    gap: theme.spacing.md,
-    paddingBottom: theme.spacing.xl,
+    // gap: theme.spacing.md,
+    // paddingBottom: theme.spacing.xl,
   },
 
   item: {
-    backgroundColor: theme.colors.cardBackground,
-    borderRadius: theme.radius.lg,
-    padding: theme.spacing.lg,
+    // backgroundColor: theme.colors.cardBackground,
+    // borderRadius: theme.radius.lg,
+    // padding: theme.spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: theme.sizes.card,
+    // height: theme.sizes.card,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    // borderColor: theme.colors.border,
   },
   flex: {
     flex: 1,
   },
   header: {
-    paddingVertical: theme.spacing.md,
-    gap: theme.spacing.md,
-    backgroundColor: theme.colors.background,
+    // paddingVertical: theme.spacing.md,
+    // gap: theme.spacing.md,
+    // backgroundColor: theme.colors.background,
   },
   center: {
     alignItems: 'center',
@@ -249,55 +247,55 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {},
   errorContainer: {
-    gap: theme.spacing.md,
+    // gap: theme.spacing.md,
   },
   filterItems: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: theme.spacing.sm,
+    // gap: theme.spacing.sm,
     width: '100%',
   },
   filterItem: {
     flexDirection: 'row',
-    gap: theme.spacing.sm,
+    // gap: theme.spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.cardBackground,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
+    // backgroundColor: theme.colors.cardBackground,
+    // paddingHorizontal: theme.spacing.lg,
+    // paddingVertical: theme.spacing.sm,
 
-    borderRadius: theme.radius.lg,
+    // borderRadius: theme.radius.lg,
     flex: 1,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    // borderColor: theme.colors.border,
   },
   opacity: {
     opacity: 0.5,
   },
 
   detailsWrapper: {
-    gap: theme.spacing.md,
+    // gap: theme.spacing.md,
   },
 
   detailsContainer: {
     flexDirection: 'row',
-    gap: theme.spacing.md,
+    // gap: theme.spacing.md,
   },
 
   detailsTotalContainer: {
     flexDirection: 'row',
-    gap: theme.spacing.md,
+    // gap: theme.spacing.md,
   },
 
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
-    padding: theme.spacing.lg,
-    borderRadius: theme.radius.lg,
-    gap: theme.spacing.md,
+    // backgroundColor: theme.colors.background,
+    // padding: theme.spacing.lg,
+    // borderRadius: theme.radius.lg,
+    // gap: theme.spacing.md,
     width: '50%',
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    // borderColor: theme.colors.border,
   },
 });

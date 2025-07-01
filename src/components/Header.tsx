@@ -1,6 +1,4 @@
-import { theme } from '@/styles/theme';
 import { router } from 'expo-router';
-import { User } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 export const Header = () => {
@@ -9,7 +7,7 @@ export const Header = () => {
   return (
     <View style={styles.container}>
       <Pressable style={styles.pressable} onPress={handleGoToUserInfo}>
-        <User color={theme.colors.textPrimary} />
+        {/* <User color={theme.colors.textPrimary} /> */}
       </Pressable>
     </View>
   );
@@ -18,11 +16,11 @@ export const Header = () => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'flex-start',
-    marginBottom: theme.spacing.sm,
+    // marginBottom: theme.spacing.sm,
   },
   pressable: {
-    backgroundColor: theme.colors.cardBackground,
-    borderRadius: theme.radius.full,
-    padding: theme.spacing.sm,
+    // backgroundColor: theme.colors.cardBackground,
+    // borderRadius: theme.radius.full,
+    // padding: theme.spacing.sm,
   },
 });

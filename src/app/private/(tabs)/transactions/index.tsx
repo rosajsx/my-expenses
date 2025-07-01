@@ -1,7 +1,6 @@
 import { Alert, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Container } from '@/components/Container';
-import { theme } from '@/styles/theme';
 import React from 'react';
 
 import { Button } from '@/components/Button';
@@ -180,7 +179,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   header: {
-    backgroundColor: theme.colors.background,
+    // backgroundColor: theme.colors.background,
   },
   listContainer: {},
   rightAction: {
@@ -212,7 +211,7 @@ const styles = StyleSheet.create({
   },
 
   contentContainer: {
-    gap: theme.spacing.md,
+    // gap: theme.spacing.md,
   },
 
   transactionCard: {

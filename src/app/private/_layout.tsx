@@ -1,4 +1,4 @@
-import { theme } from '@/styles/theme';
+import { colors } from '@/styles/colors';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Stack } from 'expo-router';
 import { useEffect, useRef } from 'react';
@@ -22,7 +22,7 @@ export default function AppLayout() {
   }, []);
 
   return (
-    <View style={{ backgroundColor: theme.colors.background, width: '100%', height: '100%' }}>
+    <View style={{ backgroundColor: colors.backgroundWhite, width: '100%', height: '100%' }}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen
           name="(tabs)"

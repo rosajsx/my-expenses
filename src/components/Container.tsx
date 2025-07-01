@@ -1,7 +1,6 @@
 import { colors } from '@/styles/colors';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaView, SafeAreaViewProps } from 'react-native-safe-area-context';
-import { theme } from '../styles/theme';
 
 interface ContainerProps extends SafeAreaViewProps {
   wrapperStyle?: SafeAreaViewProps['style'];
@@ -24,8 +23,8 @@ const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: colors.backgroundWhite,
     paddingHorizontal: 24,
-    paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.lg,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
   container: {
     height: '100%',
