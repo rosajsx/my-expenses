@@ -14,7 +14,7 @@ interface SelectInstallmentsModalProps {
   isOpen: boolean;
   toggleSheet: () => void;
   installmentQtd: string | null | undefined;
-  setInstallmentQtd: (value: string | null | undefined) => void;
+  setInstallmentQtd: (value: string | null) => void;
 }
 
 export const SelectInstallmentsModal = ({

@@ -1,4 +1,3 @@
-import { useTransactions } from '@/hooks/features/useTransactions';
 import { useBottomSheet } from '@/hooks/useBottomSheet';
 import { colors } from '@/styles/colors';
 import { getLast5Years } from '@/utils';
@@ -10,10 +9,19 @@ import { Portal } from 'react-native-portalize';
 
 const years = getLast5Years();
 
-export const SelectYearModal = () => {
-  const { selectedYear, setSelectedYear, isSelectYearModalOpen, handleCloseSelectYearModal } =
-    useTransactions();
+interface SelectYearModalProps {
+  selectedYear: string | undefined;
+  setSelectedYear: (value: string) => void;
+  isSelectYearModalOpen: boolean;
+  handleCloseSelectYearModal: () => void;
+}
 
+export const SelectYearModal = ({
+  selectedYear,
+  setSelectedYear,
+  isSelectYearModalOpen,
+  handleCloseSelectYearModal,
+}: SelectYearModalProps) => {
   const [localYear, setLocalYear] = useState(selectedYear);
   const { bottomSheetRef, closeSheet, openSheet, updateSheetIndex, renderBackdrop, sheetIndex } =
     useBottomSheet({});

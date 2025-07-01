@@ -1,6 +1,9 @@
 import { getAllTransactions } from '@/services/transactions/getAllTransactions';
 import { useTransactionsStore } from '@/store/transactions/trasactions.store';
-import { useQuery } from '@tanstack/react-query';
+import { useIsFocused } from '@react-navigation/native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 import { useAuth } from './useAuth';
 
 export const useTransactions = () => {
@@ -23,6 +26,8 @@ export const useTransactions = () => {
     handleOpenTransactionTypeModal,
   } = useTransactionsStore();
   const { session } = useAuth();
+  const queryClient = useQueryClient();
+  const isFocused = useIsFocused();
 
   const queryKey = ['transactions', selectedMonth?.value];
   if (selectedYear) queryKey.push(selectedYear.toString());
@@ -37,7 +42,20 @@ export const useTransactions = () => {
         transactionType: selectedTransactionType,
       });
     },
+    enabled: isFocused,
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      transactions.refetch();
+
+      return () => {
+        queryClient.removeQueries({
+          queryKey,
+        });
+      };
+    }, []),
+  );
 
   return {
     transactions,

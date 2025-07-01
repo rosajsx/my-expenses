@@ -8,89 +8,41 @@ import { Separator } from '@/components/Separator';
 import { CreateTransactionSuccessModal } from '@/components/Sheets/CreateTransactionSuccessModal';
 import { SelectDateModal } from '@/components/Sheets/SelectDateModal';
 import { SelectInstallmentsModal } from '@/components/Sheets/SelectInstallmentsModal';
+import { useCreateTransaction } from '@/hooks/features/useCreateTransaction';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
-import { useScreenState } from '@/hooks/useScreenState';
-import { createTransaction } from '@/services/transactions/createTransaction';
-import { useBoundStore } from '@/store';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate, parseCurrencyToCents } from '@/utils';
-import { useRef, useState } from 'react';
-import { Alert, StyleSheet, Switch, TextInput, View } from 'react-native';
-
-const incomeTypeOptions = [
-  {
-    label: 'Entrada',
-    value: 1,
-  },
-  {
-    label: 'Saída',
-    value: 2,
-  },
-];
+import { StyleSheet, Switch, View } from 'react-native';
 
 export default function CreateTransaction() {
-  const [transactionName, setTransactionName] = useState('');
-  const [transactionType, setTransactionType] = useState<number>(1);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [amount, setAmount] = useState(0);
-  const [category, setCategory] = useState('');
-  const [haveInstallment, setHaveInstallment] = useState<boolean>(false);
-  const [installmentQtd, setInstallmentQtd] = useState<string | null>();
-
-  const [isDateModalOpen, setIsDateModalOpen] = useState(false);
-  const [isInstallmentsModalOpen, setIsInstallmentsModalOpen] = useState(false);
-
   const {
-    handleChangeScreenStateToLoading,
-    handleChangeScreenStateToSuccess,
-    handleChangeScreenStateToDefault,
-    isScreenStateLoading,
-    isScreenStateSuccess,
-  } = useScreenState();
-  const session = useBoundStore((state) => state.session);
-
-  const currencyValueRef = useRef<TextInput>(null);
-  const categoryValueRef = useRef<TextInput>(null);
-
-  const isCreateButtonDisabled = !transactionName || amount === 0;
+    transactionName,
+    transactionType,
+    selectedDate,
+    amount,
+    category,
+    haveInstallment,
+    installmentQtd,
+    setAmount,
+    isDateModalOpen,
+    isInstallmentsModalOpen,
+    setTransactionName,
+    setTransactionType,
+    setSelectedDate,
+    setCategory,
+    setHaveInstallment,
+    setInstallmentQtd,
+    currencyValueRef,
+    categoryValueRef,
+    resetStore: resetCreateTransactionStore,
+    incomeTypeOptions,
+    isCreateButtonDisabled,
+    createTransactionMutation,
+    setIsDateModalOpen,
+    setIsInstallmentsModalOpen,
+  } = useCreateTransaction();
 
   useHideTabBar();
-
-  const handleReset = () => {
-    handleChangeScreenStateToDefault();
-    setTransactionName('');
-    setTransactionType(1);
-    setSelectedDate(new Date());
-    setAmount(0);
-    setCategory('');
-    setHaveInstallment(false);
-    setInstallmentQtd(null);
-  };
-
-  const handleCreateTransaction = () => {
-    handleChangeScreenStateToLoading();
-
-    createTransaction(session?.user?.id!, {
-      name: transactionName,
-      amount,
-      installment: haveInstallment ? 1 : null,
-      installment_qtd: haveInstallment && installmentQtd ? Number(installmentQtd) : null,
-      type: transactionType!,
-      date: selectedDate.toISOString(),
-      category,
-    })
-      .then(() => {
-        handleChangeScreenStateToSuccess();
-      })
-      .catch((error) => {
-        console.log(error);
-        Alert.alert('Ocorreu um erro inesperado ao criar a transação!', error?.message || '', [
-          {
-            text: 'OK',
-          },
-        ]);
-      });
-  };
 
   return (
     <>
@@ -99,10 +51,10 @@ export default function CreateTransaction() {
           title="Nova Transação"
           actionText="Salvar"
           cancelText="Cancelar"
-          isActionButtonDisabled={isCreateButtonDisabled || isScreenStateLoading}
-          isActionButtonLoading={isScreenStateLoading}
-          isCancelButtonDisabled={isScreenStateLoading}
-          onAction={handleCreateTransaction}
+          isActionButtonDisabled={isCreateButtonDisabled || createTransactionMutation.isPending}
+          isActionButtonLoading={createTransactionMutation.isPending}
+          isCancelButtonDisabled={createTransactionMutation.isPending}
+          onAction={() => createTransactionMutation.mutate()}
         />
         <View style={styles.main}>
           <Card>
@@ -198,9 +150,9 @@ export default function CreateTransaction() {
       />
 
       <CreateTransactionSuccessModal
-        isOpen={isScreenStateSuccess}
-        toggleSheet={handleChangeScreenStateToDefault}
-        onReset={handleReset}
+        isOpen={createTransactionMutation.isSuccess}
+        toggleSheet={createTransactionMutation.reset}
+        onReset={resetCreateTransactionStore}
       />
     </>
   );

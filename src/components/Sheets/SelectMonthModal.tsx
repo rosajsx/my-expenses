@@ -1,5 +1,5 @@
-import { useTransactions } from '@/hooks/features/useTransactions';
 import { useBottomSheet } from '@/hooks/useBottomSheet';
+import { SelectedMonth } from '@/store/transactions/transactions.types';
 import { colors } from '@/styles/colors';
 import { getAllMonthsOfYear } from '@/utils';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -10,10 +10,19 @@ import { Portal } from 'react-native-portalize';
 
 const months = getAllMonthsOfYear();
 
-export const SelectMonthModal = () => {
-  const { selectedMonth, setSelectedMonth, isSelectMonthModalOpen, handleCloseSelectMonthModal } =
-    useTransactions();
+interface SelectMonthModalProps {
+  selectedMonth?: SelectedMonth;
+  setSelectedMonth: (value: SelectedMonth) => void;
+  isSelectMonthModalOpen: boolean;
+  handleCloseSelectMonthModal: () => void;
+}
 
+export const SelectMonthModal = ({
+  selectedMonth,
+  setSelectedMonth,
+  isSelectMonthModalOpen,
+  handleCloseSelectMonthModal,
+}: SelectMonthModalProps) => {
   const { bottomSheetRef, closeSheet, openSheet, updateSheetIndex, renderBackdrop, sheetIndex } =
     useBottomSheet({});
 

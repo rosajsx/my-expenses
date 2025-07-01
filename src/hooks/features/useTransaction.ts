@@ -36,6 +36,7 @@ export const useTransaction = () => {
 
       return balanceResponse.data;
     },
+    enabled: !!session?.user.id,
   });
 
   return {

@@ -1,4 +1,3 @@
-import { useTransactions } from '@/hooks/features/useTransactions';
 import { useBottomSheet } from '@/hooks/useBottomSheet';
 import { colors } from '@/styles/colors';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -7,14 +6,19 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Portal } from 'react-native-portalize';
 
-export const TransactionTypeModal = () => {
-  const {
-    selectedTransactionType,
-    setTransactionTypeFilter,
-    isTransactionTypeFilterOpen,
-    handleCloseTransactionTypeModal,
-  } = useTransactions();
+interface TransactionTypeModalProps {
+  selectedTransactionType?: number;
+  setTransactionTypeFilter: (value?: number) => void;
+  isTransactionTypeFilterOpen: boolean;
+  handleCloseTransactionTypeModal: () => void;
+}
 
+export const TransactionTypeModal = ({
+  selectedTransactionType,
+  setTransactionTypeFilter,
+  isTransactionTypeFilterOpen,
+  handleCloseTransactionTypeModal,
+}: TransactionTypeModalProps) => {
   const [localTransactionType, setLocalTransactionType] = useState(selectedTransactionType);
   const { bottomSheetRef, closeSheet, openSheet, updateSheetIndex, renderBackdrop, sheetIndex } =
     useBottomSheet({});
@@ -49,7 +53,7 @@ export const TransactionTypeModal = () => {
         backdropComponent={renderBackdrop}>
         <BottomSheetView style={styles.modalContent}>
           <Picker
-            selectedValue={localTransactionType}
+            selectedValue={1}
             itemStyle={styles.item}
             onValueChange={(value) => {
               setLocalTransactionType(value);

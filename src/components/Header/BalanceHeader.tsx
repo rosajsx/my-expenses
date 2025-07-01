@@ -1,5 +1,5 @@
 import { useBalances } from '@/hooks/features/useBalances';
-import { useTransactions } from '@/hooks/features/useTransactions';
+import { SelectedMonth } from '@/store/transactions/transactions.types';
 import { colors } from '@/styles/colors';
 import { formatCurrency, getAllMonthsOfYear } from '@/utils';
 import React from 'react';
@@ -9,16 +9,23 @@ const currentMonth = new Date().getMonth();
 const currentYear = new Date().getFullYear();
 const months = getAllMonthsOfYear();
 
-export const BalanceHeader = () => {
-  const {
-    selectedMonth,
-    selectedYear,
-    selectedTransactionType,
-    handleOpenTransactionTypeModal,
-    handleOpenSelectMonthModal,
-    handleOpenSelectYearModal,
-  } = useTransactions();
+interface BalanceHeaderProps {
+  selectedMonth?: SelectedMonth;
+  selectedYear?: string;
+  selectedTransactionType?: number;
+  handleOpenTransactionTypeModal: () => void;
+  handleOpenSelectMonthModal: () => void;
+  handleOpenSelectYearModal: () => void;
+}
 
+export const BalanceHeader = ({
+  selectedTransactionType,
+  selectedMonth,
+  selectedYear,
+  handleOpenSelectMonthModal,
+  handleOpenSelectYearModal,
+  handleOpenTransactionTypeModal,
+}: BalanceHeaderProps) => {
   const { response } = useBalances();
   const monthBalance = response.data || 0;
 

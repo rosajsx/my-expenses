@@ -13,6 +13,7 @@ export const useBalances = () => {
     queryFn: async () => {
       return getMonthBalance(session?.user.id!, currentMonth + 1, currentYear);
     },
+    enabled: !!session?.user.id,
   });
 
   return {

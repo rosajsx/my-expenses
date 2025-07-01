@@ -22,7 +22,24 @@ import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeabl
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 export default function Index() {
-  const { transactions } = useTransactions();
+  const {
+    transactions,
+    selectedTransactionType,
+    selectedMonth,
+    selectedYear,
+    handleOpenSelectMonthModal,
+    handleOpenSelectYearModal,
+    handleOpenTransactionTypeModal,
+    isTransactionTypeFilterOpen,
+    handleCloseTransactionTypeModal,
+    setTransactionTypeFilter,
+    setSelectedMonth,
+    isSelectMonthModalOpen,
+    handleCloseSelectMonthModal,
+    setSelectedYear,
+    isSelectYearModalOpen,
+    handleCloseSelectYearModal,
+  } = useTransactions();
   const { data: response } = transactions;
   const status = transactions?.status;
 
@@ -34,7 +51,7 @@ export default function Index() {
 
       Alert.alert('Transação deletada com sucesso!');
       //await handleGetTransactions();
-      await handleGetBalances();
+      //await handleGetBalances();
     } catch (error) {
       console.log(error);
       Alert.alert('Ocorreu um erro inesperado', JSON.stringify(error));
@@ -112,7 +129,14 @@ export default function Index() {
           </View>
         </View>
 
-        <BalanceHeader />
+        <BalanceHeader
+          selectedTransactionType={selectedTransactionType}
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          handleOpenSelectMonthModal={handleOpenSelectMonthModal}
+          handleOpenSelectYearModal={handleOpenSelectYearModal}
+          handleOpenTransactionTypeModal={handleOpenTransactionTypeModal}
+        />
       </View>
       <View style={styles.listContainer}>
         <FlatList
@@ -162,9 +186,24 @@ export default function Index() {
         />
       </View>
 
-      <SelectMonthModal />
-      <SelectYearModal />
-      <TransactionTypeModal />
+      <SelectMonthModal
+        selectedMonth={selectedMonth}
+        setSelectedMonth={setSelectedMonth}
+        isSelectMonthModalOpen={isSelectMonthModalOpen}
+        handleCloseSelectMonthModal={handleCloseSelectMonthModal}
+      />
+      <SelectYearModal
+        selectedYear={selectedYear}
+        setSelectedYear={setSelectedYear}
+        isSelectYearModalOpen={isSelectYearModalOpen}
+        handleCloseSelectYearModal={handleCloseSelectYearModal}
+      />
+      <TransactionTypeModal
+        selectedTransactionType={selectedTransactionType}
+        setTransactionTypeFilter={setTransactionTypeFilter}
+        isTransactionTypeFilterOpen={isTransactionTypeFilterOpen}
+        handleCloseTransactionTypeModal={handleCloseTransactionTypeModal}
+      />
     </Container>
   );
 }
