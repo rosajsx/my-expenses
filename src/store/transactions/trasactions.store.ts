@@ -1,4 +1,3 @@
-import { ScreenStateEnum } from '@/enums/screenStates';
 import { getAllMonthsOfYear } from '@/utils';
 import { create } from 'zustand';
 import { TransactionsStore } from './transactions.types';
@@ -8,7 +7,6 @@ const monthValue = allMonths[new Date().getMonth()];
 const currentYear = new Date().getFullYear();
 
 export const useTransactionsStore = create<TransactionsStore>((set) => ({
-  pageState: ScreenStateEnum.LOADING,
   selectedMonth: monthValue,
   selectedYear: currentYear.toString(),
   selectedTransactionType: undefined,
@@ -17,7 +15,6 @@ export const useTransactionsStore = create<TransactionsStore>((set) => ({
   isSelectYearModalOpen: false,
   isTransactionTypeFilterOpen: false,
 
-  setPageState: (value) => set(() => ({ pageState: value })),
   setSelectedMonth: (month) => set(() => ({ selectedMonth: month })),
   setSelectedYear: (value) => set(() => ({ selectedYear: value })),
   setTransactionTypeFilter: (value) => set(() => ({ selectedTransactionType: value })),

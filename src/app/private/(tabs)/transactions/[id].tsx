@@ -1,54 +1,24 @@
-import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Container } from '@/components/Container';
 import { Error } from '@/components/Error';
 import { PageHeader } from '@/components/Header/index';
 import { Loading } from '@/components/Loading';
 import { Typography } from '@/components/Typography';
-import { ScreenStateEnum } from '@/enums/screenStates';
+import { useTransaction } from '@/hooks/features/useTransaction';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
-import { useScreenState } from '@/hooks/useScreenState';
-import { deleteTransactionById } from '@/services/transactions/deleteTransaction';
-import { getTransactionById } from '@/services/transactions/getTransactionById';
-import { useBoundStore } from '@/store';
-import { ITransaction } from '@/store/slices/transactionsSlice';
 import { formatCurrency, formatDate } from '@/utils';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import React from 'react';
+import { Alert, Button, StyleSheet, View } from 'react-native';
 import { colors } from '../../../../styles/colors';
 
 export default function TransactionDetails() {
-  const [transaction, setTransaction] = useState<ITransaction>();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const session = useBoundStore((state) => state.session);
+  const { response } = useTransaction();
 
-  const {
-    handleChangeScreenStateToDefault,
-    handleChangeScreenStateToError,
-    handleChangeScreenStateToLoading,
-    isScreenStateLoading,
-    isScreenStateError,
-    isScreenStateDefault,
-  } = useScreenState(ScreenStateEnum.LOADING);
+  const transaction = response.data;
+  const status = response.status;
 
   useHideTabBar();
-
-  const handleGetTransaction = useCallback(() => {
-    handleChangeScreenStateToLoading();
-    getTransactionById(session?.user?.id!, Number(id))
-      .then((response) => {
-        console.log({ response });
-        setTransaction(response.data as ITransaction);
-        handleChangeScreenStateToDefault();
-      })
-      .catch((error) => {
-        console.log(error);
-        handleChangeScreenStateToError();
-      });
-  }, []);
-
-  useFocusEffect(handleGetTransaction);
 
   const handleEdit = () => {
     router.navigate(`/private/transactions/update/${transaction?.id}`);
@@ -56,7 +26,7 @@ export default function TransactionDetails() {
 
   async function handleDelete() {
     try {
-      await deleteTransactionById(session?.user?.id!, transaction?.id!);
+      // await deleteTransactionById(session?.user?.id!, transaction?.id!);
       router.navigate('/private/transactions');
 
       Alert.alert('Transação deletada com sucesso!');
@@ -85,23 +55,18 @@ export default function TransactionDetails() {
       <PageHeader
         actionText="Editar"
         onAction={handleEdit}
-        isActionButtonDisabled={isScreenStateError || isScreenStateLoading}
+        isActionButtonDisabled={status === 'error' || status === 'pending'}
       />
 
-      {isScreenStateLoading && (
+      {status === 'pending' && (
         <View style={styles.center}>
           <Loading />
         </View>
       )}
 
-      {isScreenStateError && (
-        <Error
-          message="Ocorreu um erro ao carregar a transação"
-          onTryAgain={handleGetTransaction}
-        />
-      )}
+      {status === 'error' && <Error message="Ocorreu um erro ao carregar a transação" />}
 
-      {isScreenStateDefault && transaction && (
+      {status === 'success' && transaction && (
         <>
           <View style={styles.titleContainer}>
             <Typography variant="heading/lg" align="center">

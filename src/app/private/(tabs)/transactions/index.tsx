@@ -23,8 +23,9 @@ import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeabl
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 export default function Index() {
-  const { transactions, pageState } = useTransactions();
+  const { transactions } = useTransactions();
   const { data: response } = transactions;
+  const status = transactions?.status;
 
   const getBalances = useBoundStore((state) => state.getBalances);
   const session = useBoundStore((state) => state.session);
@@ -135,9 +136,15 @@ export default function Index() {
           ItemSeparatorComponent={() => <Separator />}
           ListEmptyComponent={() => (
             <View>
-              <Typography variant="body/md" align="center">
-                Nenhuma transação encontrada!
-              </Typography>
+              {status === 'pending' ? (
+                <Typography variant="body/md" align="center">
+                  Carregando...
+                </Typography>
+              ) : (
+                <Typography variant="body/md" align="center">
+                  Nenhuma transação encontrada!
+                </Typography>
+              )}
             </View>
           )}
           renderItem={({ item }) => (

@@ -1,4 +1,3 @@
-import { ScreenStateEnum } from '@/enums/screenStates';
 import { Database } from '../../../database.types';
 
 export type ITransaction = Database['public']['Tables']['transactions']['Row'];
@@ -9,9 +8,6 @@ type SelectedMonth = {
 };
 
 export interface TransactionsStore {
-  pageState: keyof typeof ScreenStateEnum;
-  setPageState: (state: keyof typeof ScreenStateEnum) => void;
-
   selectedYear: string | undefined;
   selectedMonth: SelectedMonth | undefined;
   selectedTransactionType: number | undefined;
