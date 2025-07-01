@@ -51,7 +51,13 @@ function onAppStateChange(status: AppStateStatus) {
   }
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 24,
+    },
+  },
+});
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
