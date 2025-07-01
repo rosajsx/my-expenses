@@ -2,7 +2,7 @@ import { Alert, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } 
 
 import { Container } from '@/components/Container';
 import { theme } from '@/styles/theme';
-import React, { useCallback } from 'react';
+import React from 'react';
 
 import { Button } from '@/components/Button';
 import { BalanceHeader } from '@/components/Header/BalanceHeader';
@@ -17,7 +17,7 @@ import { useBoundStore } from '@/store';
 import { ITransaction } from '@/store/slices/transactionsSlice';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate } from '@/utils';
-import { router, useFocusEffect } from 'expo-router';
+import { router } from 'expo-router';
 import { Pen, Plus, Trash } from 'lucide-react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
@@ -27,12 +27,7 @@ export default function Index() {
   const { data: response } = transactions;
   const status = transactions?.status;
 
-  const getBalances = useBoundStore((state) => state.getBalances);
   const session = useBoundStore((state) => state.session);
-
-  const handleGetBalances = async () => {
-    await getBalances(session?.user?.id!);
-  };
 
   async function handleDelete(transaction: ITransaction) {
     try {
@@ -102,13 +97,6 @@ export default function Index() {
       </Reanimated.View>
     );
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      //handleGetTransactions();
-      handleGetBalances();
-    }, []),
-  );
 
   return (
     <Container style={styles.container}>

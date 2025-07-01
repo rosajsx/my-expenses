@@ -13,7 +13,7 @@ import { Alert, Button, StyleSheet, View } from 'react-native';
 import { colors } from '../../../../styles/colors';
 
 export default function TransactionDetails() {
-  const { response } = useTransaction();
+  const { response, deleteTransactionMutation } = useTransaction();
 
   const transaction = response.data;
   const status = response.status;
@@ -26,7 +26,7 @@ export default function TransactionDetails() {
 
   async function handleDelete() {
     try {
-      // await deleteTransactionById(session?.user?.id!, transaction?.id!);
+      await deleteTransactionMutation.mutateAsync();
       router.navigate('/private/transactions');
 
       Alert.alert('Transação deletada com sucesso!');

@@ -13,7 +13,6 @@ export const useBalances = () => {
     queryFn: async () => {
       return getMonthBalance(session?.user.id!, currentMonth + 1, currentYear);
     },
-    staleTime: 1000 * 60 * 24,
   });
 
   return {
