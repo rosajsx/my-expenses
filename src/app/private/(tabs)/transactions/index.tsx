@@ -67,7 +67,15 @@ export default function Index() {
       },
       {
         text: 'Apagar',
-        onPress: () => deleteTransactionMutation.mutate(transaction.id),
+        onPress: async () => {
+          try {
+            await deleteTransactionMutation.mutateAsync(transaction.id);
+            Alert.alert('Transação apagada com sucesso!');
+          } catch (error) {
+            console.error('Erro ao deletar transação:', error);
+            Alert.alert('Erro', 'Não foi possível apagar a transação. Tente novamente mais tarde.');
+          }
+        },
         style: 'destructive',
       },
     ]);
