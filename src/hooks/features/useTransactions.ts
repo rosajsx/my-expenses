@@ -1,7 +1,8 @@
 import { getAllTransactions } from '@/services/transactions/getAllTransactions';
 import { useTransactionsStore } from '@/store/transactions/trasactions.store';
 import { useIsFocused } from '@react-navigation/native';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { deleteTransactionById } from '../../services/transactions/deleteTransaction';
 import { useAuth } from './useAuth';
 
 export const useTransactions = () => {
@@ -25,6 +26,7 @@ export const useTransactions = () => {
   } = useTransactionsStore();
   const { session } = useAuth();
   const isFocused = useIsFocused();
+  const queryClient = useQueryClient();
 
   const queryKey = ['transactions', selectedMonth?.value];
   if (selectedYear) queryKey.push(selectedYear.toString());
@@ -40,6 +42,20 @@ export const useTransactions = () => {
       });
     },
     subscribed: isFocused,
+  });
+
+  const deleteTransactionMutation = useMutation({
+    mutationFn: async (transactionId: number) => {
+      return deleteTransactionById(session?.user?.id!, transactionId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey,
+        exact: true,
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['balances'] });
+    },
   });
 
   return {
@@ -59,5 +75,6 @@ export const useTransactions = () => {
     isSelectMonthModalOpen,
     isSelectYearModalOpen,
     isTransactionTypeFilterOpen,
+    deleteTransactionMutation,
   };
 };

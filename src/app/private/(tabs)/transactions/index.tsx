@@ -40,6 +40,7 @@ export default function Index() {
     setSelectedYear,
     isSelectYearModalOpen,
     handleCloseSelectYearModal,
+    deleteTransactionMutation,
   } = useTransactions();
   const { data: response } = transactions;
 
@@ -66,7 +67,7 @@ export default function Index() {
       },
       {
         text: 'Apagar',
-        onPress: () => handleDelete(transaction),
+        onPress: () => deleteTransactionMutation.mutate(transaction.id),
         style: 'destructive',
       },
     ]);
@@ -147,7 +148,7 @@ export default function Index() {
           ItemSeparatorComponent={() => <Separator />}
           ListEmptyComponent={() => (
             <View>
-              {transactions.isLoading ? (
+              {transactions.isLoading || transactions.isRefetching ? (
                 <View style={styles.center}>
                   <Loading />
                 </View>
