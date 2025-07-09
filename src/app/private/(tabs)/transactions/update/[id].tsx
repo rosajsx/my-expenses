@@ -8,15 +8,11 @@ import { Separator } from '@/components/Separator';
 import { SelectDateModal } from '@/components/Sheets/SelectDateModal';
 import { SelectInstallmentsModal } from '@/components/Sheets/SelectInstallmentsModal';
 import { UpdateTransactionSuccessModal } from '@/components/Sheets/UpdateTransactionSuccessModal';
+import { useUpdateTransaction } from '@/hooks/features/useUpdateTransaction';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
-import { useScreenState } from '@/hooks/useScreenState';
-import { getTransactionById } from '@/services/transactions/getTransactionById';
-import { updateTransaction } from '@/services/transactions/updateTransaction';
-import { useBoundStore } from '@/store';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate, parseCurrencyToCents } from '@/utils';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Alert, StyleSheet, Switch, TextInput, View } from 'react-native';
 
 const incomeTypeOptions = [
@@ -31,82 +27,44 @@ const incomeTypeOptions = [
 ];
 
 export default function UpdateTransaction() {
-  const [transactionName, setTransactionName] = useState('');
-  const [transactionType, setTransactionType] = useState<number>(1);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [amount, setAmount] = useState(0);
-  const [category, setCategory] = useState('');
-  const [haveInstallment, setHaveInstallment] = useState<boolean>(false);
-  const [installmentQtd, setInstallmentQtd] = useState<string | null>();
-  const [isDateModalOpen, setIsDateModalOpen] = useState(false);
-  const [isInstallmentsModalOpen, setIsInstallmentsModalOpen] = useState(false);
-  const session = useBoundStore((state) => state.session);
-
-  const { id } = useLocalSearchParams<{ id: string }>();
-
   const {
-    handleChangeScreenStateToLoading,
-    handleChangeScreenStateToSuccess,
-    handleChangeScreenStateToDefault,
-    isScreenStateLoading,
-    isScreenStateSuccess,
-  } = useScreenState();
+    response: { isLoading },
+    transactionName,
+    transactionType,
+    selectedDate,
+    amount,
+    category,
+    haveInstallment,
+    installmentQtd,
+    isDateModalOpen,
+    isInstallmentsModalOpen,
+    setTransactionName,
+    setTransactionType,
+    setSelectedDate,
+    setAmount,
+    setCategory,
+    setHaveInstallment,
+    setInstallmentQtd,
+    setIsDateModalOpen,
+    setIsInstallmentsModalOpen,
+    updateTransactionMutation,
+  } = useUpdateTransaction();
 
   const currencyValueRef = useRef<TextInput>(null);
   const categoryValueRef = useRef<TextInput>(null);
 
   const isUpdateButtonDisabled = !transactionName || amount === 0;
 
-  const handleUpdateTransaction = () => {
-    handleChangeScreenStateToLoading();
-
-    updateTransaction(session?.user?.id!, {
-      name: transactionName,
-      amount,
-      id: Number(id),
-      type: transactionType!,
-      date: selectedDate.toISOString(),
-      category,
-    })
-      .then(() => {
-        handleChangeScreenStateToSuccess();
-      })
-      .catch((error) => {
-        console.log(error);
-        Alert.alert('Ocorreu um erro inesperado ao atualizar a transação!', error?.message || '', [
-          {
-            text: 'OK',
-          },
-        ]);
-      });
-  };
-
-  const getData = async () => {
+  const handleUpdate = async () => {
     try {
-      const response = await getTransactionById(session?.user?.id!, Number(id));
-      const data = response?.data;
-      if (data?.name) setTransactionName(data?.name);
-      if (data?.amount) setAmount(data?.amount);
-      if (data?.date) setSelectedDate(new Date(data?.date));
-      if (data?.type) setTransactionType(data?.type);
-      if (data?.category) setCategory(data?.category);
-
-      if (data?.installment && data?.installment_qtd) {
-        setInstallmentQtd(data?.installment_qtd.toString());
-        setHaveInstallment(true);
-      }
+      await updateTransactionMutation.mutateAsync();
     } catch (error) {
-      console.log('error');
+      console.log('Error updating transaction:', error);
+      Alert.alert('Erro', 'Não foi possível atualizar a transação. Tente novamente mais tarde.');
     }
   };
 
   useHideTabBar();
-
-  useFocusEffect(
-    useCallback(() => {
-      getData();
-    }, []),
-  );
 
   return (
     <>
@@ -115,10 +73,10 @@ export default function UpdateTransaction() {
           title="Atualizar Transação"
           actionText="Salvar"
           cancelText="Cancelar"
-          isActionButtonDisabled={isUpdateButtonDisabled || isScreenStateLoading}
-          isActionButtonLoading={isScreenStateLoading}
-          isCancelButtonDisabled={isScreenStateLoading}
-          onAction={handleUpdateTransaction}
+          isActionButtonDisabled={isUpdateButtonDisabled || isLoading}
+          isActionButtonLoading={isLoading}
+          isCancelButtonDisabled={isLoading}
+          onAction={handleUpdate}
         />
         <View style={styles.main}>
           <Card>
@@ -213,8 +171,8 @@ export default function UpdateTransaction() {
       />
 
       <UpdateTransactionSuccessModal
-        isOpen={isScreenStateSuccess}
-        toggleSheet={handleChangeScreenStateToDefault}
+        isOpen={updateTransactionMutation.isSuccess}
+        toggleSheet={() => updateTransactionMutation.reset()}
       />
     </>
   );
