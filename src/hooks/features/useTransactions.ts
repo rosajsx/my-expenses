@@ -44,6 +44,8 @@ export const useTransactions = () => {
     subscribed: isFocused,
   });
 
+  console.log(transactions.error);
+
   const deleteTransactionMutation = useMutation({
     mutationFn: async (transactionId: number) => {
       return deleteTransactionById(session?.user?.id!, transactionId);

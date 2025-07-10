@@ -172,8 +172,8 @@ export default function Index() {
               friction={2}
               enableTrackpadTwoFingerGesture
               rightThreshold={40}
-              renderLeftActions={(prag, drag) => LeftAction(prag, drag, item)}
-              renderRightActions={(prag, drag) => RightAction(prag, drag, item)}>
+              renderLeftActions={(prag, drag) => LeftAction(prag, drag, item as any)}
+              renderRightActions={(prag, drag) => RightAction(prag, drag, item as any)}>
               <Pressable
                 style={styles.transactionCard}
                 onPress={() => router.push(`/private/transactions/${item.id}`)}>
@@ -184,11 +184,15 @@ export default function Index() {
                       item.installment_qtd &&
                       `${item.installment}/${item.installment_qtd}`}
                   </Typography>
+
                   <Typography variant="body/sm">{formatDate(item.date)}</Typography>
                 </View>
-                <Typography variant="heading/sm" color={item.type === 1 ? 'text' : 'red'}>
-                  {item.type !== 1 && '-'} {formatCurrency(item.amount)}
-                </Typography>
+                <View style={styles.transactionAmountContent}>
+                  <Typography variant="heading/sm" color={item.type === 1 ? 'text' : 'red'}>
+                    {item.type !== 1 && '-'} {formatCurrency(item.amount)}
+                  </Typography>
+                  <Typography variant="body/sm">{item?.categories?.name}</Typography>
+                </View>
               </Pressable>
             </ReanimatedSwipeable>
           )}
@@ -273,6 +277,10 @@ const styles = StyleSheet.create({
   },
   transactionContent: {
     gap: 4,
+  },
+  transactionAmountContent: {
+    gap: 4,
+    alignItems: 'flex-end',
   },
 
   content: {
