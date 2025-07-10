@@ -6,31 +6,18 @@ import { Loading } from '@/components/Loading';
 import { Separator } from '@/components/Separator';
 import { Typography } from '@/components/Typography';
 import { colors } from '@/styles/colors';
-import { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 
-import { useBoundStore } from '@/store';
+import { useSignIn } from '@/hooks/features/useSignin';
+import { Redirect } from 'expo-router';
 
 export default function SignIn() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const { session, email, password, setEmail, setPassword, error, isLoading, handleSubmit } =
+    useSignIn();
 
-  const signIn = useBoundStore((state) => state.signIn);
-
-  const handleSubmit = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      await signIn(email, password);
-    } catch (error) {
-      setError('Credenciais inválidas. Tente novamente.');
-      console.log('Error during sign in:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  if (session) {
+    return <Redirect href="/private" />;
+  }
 
   return (
     <Container style={styles.center}>

@@ -1,6 +1,10 @@
-import { Session } from '@supabase/supabase-js';
-
-export interface AuthStore {
-  session: Session | null;
-  setSession: (session: Session | null) => void;
+export interface SignInStore {
+  email: string;
+  password: string;
+  error: string | null;
+  isLoading: boolean;
+  setEmail: (email: string) => void;
+  setPassword: (password: string) => void;
+  setError: (error: string | null) => void;
+  setIsLoading: (isLoading: boolean) => void;
 }
