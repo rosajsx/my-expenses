@@ -44,7 +44,7 @@ export const BalanceHeader = ({
   return (
     <View>
       <View>
-        {response?.isLoading || (response?.isRefetching && <Loading size="sm" />)}
+        {(response?.isLoading || response?.isRefetching) && <Loading size="sm" />}
         {response?.isSuccess && (
           <>
             <Text style={styles.balanceText}>
