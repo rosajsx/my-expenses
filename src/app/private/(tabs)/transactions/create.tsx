@@ -6,6 +6,7 @@ import { InputColumn } from '@/components/Input/InputColumn';
 import { InputSwitch } from '@/components/Input/InputSwitch';
 import { Separator } from '@/components/Separator';
 import { CreateTransactionSuccessModal } from '@/components/Sheets/CreateTransactionSuccessModal';
+import { SelectCategoriesModal } from '@/components/Sheets/SelectCategoriesModal';
 import { SelectDateModal } from '@/components/Sheets/SelectDateModal';
 import { SelectInstallmentsModal } from '@/components/Sheets/SelectInstallmentsModal';
 import { useCreateTransaction } from '@/hooks/features/useCreateTransaction';
@@ -40,6 +41,9 @@ export default function CreateTransaction() {
     createTransactionMutation,
     setIsDateModalOpen,
     setIsInstallmentsModalOpen,
+    isCategoryModalOpen,
+    setIsCategoryModalOpen,
+    categories,
   } = useCreateTransaction();
 
   useHideTabBar();
@@ -110,10 +114,9 @@ export default function CreateTransaction() {
             <Separator />
             <Input
               label="Categoria"
-              placeholder="Digite a categoria"
-              returnKeyType="next"
-              value={category}
-              onChangeText={setCategory}
+              valueWithAction
+              value={category?.name || ''}
+              onAction={() => setIsCategoryModalOpen(true)}
             />
           </Card>
 
@@ -153,6 +156,14 @@ export default function CreateTransaction() {
         isOpen={createTransactionMutation.isSuccess}
         toggleSheet={createTransactionMutation.reset}
         onReset={resetCreateTransactionStore}
+      />
+
+      <SelectCategoriesModal
+        value={category}
+        isOpen={isCategoryModalOpen}
+        toggleSheet={() => setIsCategoryModalOpen(false)}
+        categories={categories.data || []}
+        setSelectedCategory={setCategory}
       />
     </>
   );

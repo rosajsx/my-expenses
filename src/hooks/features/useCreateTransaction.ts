@@ -1,9 +1,10 @@
+import { getCategories } from '@/services/categories/getCategories';
 import { createTransaction } from '@/services/transactions/createTransaction';
 import { useCreateTransactionStore } from '@/store/transactions/createTransaction.store';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Session } from '@supabase/supabase-js';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { Alert, TextInput } from 'react-native';
-import { useAuth } from './useAuth';
 
 const incomeTypeOptions = [
   {
@@ -37,13 +38,15 @@ export const useCreateTransaction = () => {
     resetStore,
     setIsDateModalOpen,
     setIsInstallmentsModalOpen,
+    isCategoryModalOpen,
+    setIsCategoryModalOpen,
   } = useCreateTransactionStore();
-
-  const { session } = useAuth();
 
   const currencyValueRef = useRef<TextInput>(null);
   const categoryValueRef = useRef<TextInput>(null);
   const queryClient = useQueryClient();
+
+  const session: Session | undefined = queryClient.getQueryData(['session']);
 
   const createTransactionMutation = useMutation({
     mutationFn: async () => {
@@ -54,7 +57,7 @@ export const useCreateTransaction = () => {
         installment_qtd: haveInstallment && installmentQtd ? Number(installmentQtd) : null,
         type: transactionType!,
         date: selectedDate.toISOString(),
-        category,
+        category_id: category?.id!,
       });
     },
     onError: (error) => {
@@ -73,6 +76,15 @@ export const useCreateTransaction = () => {
       queryClient.invalidateQueries({
         queryKey: ['balances'],
       });
+    },
+  });
+
+  const categories = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await getCategories();
+      console.log('CATEGORIES', response.data);
+      return response.data;
     },
   });
 
@@ -103,5 +115,8 @@ export const useCreateTransaction = () => {
     isCreateButtonDisabled,
     setIsDateModalOpen,
     setIsInstallmentsModalOpen,
+    categories,
+    isCategoryModalOpen,
+    setIsCategoryModalOpen,
   };
 };

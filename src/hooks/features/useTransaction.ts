@@ -1,14 +1,15 @@
 import { deleteTransactionById } from '@/services/transactions/deleteTransaction';
 import { getTransactionById } from '@/services/transactions/getTransactionById';
+import { Session } from '@supabase/supabase-js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import { useAuth } from './useAuth';
 
 export const useTransaction = () => {
-  const { session } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const queryClient = useQueryClient();
+
+  const session: Session | undefined = queryClient.getQueryData(['session']);
 
   const key = ['transaction', id];
 

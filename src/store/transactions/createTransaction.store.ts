@@ -6,10 +6,11 @@ const initialData = {
   transactionType: 1,
   selectedDate: new Date(),
   amount: 0,
-  category: '',
+  category: null,
   haveInstallment: false,
   installmentQtd: null,
   isDateModalOpen: false,
+  isCategoryModalOpen: false,
   isInstallmentsModalOpen: false,
 };
 
@@ -25,6 +26,7 @@ export const useCreateTransactionStore = create<CreateTransactionStore>((set) =>
   setInstallmentQtd: (value) => set({ installmentQtd: value }),
   setIsDateModalOpen: (value) => set({ isDateModalOpen: value }),
   setIsInstallmentsModalOpen: (value) => set({ isInstallmentsModalOpen: value }),
+  setIsCategoryModalOpen: (value) => set({ isCategoryModalOpen: value }),
 
   resetStore: () => set({ ...initialData }),
 }));

@@ -1,6 +1,7 @@
 import { Database } from '../../../database.types';
 
 export type ITransaction = Database['public']['Tables']['transactions']['Row'];
+export type ICategory = Database['public']['Tables']['categories']['Row'];
 
 export type SelectedMonth = {
   id: number;
@@ -34,20 +35,22 @@ export interface CreateTransactionStore {
   transactionType: number;
   selectedDate: Date;
   amount: number;
-  category: string;
+  category: ICategory | null;
   haveInstallment: boolean;
   installmentQtd: string | null;
   isDateModalOpen: boolean;
   isInstallmentsModalOpen: boolean;
+  isCategoryModalOpen: boolean;
 
   setTransactionName: (value: string) => void;
   setTransactionType: (value: number) => void;
   setSelectedDate: (date: Date) => void;
   setAmount: (value: number) => void;
-  setCategory: (value: string) => void;
+  setCategory: (value: ICategory) => void;
   setHaveInstallment: (value: boolean) => void;
   setInstallmentQtd: (value: string | null) => void;
   setIsDateModalOpen: (value: boolean) => void;
   setIsInstallmentsModalOpen: (value: boolean) => void;
+  setIsCategoryModalOpen: (value: boolean) => void;
   resetStore: () => void;
 }
