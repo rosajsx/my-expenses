@@ -7,13 +7,10 @@ import {
   useFonts,
 } from '@expo-google-fonts/inter';
 import * as ExpoDevice from 'expo-device';
-import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useSyncQueriesExternal } from 'react-query-external-sync';
 
-import { useAuth } from '@/hooks/features/useAuth';
-import { supabase } from '@/services/supabase';
 import NetInfo from '@react-native-community/netinfo';
 import {
   focusManager,
@@ -27,6 +24,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Host } from 'react-native-portalize';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 
+import { useAuth } from '@/hooks/features/useAuth';
+import { Stack } from 'expo-router';
 import pkgConfig from '../../package.json';
 // This is the default configuration
 configureReanimatedLogger({
@@ -59,6 +58,26 @@ const queryClient = new QueryClient({
   },
 });
 
+const Auth = () => {
+  const { session } = useAuth(true);
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: 'fade',
+      }}>
+      <Stack.Protected guard={!session}>
+        <Stack.Screen name="sign-in" />
+      </Stack.Protected>
+      <Stack.Protected guard={!!session}>
+        <Stack.Screen name="private" />
+      </Stack.Protected>
+      <Stack.Screen name="index" />
+    </Stack>
+  );
+};
+
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     Inter_400Regular,
@@ -67,8 +86,6 @@ export default function RootLayout() {
     Inter_700Bold,
     Inter_900Black,
   });
-
-  const { session, setSession } = useAuth();
 
   useSyncQueriesExternal({
     queryClient,
@@ -94,26 +111,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded || error) {
-      supabase.auth.getSession().then(({ data }) => {
-        setSession(data.session);
-        if (!data.session) {
-          console.log('User is not logged in, navigating to sign-in');
-          router.replace('/sign-in');
-        } else {
-          console.log('User is logged in, navigating to transactions 1');
-          router.replace('/private');
-        }
-      });
-      supabase.auth.onAuthStateChange((_event, session) => {
-        setSession(session);
-        if (session) {
-          console.log('User is logged in, navigating to transactions 2');
-          router.replace('/sign-in');
-        } else {
-          console.log('User is logged in, navigating to transactions 2');
-          router.replace('/private');
-        }
-      });
       SplashScreen.hideAsync();
     }
   }, [loaded, error]);
@@ -126,18 +123,7 @@ export default function RootLayout() {
     <GestureHandlerRootView>
       <QueryClientProvider client={queryClient}>
         <Host>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              animation: 'fade',
-            }}>
-            <Stack.Protected guard={!session}>
-              <Stack.Screen name="sign-in" />
-            </Stack.Protected>
-            <Stack.Protected guard={!!session}>
-              <Stack.Screen name="private" />
-            </Stack.Protected>
-          </Stack>
+          <Auth />
         </Host>
       </QueryClientProvider>
     </GestureHandlerRootView>

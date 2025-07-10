@@ -1,35 +1,65 @@
 import { supabase } from '@/services/supabase';
-import { useAuthStore } from '@/store/auth/auth.store';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { router, usePathname } from 'expo-router';
+import { useEffect } from 'react';
 
-export const useAuth = () => {
-  const { session, setSession } = useAuthStore();
+type SignInParams = {
+  email: string;
+  password: string;
+};
 
-  const signIn = async (email: string, password: string) => {
-    const { error, data } = await supabase.auth.signInWithPassword({
+export const useAuth = (enabled = false) => {
+  const queryClient = useQueryClient();
+  const pathname = usePathname();
+
+  const { data: session, isLoading } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        throw error;
+      }
+      return data.session;
+    },
+    staleTime: Infinity,
+    enabled,
+  });
+
+  const signIn = async ({ email, password }: SignInParams) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    if (error) throw error;
 
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    setSession(data.session);
+    return;
   };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    setSession(null);
+    if (error) throw error;
+    return;
   };
 
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, currentSession) => {
+      queryClient.setQueryData(['session'], currentSession);
+
+      if (!currentSession) {
+        if (pathname !== '/sign-in') {
+          router.replace('/sign-in');
+        }
+      }
+    });
+
+    return () => authListener.subscription.unsubscribe();
+  }, []);
+
   return {
-    session,
     signIn,
     signOut,
-    setSession,
+    session,
+    isLoading,
   };
 };
