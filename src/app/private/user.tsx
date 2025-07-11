@@ -2,9 +2,6 @@ import { router } from 'expo-router';
 import { Alert, StyleSheet, View } from 'react-native';
 
 export default function User() {
-  //const hash = useBoundStore((state) => state.authHash);
-  //const logout = useBoundStore((state) => state.logout);
-
   const copyToClipboard = async () => {
     //  await Clipboard.setStringAsync(hash || '');
   };

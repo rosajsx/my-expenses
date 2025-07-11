@@ -12,9 +12,7 @@ import { TransactionTypeModal } from '@/components/Sheets/SelectTransactionType'
 import { SelectYearModal } from '@/components/Sheets/SelectYearModal';
 import { Typography } from '@/components/Typography';
 import { useTransactions } from '@/hooks/features/useTransactions';
-import { deleteTransactionById } from '@/services/transactions/deleteTransaction';
-import { useBoundStore } from '@/store';
-import { ITransaction } from '@/store/slices/transactionsSlice';
+import { ITransaction } from '@/store/transactions/transactions.types';
 import { colors } from '@/styles/colors';
 import { formatCurrency, formatDate } from '@/utils';
 import { router } from 'expo-router';
@@ -43,21 +41,6 @@ export default function Index() {
     deleteTransactionMutation,
   } = useTransactions();
   const { data: response } = transactions;
-
-  const session = useBoundStore((state) => state.session);
-
-  async function handleDelete(transaction: ITransaction) {
-    try {
-      await deleteTransactionById(session?.user?.id!, transaction.id);
-
-      Alert.alert('Transação deletada com sucesso!');
-      //await handleGetTransactions();
-      //await handleGetBalances();
-    } catch (error) {
-      console.log(error);
-      Alert.alert('Ocorreu um erro inesperado', JSON.stringify(error));
-    }
-  }
 
   function confirmDelete(transaction: ITransaction) {
     Alert.alert(`Tem certeza que deseja apagar esta transação: ${transaction?.name} `, '', [
