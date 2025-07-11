@@ -28,15 +28,22 @@ export const useTransactions = () => {
   const queryClient = useQueryClient();
   const session: Session | undefined = queryClient.getQueryData(['session']);
 
-  const queryKey = ['transactions', selectedMonth?.value];
+  const queryKey = ['transactions'];
+  if (selectedMonth?.value) queryKey.push(selectedMonth.value);
+  else queryKey.push('all-months');
   if (selectedYear) queryKey.push(selectedYear.toString());
+  else {
+    queryKey.push('all-years');
+  }
   if (selectedTransactionType) queryKey.push(selectedTransactionType.toString());
+
+  console.log('queryKey', queryKey);
 
   const transactions = useQuery({
     queryKey,
     queryFn: async () => {
       return getAllTransactions(session?.user?.id!, {
-        year: selectedYear ? Number(selectedYear) : undefined,
+        year: selectedYear,
         month: selectedMonth?.id,
         transactionType: selectedTransactionType,
       });
