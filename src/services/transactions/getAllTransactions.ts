@@ -7,7 +7,6 @@ interface IFilter {
 }
 
 export const getAllTransactions = (user_id: string, filters?: IFilter) => {
-  console.log('filters', filters);
   const query = supabase
     .from('transactions')
     .select(

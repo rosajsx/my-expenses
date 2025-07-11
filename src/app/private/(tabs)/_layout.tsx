@@ -27,6 +27,18 @@ export default function TabsLayout() {
             },
           }}
         />
+        <Tabs.Screen
+          name="balances"
+          options={{
+            tabBarLabel: ({ focused }) => {
+              return (
+                <Text style={[styles.label, focused ? styles.active : styles.inactive]}>
+                  Saldos
+                </Text>
+              );
+            },
+          }}
+        />
       </Tabs>
     </>
   );

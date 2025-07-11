@@ -1,4 +1,4 @@
-import { useBalances } from '@/hooks/features/useBalances';
+import { useMonthBalance } from '@/hooks/features/useMonthBalance';
 import { SelectedMonth } from '@/store/transactions/transactions.types';
 import { colors } from '@/styles/colors';
 import { formatCurrency, getAllMonthsOfYear } from '@/utils';
@@ -27,7 +27,7 @@ export const BalanceHeader = ({
   handleOpenSelectYearModal,
   handleOpenTransactionTypeModal,
 }: BalanceHeaderProps) => {
-  const { response } = useBalances();
+  const { response } = useMonthBalance();
   const monthBalance = response.data || 0;
 
   const getBalanceStatusColor = () => {

@@ -22,14 +22,14 @@ export const SelectYearModal = ({
   isSelectYearModalOpen,
   handleCloseSelectYearModal,
 }: SelectYearModalProps) => {
-  const [localYear, setLocalYear] = useState(selectedYear);
+  const [localYear, setLocalYear] = useState(selectedYear ? Number(selectedYear) : null);
   const { bottomSheetRef, closeSheet, openSheet, updateSheetIndex, renderBackdrop, sheetIndex } =
     useBottomSheet({});
 
   const snapPoints = useMemo(() => ['40%'], []);
 
   const handleSelect = () => {
-    setSelectedYear(localYear!);
+    setSelectedYear(localYear!.toString());
     handleCloseSelectYearModal();
     closeSheet();
   };

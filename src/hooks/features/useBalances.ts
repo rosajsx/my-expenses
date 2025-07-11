@@ -1,26 +1,20 @@
-import { getMonthBalance } from '@/services/balances/getMonthBalance';
-import { useIsFocused } from '@react-navigation/native';
-import { Session } from '@supabase/supabase-js';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-
-const currentMonth = new Date().getMonth();
-const currentYear = new Date().getFullYear();
+import { getAllMonthBalances } from '@/services/balances/getMonthBalance';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from './useAuth';
 
 export const useBalances = () => {
-  const queryClient = useQueryClient();
-  const isFocused = useIsFocused();
+  const { session } = useAuth();
 
-  const session: Session | undefined = queryClient.getQueryData(['session']);
-
-  const response = useQuery({
-    queryKey: ['balances'],
+  const balancesResponse = useQuery({
+    queryKey: ['all-balances'],
     queryFn: async () => {
-      return getMonthBalance(session?.user.id!, currentMonth + 1, currentYear);
+      const data = await getAllMonthBalances(session?.user.id!);
+
+      return data;
     },
-    subscribed: isFocused,
   });
 
   return {
-    response,
+    balancesResponse,
   };
 };

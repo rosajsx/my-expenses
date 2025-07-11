@@ -76,6 +76,9 @@ export const useCreateTransaction = () => {
       queryClient.invalidateQueries({
         queryKey: ['balances'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['all-balances'],
+      });
     },
   });
 

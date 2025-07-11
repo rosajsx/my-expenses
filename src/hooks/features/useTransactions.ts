@@ -36,8 +36,9 @@ export const useTransactions = () => {
     queryKey.push('all-years');
   }
   if (selectedTransactionType) queryKey.push(selectedTransactionType.toString());
-
-  console.log('queryKey', queryKey);
+  else {
+    queryKey.push('all-types');
+  }
 
   const transactions = useQuery({
     queryKey,
