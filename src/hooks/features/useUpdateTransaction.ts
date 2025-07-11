@@ -1,12 +1,37 @@
+import { getCategories } from '@/services/categories/getCategories';
 import { getTransactionById } from '@/services/transactions/getTransactionById';
 import { updateTransaction } from '@/services/transactions/updateTransaction';
+import { useUpdateTransactionStore } from '@/store/transactions/updateTransaction.store';
 import { Session } from '@supabase/supabase-js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { Alert } from 'react-native';
 
 export const useUpdateTransaction = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const {
+    amount,
+    setAmount,
+    selectedDate,
+    setSelectedDate,
+    transactionName,
+    setTransactionName,
+    transactionType,
+    setTransactionType,
+    haveInstallment,
+    setHaveInstallment,
+    installmentQtd,
+    setInstallmentQtd,
+    category,
+    setCategory,
+    isDateModalOpen,
+    isCategoryModalOpen,
+    isInstallmentsModalOpen,
+    setIsCategoryModalOpen,
+    setIsDateModalOpen,
+    setIsInstallmentsModalOpen,
+  } = useUpdateTransactionStore();
   const queryClient = useQueryClient();
   const session: Session | undefined = queryClient.getQueryData(['session']);
 
@@ -15,18 +40,16 @@ export const useUpdateTransaction = () => {
     queryKey,
     queryFn: async () => {
       const transactionResponse = await getTransactionById(session?.user?.id!, Number(id));
-      const data = transactionResponse.data;
-      if (data?.amount) setAmount(data?.amount);
-      if (data?.date) setSelectedDate(new Date(data?.date));
-      if (data?.type) setTransactionType(data?.type);
-      if (data?.category) setCategory(data?.category);
-
-      if (data?.installment && data?.installment_qtd) {
-        setInstallmentQtd(data?.installment_qtd.toString());
-        setHaveInstallment(true);
-      }
 
       return transactionResponse.data;
+    },
+  });
+
+  const categories = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await getCategories();
+      return response.data;
     },
   });
 
@@ -38,7 +61,7 @@ export const useUpdateTransaction = () => {
         id: Number(id),
         type: transactionType,
         date: selectedDate.toISOString(),
-        category,
+        category_id: category?.id!,
         installment_qtd: haveInstallment ? parseInt(installmentQtd || '0', 10) : null,
       });
     },
@@ -47,23 +70,25 @@ export const useUpdateTransaction = () => {
       queryClient.invalidateQueries({ queryKey: ['balances'] });
       queryClient.invalidateQueries({ queryKey: ['transaction', id] });
     },
+    onError: (error) => {
+      console.error('Error updating transaction:', error);
+      Alert.alert('Erro', 'Não foi possível atualizar a transação. Tente novamente mais tarde.');
+    },
   });
 
-  const [transactionName, setTransactionName] = useState(response?.data?.name || '');
-  const [transactionType, setTransactionType] = useState<number>(response?.data?.type || 1);
-  const [selectedDate, setSelectedDate] = useState(
-    response?.data?.date ? new Date(response?.data?.date) : new Date(),
-  );
-  const [amount, setAmount] = useState(response?.data?.amount || 0);
-  const [category, setCategory] = useState(response?.data?.category || '');
-  const [haveInstallment, setHaveInstallment] = useState<boolean>(
-    !!response?.data?.installment && !!response?.data?.installment_qtd,
-  );
-  const [installmentQtd, setInstallmentQtd] = useState<string | null>(
-    response?.data?.installment_qtd?.toString() || null,
-  );
-  const [isDateModalOpen, setIsDateModalOpen] = useState(false);
-  const [isInstallmentsModalOpen, setIsInstallmentsModalOpen] = useState(false);
+  useEffect(() => {
+    if (response.data?.name && !transactionName) setTransactionName(response.data?.name);
+    if (response.data?.amount && !amount) setAmount(response.data?.amount);
+    if (response.data?.date && selectedDate !== new Date(response?.data?.date))
+      setSelectedDate(new Date(response.data?.date));
+    if (response.data?.type && transactionType !== 1) setTransactionType(response.data?.type);
+    if (response.data?.categories && !category) setCategory(response.data?.categories);
+
+    if (response.data?.installment && response.data?.installment_qtd) {
+      setInstallmentQtd(response.data?.installment_qtd.toString());
+      setHaveInstallment(true);
+    }
+  }, [response.data]);
 
   return {
     response,
@@ -86,5 +111,8 @@ export const useUpdateTransaction = () => {
     setIsDateModalOpen,
     setIsInstallmentsModalOpen,
     updateTransactionMutation,
+    categories,
+    isCategoryModalOpen,
+    setIsCategoryModalOpen,
   };
 };

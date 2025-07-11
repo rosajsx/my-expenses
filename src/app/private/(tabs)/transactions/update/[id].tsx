@@ -5,6 +5,7 @@ import { Input } from '@/components/Input/index';
 import { InputColumn } from '@/components/Input/InputColumn';
 import { InputSwitch } from '@/components/Input/InputSwitch';
 import { Separator } from '@/components/Separator';
+import { SelectCategoriesModal } from '@/components/Sheets/SelectCategoriesModal';
 import { SelectDateModal } from '@/components/Sheets/SelectDateModal';
 import { SelectInstallmentsModal } from '@/components/Sheets/SelectInstallmentsModal';
 import { UpdateTransactionSuccessModal } from '@/components/Sheets/UpdateTransactionSuccessModal';
@@ -48,6 +49,9 @@ export default function UpdateTransaction() {
     setIsDateModalOpen,
     setIsInstallmentsModalOpen,
     updateTransactionMutation,
+    categories,
+    setIsCategoryModalOpen,
+    isCategoryModalOpen,
   } = useUpdateTransaction();
 
   const currencyValueRef = useRef<TextInput>(null);
@@ -132,10 +136,9 @@ export default function UpdateTransaction() {
             <Separator />
             <Input
               label="Categoria"
-              placeholder="Digite a categoria"
-              returnKeyType="next"
-              value={category}
-              onChangeText={setCategory}
+              valueWithAction
+              value={category?.name || ''}
+              onAction={() => setIsCategoryModalOpen(true)}
             />
           </Card>
 
@@ -173,6 +176,14 @@ export default function UpdateTransaction() {
       <UpdateTransactionSuccessModal
         isOpen={updateTransactionMutation.isSuccess}
         toggleSheet={() => updateTransactionMutation.reset()}
+      />
+
+      <SelectCategoriesModal
+        value={category}
+        isOpen={isCategoryModalOpen}
+        toggleSheet={() => setIsCategoryModalOpen(false)}
+        categories={categories.data || []}
+        setSelectedCategory={setCategory}
       />
     </>
   );

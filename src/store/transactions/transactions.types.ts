@@ -54,3 +54,28 @@ export interface CreateTransactionStore {
   setIsCategoryModalOpen: (value: boolean) => void;
   resetStore: () => void;
 }
+
+export interface UpdateTransactionStore {
+  transactionName: string;
+  transactionType: number;
+  selectedDate: Date;
+  amount: number;
+  category: ICategory | null;
+  haveInstallment: boolean;
+  installmentQtd: string | null;
+  isDateModalOpen: boolean;
+  isInstallmentsModalOpen: boolean;
+  isCategoryModalOpen: boolean;
+
+  setTransactionName: (value: string) => void;
+  setTransactionType: (value: number) => void;
+  setSelectedDate: (date: Date) => void;
+  setAmount: (value: number) => void;
+  setCategory: (value: ICategory) => void;
+  setHaveInstallment: (value: boolean) => void;
+  setInstallmentQtd: (value: string | null) => void;
+  setIsDateModalOpen: (value: boolean) => void;
+  setIsInstallmentsModalOpen: (value: boolean) => void;
+  setIsCategoryModalOpen: (value: boolean) => void;
+  resetStore: () => void;
+}

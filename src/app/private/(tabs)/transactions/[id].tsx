@@ -111,6 +111,14 @@ export default function TransactionDetails() {
                 <Typography variant="body/md">{formatDate(transaction?.date)}</Typography>
               </View>
             )}
+            {transaction?.categories && (
+              <View style={styles.detailItem}>
+                <Typography variant="body/md" color="text">
+                  Categoria
+                </Typography>
+                <Typography variant="body/md">{transaction?.categories?.name}</Typography>
+              </View>
+            )}
             {transaction?.installment && transaction?.installment_qtd && (
               <View style={styles.detailItem}>
                 <Typography variant="body/md" color="text">

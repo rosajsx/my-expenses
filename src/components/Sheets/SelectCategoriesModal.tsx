@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   list: {
-    maxHeight: '79%',
+    maxHeight: 350,
   },
   container: {
     gap: 4,
