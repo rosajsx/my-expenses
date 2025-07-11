@@ -1,8 +1,10 @@
 import { colors } from '@/styles/colors';
-import { Tabs } from 'expo-router';
+import { Tabs, usePathname } from 'expo-router';
 import { StyleSheet, Text } from 'react-native';
 
 export default function TabsLayout() {
+  const pathname = usePathname();
+
   return (
     <>
       <Tabs

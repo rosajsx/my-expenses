@@ -8,6 +8,11 @@ type SignInParams = {
   password: string;
 };
 
+type SignUpParams = {
+  email: string;
+  password: string;
+};
+
 export const useAuth = (enabled = false) => {
   const queryClient = useQueryClient();
   const pathname = usePathname();
@@ -36,6 +41,16 @@ export const useAuth = (enabled = false) => {
     return;
   };
 
+  const signUp = async ({ email, password }: SignInParams) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    if (error) throw error;
+
+    return data;
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -46,10 +61,8 @@ export const useAuth = (enabled = false) => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, currentSession) => {
       queryClient.setQueryData(['session'], currentSession);
 
-      if (!currentSession) {
-        if (pathname !== '/sign-in') {
-          router.replace('/sign-in');
-        }
+      if (!currentSession && !['/sign-in', '/sign-up'].includes(pathname)) {
+        router.replace('/sign-in');
       }
     });
 
@@ -61,5 +74,6 @@ export const useAuth = (enabled = false) => {
     signOut,
     session,
     isLoading,
+    signUp,
   };
 };

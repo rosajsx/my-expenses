@@ -8,11 +8,11 @@ import { Typography } from '@/components/Typography';
 import { colors } from '@/styles/colors';
 import { Image, StyleSheet, View } from 'react-native';
 
-import { useSignIn } from '@/hooks/features/useSignin';
-import { Redirect } from 'expo-router';
+import { useSignIn } from '@/hooks/features/useSignIn';
+import { Redirect, router } from 'expo-router';
 
 export default function SignIn() {
-  const { session, email, password, setEmail, setPassword, error, isLoading, handleSubmit } =
+  const { session, isLoading, error, email, setEmail, password, setPassword, handleSubmit } =
     useSignIn();
 
   if (session) {
@@ -52,7 +52,11 @@ export default function SignIn() {
             </Typography>
           )}
           <Button title="Entrar" onPress={handleSubmit} />
-          <Button variant="ghost" title="Não possuo cadastro" />
+          <Button
+            variant="ghost"
+            title="Não possuo cadastro"
+            onPress={() => router.push('/sign-up')}
+          />
         </>
       )}
     </Container>

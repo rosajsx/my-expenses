@@ -1,12 +1,5 @@
-import { Container } from '@/components/Container';
-import { router } from 'expo-router';
-import { useLayoutEffect } from 'react';
+import { Redirect } from 'expo-router';
 
 export default function Index() {
-  //const logout = useBoundStore((state) => state.logout);
-
-  useLayoutEffect(() => {
-    router.replace('/private/(tabs)/transactions');
-  }, []);
-  return <Container></Container>;
+  return <Redirect href="/private/(tabs)/transactions" />;
 }

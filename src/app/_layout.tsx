@@ -70,6 +70,9 @@ const Auth = () => {
       <Stack.Protected guard={!session}>
         <Stack.Screen name="sign-in" />
       </Stack.Protected>
+      <Stack.Protected guard={!session}>
+        <Stack.Screen name="sign-up" />
+      </Stack.Protected>
       <Stack.Protected guard={!!session}>
         <Stack.Screen name="private" />
       </Stack.Protected>

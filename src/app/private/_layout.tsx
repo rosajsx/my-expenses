@@ -1,11 +1,12 @@
 import { colors } from '@/styles/colors';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { Stack } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { AppState, View } from 'react-native';
 
 export default function AppLayout() {
   const appState = useRef(AppState.currentState);
+  const path = usePathname();
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', async (nextAppState) => {

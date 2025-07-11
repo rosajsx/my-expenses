@@ -83,7 +83,6 @@ export const useCreateTransaction = () => {
     queryKey: ['categories'],
     queryFn: async () => {
       const response = await getCategories();
-      console.log('CATEGORIES', response.data);
       return response.data;
     },
   });

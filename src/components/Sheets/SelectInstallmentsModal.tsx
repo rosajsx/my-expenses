@@ -52,7 +52,6 @@ export const SelectInstallmentsModal = ({
           <Picker
             selectedValue={installmentQtd}
             onValueChange={(value) => {
-              console.log({ value });
               setInstallmentQtd(value);
             }}>
             {quantitiesOfInstallments.map((item) => (
