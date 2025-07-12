@@ -30,6 +30,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="balances"
           options={{
+            popToTopOnBlur: true,
             tabBarLabel: ({ focused }) => {
               return (
                 <Text style={[styles.label, focused ? styles.active : styles.inactive]}>

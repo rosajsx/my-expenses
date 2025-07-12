@@ -4,7 +4,8 @@ import { Typography } from '@/components/Typography';
 import { useBalances } from '@/hooks/features/useBalances';
 import { colors } from '@/styles/colors';
 import { formatCurrency } from '@/utils';
-import { SectionList, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { SectionList, StyleSheet, TouchableOpacity, View } from 'react-native';
 export default function BalancesIndex() {
   const { balancesResponse } = useBalances();
 
@@ -31,13 +32,17 @@ export default function BalancesIndex() {
             sections={balancesResponse.data?.monthData || []}
             keyExtractor={(item, index) => (item.value + index).toString()}
             contentContainerStyle={styles.contentContainer}
-            renderItem={({ item }) => (
-              <View style={[styles.card]}>
+            renderItem={({ item, section }) => (
+              <TouchableOpacity
+                style={[styles.card]}
+                onPress={() => {
+                  router.navigate(`/private/balances/${section.year}-${item.month}`);
+                }}>
                 <Typography variant="heading/sm">{item.month.toUpperCase()}</Typography>
                 <Typography variant="body/lg" color={item.value > 0 ? 'green' : 'red'}>
                   {formatCurrency(item.value)}
                 </Typography>
-              </View>
+              </TouchableOpacity>
             )}
             renderSectionHeader={({ section }) => (
               <View style={[styles.sectionHeader, styles.padding]}>

@@ -11,7 +11,9 @@ export const getMonthBalance = async (
     .select('amount, type')
     .eq('user_id', user_id)
     .gte('date', `${currentYear}-${currentMonth}-01`)
-    .lt('date', `${currentYear}-${currentMonth + 1}-01`);
+    .lt('date', `${currentYear}-${currentMonth + 1}-31`);
+
+  console.log(response);
 
   const data = response.data?.reduce(
     (acc, item) => {
@@ -103,5 +105,36 @@ export const getAllMonthBalances = async (user_id: string) => {
   return {
     monthData: formattedData,
     total,
+  };
+};
+
+export const getMonthBalanceDetails = async (
+  user_id: string,
+  currentMonth: number,
+  currentYear: number,
+) => {
+  const response = await supabase
+    .from('transactions')
+    .select('amount, type')
+    .eq('user_id', user_id)
+    .gte('date', `${currentYear}-${currentMonth}-01`)
+    .lt('date', `${currentYear}-${currentMonth + 1}-31`);
+
+  const data = response.data?.reduce(
+    (acc, item) => {
+      if (item.type === 1) {
+        acc.income += item.amount;
+      } else {
+        acc.outcome += item.amount;
+      }
+
+      return acc;
+    },
+    { income: 0, outcome: 0 },
+  );
+
+  return {
+    ...data,
+    total: data?.income! - data?.outcome! || 0,
   };
 };
