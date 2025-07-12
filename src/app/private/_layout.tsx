@@ -31,10 +31,6 @@ export default function AppLayout() {
             animation: 'fade',
           }}
         />
-        <Stack.Screen
-          name="user"
-          options={{ presentation: 'transparentModal', animation: 'fade' }}
-        />
       </Stack>
     </View>
   );
