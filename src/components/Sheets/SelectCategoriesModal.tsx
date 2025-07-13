@@ -2,11 +2,11 @@ import { useBottomSheet } from '@/hooks/useBottomSheet';
 import { ICategory } from '@/store/transactions/transactions.types';
 import { colors } from '@/styles/colors';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useEffect, useMemo } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import { useEffect, useMemo, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { Portal } from 'react-native-portalize';
 import { Button } from '../Button';
-import { Typography } from '../Typography';
 
 interface SelectCategoriesModalProps {
   isOpen: boolean;
@@ -14,6 +14,7 @@ interface SelectCategoriesModalProps {
   categories: ICategory[];
   setSelectedCategory: (data: ICategory) => void;
   value: ICategory | null;
+  enableAllCategories?: boolean;
 }
 
 export const SelectCategoriesModal = ({
@@ -22,10 +23,19 @@ export const SelectCategoriesModal = ({
   categories,
   value,
   setSelectedCategory,
+  enableAllCategories = false,
 }: SelectCategoriesModalProps) => {
   const { bottomSheetRef, closeSheet, openSheet, updateSheetIndex, renderBackdrop, sheetIndex } =
     useBottomSheet({});
-  const snapPoints = useMemo(() => ['50%'], []);
+  const snapPoints = useMemo(() => ['40%'], []);
+
+  const [localCategory, setLocalCategory] = useState(value);
+
+  const handleSelect = () => {
+    setSelectedCategory(localCategory!);
+    toggleSheet();
+    closeSheet();
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -49,33 +59,24 @@ export const SelectCategoriesModal = ({
           updateSheetIndex(value);
         }}>
         <BottomSheetView style={styles.modalContent}>
-          <FlatList
-            data={categories}
-            contentContainerStyle={styles.container}
-            style={styles.list}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => {
-              return (
-                <TouchableOpacity
-                  onPress={() => setSelectedCategory(item)}
-                  style={[
-                    styles.categoryItem,
-                    value?.id === item.id && styles.categoryItemSelected,
-                  ]}>
-                  <Typography variant="heading/sm" color={value?.id === item.id ? 'white' : 'text'}>
-                    {item.name}
-                  </Typography>
-                </TouchableOpacity>
-              );
-            }}
-          />
-          <Button
-            title="Fechar"
-            onPress={() => {
-              toggleSheet();
-              closeSheet();
-            }}
-          />
+          <Picker
+            selectedValue={localCategory?.id}
+            itemStyle={styles.item}
+            onValueChange={(value) => {
+              const selectedCategory = categories.find((category) => category.id === value);
+              setLocalCategory(selectedCategory || null);
+            }}>
+            {enableAllCategories && <Picker.Item label="Todas as categorias" value={null} />}
+
+            {categories.map((category) => (
+              <Picker.Item
+                key={category.id}
+                label={category.name || 'Não Mapeado'}
+                value={category.id}
+              />
+            ))}
+          </Picker>
+          <Button title="Salvar" onPress={handleSelect} />
         </BottomSheetView>
       </BottomSheet>
     </Portal>
@@ -105,5 +106,10 @@ const styles = StyleSheet.create({
   },
   container: {
     gap: 4,
+  },
+  item: {
+    fontFamily: 'Inter_400Regular',
+    fontWeight: 400,
+    color: colors.text,
   },
 });
