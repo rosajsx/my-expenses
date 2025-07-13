@@ -1,24 +1,31 @@
-import { useMonthBalance } from '@/hooks/features/useMonthBalance';
 import { SelectedMonth } from '@/store/transactions/transactions.types';
 import { colors } from '@/styles/colors';
-import { formatCurrency, getAllMonthsOfYear } from '@/utils';
+import { formatCurrency } from '@/utils';
+import { UseQueryResult } from '@tanstack/react-query';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Loading } from '../Loading';
 import { Separator } from '../Separator';
 import { Typography } from '../Typography';
 
-const currentMonth = new Date().getMonth();
-const currentYear = new Date().getFullYear();
-const months = getAllMonthsOfYear();
-
 interface BalanceHeaderProps {
   selectedMonth?: SelectedMonth;
   selectedYear?: string;
   selectedTransactionType?: number;
-  handleOpenTransactionTypeModal: () => void;
-  handleOpenSelectMonthModal: () => void;
-  handleOpenSelectYearModal: () => void;
+  handleOpenTransactionTypeModal?: () => void;
+  handleOpenSelectMonthModal?: () => void;
+  handleOpenSelectYearModal?: () => void;
+  month: string;
+  year: number;
+  filters?: boolean;
+  response: UseQueryResult<
+    {
+      total: number;
+      income: number;
+      outcome: number;
+    },
+    Error
+  >;
 }
 
 export const BalanceHeader = ({
@@ -28,8 +35,11 @@ export const BalanceHeader = ({
   handleOpenSelectMonthModal,
   handleOpenSelectYearModal,
   handleOpenTransactionTypeModal,
+  filters = true,
+  response,
+  month,
+  year,
 }: BalanceHeaderProps) => {
-  const { response } = useMonthBalance();
   const monthBalance = response.data?.total || 0;
 
   const getBalanceStatusColor = () => {
@@ -50,7 +60,7 @@ export const BalanceHeader = ({
         {response?.isSuccess && (
           <>
             <Text style={styles.balanceText}>
-              Total {months[currentMonth].value} de {currentYear}
+              Total {month} de {year}
             </Text>
 
             <Text
@@ -80,58 +90,60 @@ export const BalanceHeader = ({
         )}
       </View>
 
-      <ScrollView
-        horizontal
-        contentContainerStyle={styles.filterContainer}
-        showsHorizontalScrollIndicator={false}>
-        <TouchableOpacity
-          onPress={handleOpenSelectMonthModal}
-          style={[
-            styles.filterButton,
-            !selectedMonth?.value ? styles.filterButtonInactive : styles.filterButtonActive,
-          ]}>
-          <Text
+      {filters && (
+        <ScrollView
+          horizontal
+          contentContainerStyle={styles.filterContainer}
+          showsHorizontalScrollIndicator={false}>
+          <TouchableOpacity
+            onPress={handleOpenSelectMonthModal}
             style={[
-              styles.filterText,
-              !selectedMonth?.value ? styles.filterTextInactive : styles.filterTextActive,
+              styles.filterButton,
+              !selectedMonth?.value ? styles.filterButtonInactive : styles.filterButtonActive,
             ]}>
-            Mês: {selectedMonth?.value || 'Todos'}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={handleOpenSelectYearModal}
-          style={[
-            styles.filterButton,
-            !selectedYear ? styles.filterButtonInactive : styles.filterButtonActive,
-          ]}>
-          <Text
+            <Text
+              style={[
+                styles.filterText,
+                !selectedMonth?.value ? styles.filterTextInactive : styles.filterTextActive,
+              ]}>
+              Mês: {selectedMonth?.value || 'Todos'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleOpenSelectYearModal}
             style={[
-              styles.filterText,
-              !selectedYear ? styles.filterTextInactive : styles.filterTextActive,
+              styles.filterButton,
+              !selectedYear ? styles.filterButtonInactive : styles.filterButtonActive,
             ]}>
-            Ano: {selectedYear || currentYear}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={handleOpenTransactionTypeModal}
-          style={[
-            styles.filterButton,
-            !selectedTransactionType ? styles.filterButtonInactive : styles.filterButtonActive,
-          ]}>
-          <Text
+            <Text
+              style={[
+                styles.filterText,
+                !selectedYear ? styles.filterTextInactive : styles.filterTextActive,
+              ]}>
+              Ano: {selectedYear || year}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleOpenTransactionTypeModal}
             style={[
-              styles.filterText,
-              !selectedTransactionType ? styles.filterTextInactive : styles.filterTextActive,
+              styles.filterButton,
+              !selectedTransactionType ? styles.filterButtonInactive : styles.filterButtonActive,
             ]}>
-            Tipo:{' '}
-            {selectedTransactionType
-              ? selectedTransactionType === 1
-                ? 'Entradas'
-                : 'Saídas'
-              : 'Todos'}
-          </Text>
-        </TouchableOpacity>
-      </ScrollView>
+            <Text
+              style={[
+                styles.filterText,
+                !selectedTransactionType ? styles.filterTextInactive : styles.filterTextActive,
+              ]}>
+              Tipo:{' '}
+              {selectedTransactionType
+                ? selectedTransactionType === 1
+                  ? 'Entradas'
+                  : 'Saídas'
+                : 'Todos'}
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      )}
     </View>
   );
 };

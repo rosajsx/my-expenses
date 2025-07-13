@@ -1,9 +1,14 @@
 import { getAllTransactions } from '@/services/transactions/getAllTransactions';
 import { useTransactionsStore } from '@/store/transactions/trasactions.store';
+import { getAllMonthsOfYear } from '@/utils';
 import { useIsFocused } from '@react-navigation/native';
 import { Session } from '@supabase/supabase-js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { deleteTransactionById } from '../../services/transactions/deleteTransaction';
+
+const months = getAllMonthsOfYear();
+const currentMonth = months[new Date().getMonth()];
+const currentYear = new Date().getFullYear();
 
 export const useTransactions = () => {
   const {
@@ -52,8 +57,6 @@ export const useTransactions = () => {
     subscribed: isFocused,
   });
 
-  console.log(transactions.error);
-
   const deleteTransactionMutation = useMutation({
     mutationFn: async (transactionId: number) => {
       return deleteTransactionById(session?.user?.id!, transactionId);
@@ -86,5 +89,7 @@ export const useTransactions = () => {
     isSelectYearModalOpen,
     isTransactionTypeFilterOpen,
     deleteTransactionMutation,
+    currentMonth,
+    currentYear,
   };
 };

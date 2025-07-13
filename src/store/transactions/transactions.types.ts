@@ -3,6 +3,10 @@ import { Database } from '../../../database.types';
 export type ITransaction = Database['public']['Tables']['transactions']['Row'];
 export type ICategory = Database['public']['Tables']['categories']['Row'];
 
+export interface TransactionComposed extends Omit<ITransaction, 'category_id'> {
+  categories: ICategory | null;
+}
+
 export type SelectedMonth = {
   id: number;
   value: string;

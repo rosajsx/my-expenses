@@ -33,7 +33,8 @@ export const PageHeader = ({
         variant="ghost"
         onPress={() => (onCancel ? onCancel() : router.back())}
         disabled={isCancelButtonDisabled}
-        title={cancelText}>
+        title={cancelText}
+        paddingHorizontal={0}>
         {!cancelText && <ChevronLeft color={colors.primary} />}
       </Button>
       {title && <Typography variant="body/lg">{title}</Typography>}

@@ -1,24 +1,21 @@
-import { Alert, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { Container } from '@/components/Container';
 import React from 'react';
 
 import { Button } from '@/components/Button';
 import { BalanceHeader } from '@/components/Header/BalanceHeader';
-import { Loading } from '@/components/Loading';
-import { Separator } from '@/components/Separator';
 import { SelectMonthModal } from '@/components/Sheets/SelectMonthModal';
 import { TransactionTypeModal } from '@/components/Sheets/SelectTransactionType';
 import { SelectYearModal } from '@/components/Sheets/SelectYearModal';
+import { Transactions } from '@/components/Transactions';
 import { Typography } from '@/components/Typography';
+import { useMonthBalance } from '@/hooks/features/useMonthBalance';
 import { useTransactions } from '@/hooks/features/useTransactions';
 import { ITransaction } from '@/store/transactions/transactions.types';
 import { colors } from '@/styles/colors';
-import { formatCurrency, formatDate } from '@/utils';
 import { router } from 'expo-router';
-import { Pen, Plus, Trash } from 'lucide-react-native';
-import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import { Plus } from 'lucide-react-native';
 
 export default function Index() {
   const {
@@ -39,7 +36,11 @@ export default function Index() {
     isSelectYearModalOpen,
     handleCloseSelectYearModal,
     deleteTransactionMutation,
+    currentMonth,
+    currentYear,
   } = useTransactions();
+  const { response: monthBalanceResponse } = useMonthBalance();
+
   const { data: response } = transactions;
 
   function confirmDelete(transaction: ITransaction) {
@@ -64,48 +65,6 @@ export default function Index() {
     ]);
   }
 
-  const RightAction = (
-    prog: SharedValue<number>,
-    drag: SharedValue<number>,
-    transaction: ITransaction,
-  ) => {
-    const styleAnimation = useAnimatedStyle(() => {
-      return {
-        transform: [{ translateX: drag.value + 80 }],
-      };
-    });
-    return (
-      <Reanimated.View style={[styleAnimation, styles.rightAction]}>
-        <TouchableOpacity style={styles.rightActionBtn} onPress={() => confirmDelete(transaction)}>
-          <Trash color={colors.backgroundWhite} size={24} />
-          <Text style={styles.rightActionText}>Apagar</Text>
-        </TouchableOpacity>
-      </Reanimated.View>
-    );
-  };
-
-  const LeftAction = (
-    prog: SharedValue<number>,
-    drag: SharedValue<number>,
-    transaction: ITransaction,
-  ) => {
-    const styleAnimation = useAnimatedStyle(() => {
-      return {
-        transform: [{ translateX: drag.value - 82 }],
-      };
-    });
-    return (
-      <Reanimated.View style={[styleAnimation, styles.leftAction]}>
-        <TouchableOpacity
-          style={styles.rightActionBtn}
-          onPress={() => router.navigate(`/private/transactions/update/${transaction?.id}`)}>
-          <Pen color={colors.backgroundWhite} size={24} />
-          <Text style={styles.rightActionText}>Editar</Text>
-        </TouchableOpacity>
-      </Reanimated.View>
-    );
-  };
-
   return (
     <Container style={styles.container}>
       <View style={styles.content}>
@@ -128,57 +87,16 @@ export default function Index() {
           handleOpenSelectMonthModal={handleOpenSelectMonthModal}
           handleOpenSelectYearModal={handleOpenSelectYearModal}
           handleOpenTransactionTypeModal={handleOpenTransactionTypeModal}
+          response={monthBalanceResponse}
+          month={currentMonth.value}
+          year={currentYear}
         />
       </View>
       <View style={styles.listContainer}>
-        <FlatList
+        <Transactions
           data={response?.data || []}
-          bounces={false}
-          keyExtractor={(item) => item.id.toString()}
-          showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <Separator />}
-          ListEmptyComponent={() => (
-            <View>
-              {transactions.isLoading || transactions.isRefetching ? (
-                <View style={styles.center}>
-                  <Loading />
-                </View>
-              ) : (
-                <Typography variant="body/md" align="center">
-                  Nenhuma transação encontrada!
-                </Typography>
-              )}
-            </View>
-          )}
-          renderItem={({ item }) => (
-            <ReanimatedSwipeable
-              friction={2}
-              enableTrackpadTwoFingerGesture
-              rightThreshold={40}
-              renderLeftActions={(prag, drag) => LeftAction(prag, drag, item as any)}
-              renderRightActions={(prag, drag) => RightAction(prag, drag, item as any)}>
-              <Pressable
-                style={styles.transactionCard}
-                onPress={() => router.push(`/private/transactions/${item.id}`)}>
-                <View style={styles.transactionContent}>
-                  <Typography variant="heading/sm">
-                    {item.name}{' '}
-                    {item.installment &&
-                      item.installment_qtd &&
-                      `${item.installment}/${item.installment_qtd}`}
-                  </Typography>
-
-                  <Typography variant="body/sm">{formatDate(item.date)}</Typography>
-                </View>
-                <View style={styles.transactionAmountContent}>
-                  <Typography variant="heading/sm" color={item.type === 1 ? 'text' : 'red'}>
-                    {item.type !== 1 && '-'} {formatCurrency(item.amount)}
-                  </Typography>
-                  <Typography variant="body/sm">{item?.categories?.name}</Typography>
-                </View>
-              </Pressable>
-            </ReanimatedSwipeable>
-          )}
+          onDelete={confirmDelete}
+          isLoading={transactions.isLoading || transactions.isRefetching || transactions.isPending}
         />
       </View>
 

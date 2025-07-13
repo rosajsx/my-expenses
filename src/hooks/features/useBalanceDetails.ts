@@ -1,4 +1,4 @@
-import { getMonthBalanceDetails } from '@/services/balances/getMonthBalance';
+import { getMonthBalance } from '@/services/balances/getMonthBalance';
 import { getAllTransactions } from '@/services/transactions/getAllTransactions';
 import { getAllMonthsOfYear } from '@/utils';
 import { useIsFocused } from '@react-navigation/native';
@@ -19,7 +19,9 @@ export const useBalanceDetails = () => {
 
   const slicedDate = date.split('-');
 
-  const currentMonth = months.find((item) => item.value === slicedDate[1])?.id || 0;
+  const currentMonth = months.find((item) => {
+    return item.value === slicedDate[1];
+  });
   const currentYear = slicedDate[0] ? Number(slicedDate[0]) : new Date().getFullYear();
 
   useHideTabBar();
@@ -27,7 +29,7 @@ export const useBalanceDetails = () => {
   const balanceResponse = useQuery({
     queryKey: ['balances', currentMonth, currentYear],
     queryFn: async () => {
-      return getMonthBalanceDetails(session?.user.id!, currentMonth, currentYear);
+      return getMonthBalance(session?.user.id!, currentMonth?.id!, currentYear);
     },
     subscribed: isFocused,
   });
@@ -37,7 +39,7 @@ export const useBalanceDetails = () => {
     queryFn: async () => {
       const response = await getAllTransactions(session?.user?.id!, {
         year: currentYear.toString(),
-        month: currentMonth,
+        month: currentMonth?.id || 0,
       });
 
       if (response.error) {
@@ -48,8 +50,13 @@ export const useBalanceDetails = () => {
     },
   });
 
+  const isLoading = balanceResponse.isLoading || transactionsResponse.isLoading;
+
   return {
     balanceResponse,
     transactionsResponse,
+    isLoading,
+    currentMonth,
+    currentYear,
   };
 };

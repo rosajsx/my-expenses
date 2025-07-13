@@ -1,33 +1,58 @@
-import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
+import { PageHeader } from '@/components/Header';
+import { BalanceHeader } from '@/components/Header/BalanceHeader';
+import { Loading } from '@/components/Loading';
+import { Transactions } from '@/components/Transactions';
 import { Typography } from '@/components/Typography';
 import { useBalanceDetails } from '@/hooks/features/useBalanceDetails';
-import { formatCurrency } from '@/utils';
-import { router } from 'expo-router';
-import { ArrowLeft } from 'lucide-react-native';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 export default function BalanceDetail() {
-  const { balanceResponse, transactionsResponse } = useBalanceDetails();
+  const { balanceResponse, transactionsResponse, isLoading, currentMonth, currentYear } =
+    useBalanceDetails();
 
   return (
-    <Container>
-      <View>
-        <Button variant="ghost" onPress={router.back}>
-          <ArrowLeft />
-        </Button>
-      </View>
-      <Typography>Total {formatCurrency(balanceResponse?.data?.total || 0)}</Typography>
-      <Typography>Entradas {formatCurrency(balanceResponse?.data?.income || 0)}</Typography>
-      <Typography>Saidas {formatCurrency(balanceResponse?.data?.outcome || 0)}</Typography>
+    <Container style={styles.content}>
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <Loading />
+        </View>
+      ) : (
+        <>
+          <PageHeader actionText="" />
+          <BalanceHeader
+            month={currentMonth?.value!}
+            year={currentYear}
+            response={balanceResponse}
+            filters={false}
+          />
 
-      {transactionsResponse.data?.map((transaction) => {
-        return (
-          <Typography key={transaction.id}>
-            {transaction.name} - {transaction.amount}
-          </Typography>
-        );
-      })}
+          <View style={styles.transactionContainer}>
+            <Typography variant="body/lg" style={styles.transactionsText}>
+              Transações
+            </Typography>
+
+            <Transactions data={transactionsResponse.data || []} />
+          </View>
+        </>
+      )}
     </Container>
   );
 }
+
+const styles = StyleSheet.create({
+  content: {
+    gap: 32,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  transactionContainer: {
+    gap: 2,
+  },
+  transactionsText: {
+    paddingVertical: 8,
+  },
+});
