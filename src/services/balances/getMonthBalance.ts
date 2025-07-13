@@ -28,7 +28,11 @@ export const getMonthBalance = async (
     { income: 0, outcome: 0 },
   );
 
-  return data?.income! - data?.outcome! || 0;
+  return {
+    total: data?.income! - data?.outcome! || 0,
+    income: data?.income || 0,
+    outcome: data?.outcome || 0,
+  };
 };
 
 export const getAllMonthBalances = async (user_id: string) => {

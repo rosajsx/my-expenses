@@ -5,6 +5,8 @@ import { formatCurrency, getAllMonthsOfYear } from '@/utils';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Loading } from '../Loading';
+import { Separator } from '../Separator';
+import { Typography } from '../Typography';
 
 const currentMonth = new Date().getMonth();
 const currentYear = new Date().getFullYear();
@@ -28,7 +30,7 @@ export const BalanceHeader = ({
   handleOpenTransactionTypeModal,
 }: BalanceHeaderProps) => {
   const { response } = useMonthBalance();
-  const monthBalance = response.data || 0;
+  const monthBalance = response.data?.total || 0;
 
   const getBalanceStatusColor = () => {
     if (monthBalance === 0 || !monthBalance) {
@@ -48,7 +50,7 @@ export const BalanceHeader = ({
         {response?.isSuccess && (
           <>
             <Text style={styles.balanceText}>
-              Saldo {months[currentMonth].value} de {currentYear}
+              Total {months[currentMonth].value} de {currentYear}
             </Text>
 
             <Text
@@ -60,6 +62,17 @@ export const BalanceHeader = ({
               ]}>
               {formatCurrency(monthBalance)}
             </Text>
+            <Separator color="gray" styles={{ marginVertical: 16 }} />
+            <View style={styles.balanceDetailsContainer}>
+              <View>
+                <Typography style={styles.balanceText}>Entradas:</Typography>
+                <Typography>{formatCurrency(response.data?.income || 0)}</Typography>
+              </View>
+              <View>
+                <Typography style={styles.balanceText}>Saidas:</Typography>
+                <Typography>{formatCurrency(response.data?.outcome || 0)}</Typography>
+              </View>
+            </View>
           </>
         )}
         {response?.isError && (
@@ -135,11 +148,18 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     fontSize: 24,
   },
+  balanceDetailsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: 8,
+    gap: 24,
+  },
 
   filterContainer: {
     flexDirection: 'row',
     paddingVertical: 16,
     gap: 8,
+    flex: 1,
   },
 
   filterButton: {
@@ -148,6 +168,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    flex: 1,
   },
 
   filterButtonActive: {
