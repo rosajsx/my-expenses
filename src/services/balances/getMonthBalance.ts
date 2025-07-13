@@ -13,8 +13,6 @@ export const getMonthBalance = async (
     .gte('date', `${currentYear}-${currentMonth}-1`)
     .lt('date', `${currentYear}-${currentMonth + 1}-1`);
 
-  console.log(response);
-
   const data = response.data?.reduce(
     (acc, item) => {
       if (item.type === 1) {
