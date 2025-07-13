@@ -27,9 +27,9 @@ export const useBalanceDetails = () => {
   useHideTabBar();
 
   const balanceResponse = useQuery({
-    queryKey: ['balances', currentMonth, currentYear],
+    queryKey: ['balances', currentMonth?.value, currentYear],
     queryFn: async () => {
-      return getMonthBalance(session?.user.id!, currentMonth?.id!, currentYear);
+      return getMonthBalance(session?.user.id!, currentMonth?.id! + 1, currentYear);
     },
     subscribed: isFocused,
   });
