@@ -19,7 +19,7 @@ export default function BalancesIndex() {
         <>
           <View style={styles.header}>
             <Typography variant="heading/lg">Saldos</Typography>
-            <View>
+            <View style={styles.totalContainer}>
               <Typography>Total:</Typography>
               <Typography
                 variant="heading/lg"
@@ -68,6 +68,10 @@ const styles = StyleSheet.create({
   header: {
     gap: 16,
   },
+  totalContainer: {
+    gap: 8,
+    paddingVertical: 16,
+  },
   contentContainer: {
     gap: 4,
   },
@@ -76,12 +80,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-
-    borderBottomWidth: 0.5,
-    borderBottomColor: colors.gray,
   },
   sectionHeader: {
     paddingVertical: 8,
+    backgroundColor: colors.separator,
+    borderRadius: 8,
   },
   padding: {
     paddingHorizontal: 8,
