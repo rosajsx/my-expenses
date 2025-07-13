@@ -19,6 +19,8 @@ export const useSignIn = () => {
       setError(null);
       setIsLoading(true);
       await signIn({ email, password });
+      setEmail('');
+      setPassword('');
     } catch (error) {
       setError('Credenciais inválidas. Tente novamente.');
       console.log('Error during sign in:', error);
