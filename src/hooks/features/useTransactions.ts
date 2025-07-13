@@ -1,3 +1,4 @@
+import { getCategories } from '@/services/categories/getCategories';
 import { getAllTransactions } from '@/services/transactions/getAllTransactions';
 import { useTransactionsStore } from '@/store/transactions/trasactions.store';
 import { getAllMonthsOfYear } from '@/utils';
@@ -15,13 +16,19 @@ export const useTransactions = () => {
     selectedMonth,
     selectedYear,
     selectedTransactionType,
+    selectedCategory,
     setSelectedMonth,
     setSelectedYear,
+
     setTransactionTypeFilter,
     isSelectMonthModalOpen,
     isSelectYearModalOpen,
     isTransactionTypeFilterOpen,
 
+    isSelectCategoryModalOpen,
+    setSelectedCategory,
+    handleCloseSelectCategoryModal,
+    handleOpenSelectCategoryModal,
     handleCloseSelectMonthModal,
     handleCloseSelectYearModal,
     handleCloseTransactionTypeModal,
@@ -71,6 +78,17 @@ export const useTransactions = () => {
     },
   });
 
+  const categoriesResponse = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await getCategories();
+      if (response.error) {
+        throw response.error;
+      }
+      return response.data;
+    },
+  });
+
   return {
     transactions,
     selectedMonth,
@@ -91,5 +109,11 @@ export const useTransactions = () => {
     deleteTransactionMutation,
     currentMonth,
     currentYear,
+    selectedCategory,
+    setSelectedCategory,
+    isSelectCategoryModalOpen,
+    handleOpenSelectCategoryModal,
+    handleCloseSelectCategoryModal,
+    categoriesResponse,
   };
 };

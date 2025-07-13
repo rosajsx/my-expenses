@@ -1,9 +1,9 @@
-import { SelectedMonth } from '@/store/transactions/transactions.types';
+import { ICategory, SelectedMonth } from '@/store/transactions/transactions.types';
 import { colors } from '@/styles/colors';
 import { formatCurrency } from '@/utils';
 import { UseQueryResult } from '@tanstack/react-query';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Loading } from '../Loading';
 import { Separator } from '../Separator';
 import { Typography } from '../Typography';
@@ -11,9 +11,11 @@ import { Typography } from '../Typography';
 interface BalanceHeaderProps {
   selectedMonth?: SelectedMonth;
   selectedYear?: string;
+  selectedCategory?: ICategory;
   selectedTransactionType?: number;
   handleOpenTransactionTypeModal?: () => void;
   handleOpenSelectMonthModal?: () => void;
+  handleOpenSelectCategoryModal?: () => void;
   handleOpenSelectYearModal?: () => void;
   month: string;
   year: number;
@@ -39,6 +41,8 @@ export const BalanceHeader = ({
   response,
   month,
   year,
+  selectedCategory,
+  handleOpenSelectCategoryModal,
 }: BalanceHeaderProps) => {
   const monthBalance = response.data?.total || 0;
 
@@ -91,58 +95,73 @@ export const BalanceHeader = ({
       </View>
 
       {filters && (
-        <ScrollView
-          horizontal
-          contentContainerStyle={styles.filterContainer}
-          showsHorizontalScrollIndicator={false}>
-          <TouchableOpacity
-            onPress={handleOpenSelectMonthModal}
-            style={[
-              styles.filterButton,
-              !selectedMonth?.value ? styles.filterButtonInactive : styles.filterButtonActive,
-            ]}>
-            <Text
+        <View style={styles.filterContainer}>
+          <Typography variant="body/sm">Filtros</Typography>
+          <View style={styles.filterContainerRow}>
+            <TouchableOpacity
+              onPress={handleOpenSelectCategoryModal}
               style={[
-                styles.filterText,
-                !selectedMonth?.value ? styles.filterTextInactive : styles.filterTextActive,
+                styles.filterButton,
+                !selectedCategory ? styles.filterButtonInactive : styles.filterButtonActive,
               ]}>
-              Mês: {selectedMonth?.value || 'Todos'}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleOpenSelectYearModal}
-            style={[
-              styles.filterButton,
-              !selectedYear ? styles.filterButtonInactive : styles.filterButtonActive,
-            ]}>
-            <Text
+              <Text
+                style={[
+                  styles.filterText,
+                  !selectedCategory ? styles.filterTextInactive : styles.filterTextActive,
+                ]}>
+                {selectedCategory?.name ? selectedCategory.name : 'Todas as categorias'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleOpenSelectMonthModal}
               style={[
-                styles.filterText,
-                !selectedYear ? styles.filterTextInactive : styles.filterTextActive,
+                styles.filterButton,
+                !selectedMonth?.value ? styles.filterButtonInactive : styles.filterButtonActive,
               ]}>
-              Ano: {selectedYear || year}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleOpenTransactionTypeModal}
-            style={[
-              styles.filterButton,
-              !selectedTransactionType ? styles.filterButtonInactive : styles.filterButtonActive,
-            ]}>
-            <Text
+              <Text
+                style={[
+                  styles.filterText,
+                  !selectedMonth?.value ? styles.filterTextInactive : styles.filterTextActive,
+                ]}>
+                {selectedMonth?.value ? selectedMonth.value : 'Todos os meses'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.filterContainerRow}>
+            <TouchableOpacity
+              onPress={handleOpenSelectYearModal}
               style={[
-                styles.filterText,
-                !selectedTransactionType ? styles.filterTextInactive : styles.filterTextActive,
+                styles.filterButton,
+                !selectedYear ? styles.filterButtonInactive : styles.filterButtonActive,
               ]}>
-              Tipo:{' '}
-              {selectedTransactionType
-                ? selectedTransactionType === 1
-                  ? 'Entradas'
-                  : 'Saídas'
-                : 'Todos'}
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
+              <Text
+                style={[
+                  styles.filterText,
+                  !selectedYear ? styles.filterTextInactive : styles.filterTextActive,
+                ]}>
+                {selectedYear || year}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleOpenTransactionTypeModal}
+              style={[
+                styles.filterButton,
+                !selectedTransactionType ? styles.filterButtonInactive : styles.filterButtonActive,
+              ]}>
+              <Text
+                style={[
+                  styles.filterText,
+                  !selectedTransactionType ? styles.filterTextInactive : styles.filterTextActive,
+                ]}>
+                {selectedTransactionType
+                  ? selectedTransactionType === 1
+                    ? 'Entradas'
+                    : 'Saídas'
+                  : 'Todos os tipos'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       )}
     </View>
   );
@@ -168,10 +187,12 @@ const styles = StyleSheet.create({
   },
 
   filterContainer: {
-    flexDirection: 'row',
     paddingVertical: 16,
     gap: 8,
-    flex: 1,
+  },
+  filterContainerRow: {
+    flexDirection: 'row',
+    gap: 8,
   },
 
   filterButton: {

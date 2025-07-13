@@ -5,6 +5,7 @@ import React from 'react';
 
 import { Button } from '@/components/Button';
 import { BalanceHeader } from '@/components/Header/BalanceHeader';
+import { SelectCategoriesModal } from '@/components/Sheets/SelectCategoriesModal';
 import { SelectMonthModal } from '@/components/Sheets/SelectMonthModal';
 import { TransactionTypeModal } from '@/components/Sheets/SelectTransactionType';
 import { SelectYearModal } from '@/components/Sheets/SelectYearModal';
@@ -38,6 +39,12 @@ export default function Index() {
     deleteTransactionMutation,
     currentMonth,
     currentYear,
+    selectedCategory,
+    isSelectCategoryModalOpen,
+    categoriesResponse,
+    setSelectedCategory,
+    handleCloseSelectCategoryModal,
+    handleOpenSelectCategoryModal,
   } = useTransactions();
   const { response: monthBalanceResponse } = useMonthBalance();
 
@@ -84,9 +91,11 @@ export default function Index() {
           selectedTransactionType={selectedTransactionType}
           selectedMonth={selectedMonth}
           selectedYear={selectedYear}
+          selectedCategory={selectedCategory}
           handleOpenSelectMonthModal={handleOpenSelectMonthModal}
           handleOpenSelectYearModal={handleOpenSelectYearModal}
           handleOpenTransactionTypeModal={handleOpenTransactionTypeModal}
+          handleOpenSelectCategoryModal={handleOpenSelectCategoryModal}
           response={monthBalanceResponse}
           month={currentMonth.value}
           year={currentYear}
@@ -117,6 +126,14 @@ export default function Index() {
         setTransactionTypeFilter={setTransactionTypeFilter}
         isTransactionTypeFilterOpen={isTransactionTypeFilterOpen}
         handleCloseTransactionTypeModal={handleCloseTransactionTypeModal}
+      />
+      <SelectCategoriesModal
+        isOpen={isSelectCategoryModalOpen}
+        categories={categoriesResponse.data || []}
+        setSelectedCategory={setSelectedCategory}
+        value={selectedCategory!}
+        toggleSheet={handleCloseSelectCategoryModal}
+        enableAllCategories
       />
     </Container>
   );

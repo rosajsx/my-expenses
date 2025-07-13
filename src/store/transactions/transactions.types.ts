@@ -16,10 +16,13 @@ export interface TransactionsStore {
   selectedYear: string | undefined;
   selectedMonth: SelectedMonth | undefined;
   selectedTransactionType: number | undefined;
+  selectedCategory: ICategory | undefined;
   isSelectYearModalOpen: boolean;
   isSelectMonthModalOpen: boolean;
   isTransactionTypeFilterOpen: boolean;
+  isSelectCategoryModalOpen: boolean;
 
+  setSelectedCategory: (value: ICategory | undefined) => void;
   setSelectedYear: (value: string) => void;
   setSelectedMonth: (month: SelectedMonth) => void;
   setTransactionTypeFilter: (value: number | undefined) => void;
@@ -30,6 +33,9 @@ export interface TransactionsStore {
   handleCloseSelectMonthModal: () => void;
   handleOpenTransactionTypeModal: () => void;
   handleCloseTransactionTypeModal: () => void;
+
+  handleOpenSelectCategoryModal: () => void;
+  handleCloseSelectCategoryModal: () => void;
 
   resetTransactionFilters: () => void;
 }
