@@ -44,6 +44,8 @@ export default function CreateTransaction() {
     isCategoryModalOpen,
     setIsCategoryModalOpen,
     categories,
+    isFixedExpense,
+    setIsFixedExpense,
   } = useCreateTransaction();
 
   useHideTabBar();
@@ -117,6 +119,11 @@ export default function CreateTransaction() {
               valueWithAction
               value={category?.name || ''}
               onAction={() => setIsCategoryModalOpen(true)}
+            />
+            <Separator />
+            <Input
+              label="Fixo ou Recorrente?"
+              RightComponent={<Switch value={isFixedExpense} onValueChange={setIsFixedExpense} />}
             />
           </Card>
 

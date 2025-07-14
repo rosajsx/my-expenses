@@ -8,8 +8,7 @@ import { useBalanceDetails } from '@/hooks/features/useBalanceDetails';
 import { StyleSheet, View } from 'react-native';
 
 export default function BalanceDetail() {
-  const { balanceResponse, transactionsResponse, isLoading, currentMonth, currentYear } =
-    useBalanceDetails();
+  const { balanceResponse, isLoading, currentMonth, currentYear, data } = useBalanceDetails();
 
   return (
     <Container style={styles.content}>
@@ -32,7 +31,7 @@ export default function BalanceDetail() {
               Transações
             </Typography>
 
-            <Transactions data={transactionsResponse.data || []} />
+            <Transactions data={data} />
           </View>
         </>
       )}

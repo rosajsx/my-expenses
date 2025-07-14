@@ -1,4 +1,5 @@
 import { getCategories } from '@/services/categories/getCategories';
+import { getAllFixedTransactions } from '@/services/transactions/getAllFixedTransactions';
 import { getAllTransactions } from '@/services/transactions/getAllTransactions';
 import { useTransactionsStore } from '@/store/transactions/trasactions.store';
 import { getAllMonthsOfYear } from '@/utils';
@@ -64,6 +65,17 @@ export const useTransactions = () => {
     subscribed: isFocused,
   });
 
+  const fixedTransactions = useQuery({
+    queryKey: ['fixed-transactions', session?.user?.id],
+    queryFn: async () => {
+      const response = await getAllFixedTransactions(session?.user?.id!);
+      if (response.error) {
+        throw response.error;
+      }
+      return response.data;
+    },
+  });
+
   const deleteTransactionMutation = useMutation({
     mutationFn: async (transactionId: number) => {
       return deleteTransactionById(session?.user?.id!, transactionId);
@@ -88,6 +100,21 @@ export const useTransactions = () => {
       return response.data;
     },
   });
+
+  const data = transactions.data ? [...transactions.data.data] : [];
+  const loading =
+    transactions.isLoading ||
+    transactions.isRefetching ||
+    transactions.isPending ||
+    fixedTransactions.isLoading ||
+    fixedTransactions.isRefetching ||
+    fixedTransactions.isPending;
+  if (fixedTransactions?.data) {
+    data.push(...fixedTransactions.data);
+  }
+
+  console.log('data', JSON.stringify(data, null, 2));
+  console.log('fixed', JSON.stringify(fixedTransactions.data, null, 2));
 
   return {
     transactions,
@@ -115,5 +142,8 @@ export const useTransactions = () => {
     handleOpenSelectCategoryModal,
     handleCloseSelectCategoryModal,
     categoriesResponse,
+    fixedTransactions,
+    data,
+    loading,
   };
 };

@@ -52,6 +52,8 @@ export default function UpdateTransaction() {
     categories,
     setIsCategoryModalOpen,
     isCategoryModalOpen,
+    isFixedExpense,
+    setIsFixedExpense,
   } = useUpdateTransaction();
 
   const currencyValueRef = useRef<TextInput>(null);
@@ -139,6 +141,11 @@ export default function UpdateTransaction() {
               valueWithAction
               value={category?.name || ''}
               onAction={() => setIsCategoryModalOpen(true)}
+            />
+            <Separator />
+            <Input
+              label="Fixo ou Recorrente?"
+              RightComponent={<Switch value={isFixedExpense} onValueChange={setIsFixedExpense} />}
             />
           </Card>
 

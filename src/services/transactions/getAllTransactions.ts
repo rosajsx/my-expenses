@@ -17,6 +17,7 @@ export const getAllTransactions = (user_id: string, filters?: IFilter) => {
         name,
         amount,
         type,
+        is_fixed,
         installment,
         installment_qtd,
         date,
@@ -27,7 +28,8 @@ export const getAllTransactions = (user_id: string, filters?: IFilter) => {
         )
         `,
     )
-    .eq('user_id', user_id);
+    .eq('user_id', user_id)
+    .eq('is_fixed', false);
 
   const year = filters?.year;
 

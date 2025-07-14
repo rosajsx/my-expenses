@@ -34,10 +34,11 @@ export type Database = {
           amount: number
           category_id: number
           created_at: string
-          date: string
+          date: string | null
           id: number
           installment: number | null
           installment_qtd: number | null
+          is_fixed: boolean
           name: string
           type: number
           updated_at: string | null
@@ -47,10 +48,11 @@ export type Database = {
           amount: number
           category_id: number
           created_at?: string
-          date: string
+          date?: string | null
           id?: number
           installment?: number | null
           installment_qtd?: number | null
+          is_fixed?: boolean
           name: string
           type: number
           updated_at?: string | null
@@ -60,10 +62,11 @@ export type Database = {
           amount?: number
           category_id?: number
           created_at?: string
-          date?: string
+          date?: string | null
           id?: number
           installment?: number | null
           installment_qtd?: number | null
+          is_fixed?: boolean
           name?: string
           type?: number
           updated_at?: string | null

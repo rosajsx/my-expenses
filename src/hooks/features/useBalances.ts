@@ -1,9 +1,12 @@
 import { getAllMonthBalances } from '@/services/balances/getMonthBalance';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
 
 export const useBalances = () => {
   const { session } = useAuth();
+
+  const queryClient = useQueryClient();
+  //queryClient.clear();
 
   const balancesResponse = useQuery({
     queryKey: ['all-balances'],

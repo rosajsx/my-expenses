@@ -51,7 +51,9 @@ export interface CreateTransactionStore {
   isDateModalOpen: boolean;
   isInstallmentsModalOpen: boolean;
   isCategoryModalOpen: boolean;
+  isFixedExpense: boolean;
 
+  setIsFixedExpense: (value: boolean) => void;
   setTransactionName: (value: string) => void;
   setTransactionType: (value: number) => void;
   setSelectedDate: (date: Date) => void;
@@ -76,6 +78,8 @@ export interface UpdateTransactionStore {
   isDateModalOpen: boolean;
   isInstallmentsModalOpen: boolean;
   isCategoryModalOpen: boolean;
+  isFixedExpense: boolean;
+  setIsFixedExpense: (value: boolean) => void;
 
   setTransactionName: (value: string) => void;
   setTransactionType: (value: number) => void;

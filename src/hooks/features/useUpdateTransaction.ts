@@ -31,6 +31,8 @@ export const useUpdateTransaction = () => {
     setIsCategoryModalOpen,
     setIsDateModalOpen,
     setIsInstallmentsModalOpen,
+    isFixedExpense,
+    setIsFixedExpense,
   } = useUpdateTransactionStore();
   const queryClient = useQueryClient();
   const session: Session | undefined = queryClient.getQueryData(['session']);
@@ -63,12 +65,22 @@ export const useUpdateTransaction = () => {
         date: selectedDate.toISOString(),
         category_id: category?.id!,
         installment_qtd: haveInstallment ? parseInt(installmentQtd || '0', 10) : null,
+        is_fixed: isFixedExpense,
+        created_at: response.data?.created_at,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['balances'] });
       queryClient.invalidateQueries({ queryKey: ['transaction', id] });
+
+      queryClient.invalidateQueries({
+        queryKey: ['fixed-transactions'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['all-balances'],
+      });
     },
     onError: (error) => {
       console.error('Error updating transaction:', error);
@@ -88,6 +100,7 @@ export const useUpdateTransaction = () => {
       setInstallmentQtd(response.data?.installment_qtd.toString());
       setHaveInstallment(true);
     }
+    setIsFixedExpense(response.data?.is_fixed || false);
   }, [response.data]);
 
   return {
@@ -114,5 +127,7 @@ export const useUpdateTransaction = () => {
     categories,
     isCategoryModalOpen,
     setIsCategoryModalOpen,
+    isFixedExpense,
+    setIsFixedExpense,
   };
 };

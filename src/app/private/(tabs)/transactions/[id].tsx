@@ -18,6 +18,8 @@ export default function TransactionDetails() {
   const transaction = response.data;
   const status = response.status;
 
+  console.log(transaction?.is_fixed);
+
   useHideTabBar();
 
   const handleEdit = () => {
@@ -84,12 +86,12 @@ export default function TransactionDetails() {
             </Typography>
           </View>
           <Card spacing={0} paddingVertical={0} paddingHorizontal={16}>
-            {transaction?.category && (
+            {transaction?.categories && (
               <View style={styles.detailItem}>
                 <Typography variant="body/md" color="text">
                   Categoria
                 </Typography>
-                <Typography variant="body/md">{transaction.category}</Typography>
+                <Typography variant="body/md">{transaction.categories.name}</Typography>
               </View>
             )}
             {transaction?.type && (
@@ -103,6 +105,15 @@ export default function TransactionDetails() {
               </View>
             )}
 
+            <View style={styles.detailItem}>
+              <Typography variant="body/md" color="text">
+                Recorrência
+              </Typography>
+              <Typography variant="body/md">
+                {transaction?.is_fixed ? 'Todos os meses' : 'Padrão'}
+              </Typography>
+            </View>
+
             {transaction?.date && (
               <View style={styles.detailItem}>
                 <Typography variant="body/md" color="text">
@@ -111,14 +122,7 @@ export default function TransactionDetails() {
                 <Typography variant="body/md">{formatDate(transaction?.date)}</Typography>
               </View>
             )}
-            {transaction?.categories && (
-              <View style={styles.detailItem}>
-                <Typography variant="body/md" color="text">
-                  Categoria
-                </Typography>
-                <Typography variant="body/md">{transaction?.categories?.name}</Typography>
-              </View>
-            )}
+
             {transaction?.installment && transaction?.installment_qtd && (
               <View style={styles.detailItem}>
                 <Typography variant="body/md" color="text">

@@ -12,6 +12,7 @@ const initialData = {
   isDateModalOpen: false,
   isCategoryModalOpen: false,
   isInstallmentsModalOpen: false,
+  isFixedExpense: false,
 };
 
 export const useUpdateTransactionStore = create<UpdateTransactionStore>((set) => ({
@@ -26,6 +27,7 @@ export const useUpdateTransactionStore = create<UpdateTransactionStore>((set) =>
   setIsDateModalOpen: (value) => set({ isDateModalOpen: value }),
   setIsInstallmentsModalOpen: (value) => set({ isInstallmentsModalOpen: value }),
   setIsCategoryModalOpen: (value) => set({ isCategoryModalOpen: value }),
+  setIsFixedExpense: (value) => set({ isFixedExpense: value }),
 
   resetStore: () => set({ ...initialData }),
 }));

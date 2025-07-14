@@ -97,7 +97,12 @@ export const Transactions = ({ data, isLoading, onDelete }: TransactionsProps) =
                   `${item.installment}/${item.installment_qtd}`}
               </Typography>
 
-              <Typography variant="body/sm">{formatDate(item.date)}</Typography>
+              {item.date && <Typography variant="body/sm">{formatDate(item.date)}</Typography>}
+              {item.is_fixed && (
+                <Typography variant="body/sm" color="primary">
+                  Fixo/Recorrente
+                </Typography>
+              )}
             </View>
             <View style={styles.transactionAmountContent}>
               <Typography variant="heading/sm" color={item.type === 1 ? 'text' : 'red'}>

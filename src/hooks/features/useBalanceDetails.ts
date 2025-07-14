@@ -1,4 +1,5 @@
 import { getMonthBalance } from '@/services/balances/getMonthBalance';
+import { getAllFixedTransactions } from '@/services/transactions/getAllFixedTransactions';
 import { getAllTransactions } from '@/services/transactions/getAllTransactions';
 import { getAllMonthsOfYear } from '@/utils';
 import { useIsFocused } from '@react-navigation/native';
@@ -50,7 +51,40 @@ export const useBalanceDetails = () => {
     },
   });
 
-  const isLoading = balanceResponse.isLoading || transactionsResponse.isLoading;
+  const fixedTransactions = useQuery({
+    queryKey: ['fixed-transactions', session?.user?.id],
+    queryFn: async () => {
+      const response = await getAllFixedTransactions(session?.user?.id!);
+      if (response.error) {
+        throw response.error;
+      }
+      return response.data;
+    },
+  });
+
+  const fixedTransactionsData =
+    fixedTransactions.data
+      ?.map((item) => {
+        const date = new Date(`${currentYear}-${currentMonth?.id || 0 + 1}-01`);
+        const createdAt = new Date(item.created_at);
+        const formedDate = new Date(`${createdAt.getFullYear()}-${createdAt.getMonth()}-01`);
+        if (date >= formedDate) {
+          return item;
+        } else {
+          return null;
+        }
+      })
+      .filter((item) => item !== null) || [];
+
+  const isLoading =
+    balanceResponse.isLoading ||
+    transactionsResponse.isLoading ||
+    fixedTransactions.isLoading ||
+    fixedTransactions.isFetching;
+
+  console.log('fixedTransactionsData', fixedTransactionsData);
+
+  const data = [...(transactionsResponse.data || []), ...fixedTransactionsData];
 
   return {
     balanceResponse,
@@ -58,5 +92,6 @@ export const useBalanceDetails = () => {
     isLoading,
     currentMonth,
     currentYear,
+    data,
   };
 };

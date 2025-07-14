@@ -20,7 +20,8 @@ import { Plus } from 'lucide-react-native';
 
 export default function Index() {
   const {
-    transactions,
+    data,
+    loading,
     selectedTransactionType,
     selectedMonth,
     selectedYear,
@@ -45,10 +46,9 @@ export default function Index() {
     setSelectedCategory,
     handleCloseSelectCategoryModal,
     handleOpenSelectCategoryModal,
+    fixedTransactions,
   } = useTransactions();
   const { response: monthBalanceResponse } = useMonthBalance();
-
-  const { data: response } = transactions;
 
   function confirmDelete(transaction: ITransaction) {
     Alert.alert(`Tem certeza que deseja apagar esta transação: ${transaction?.name} `, '', [
@@ -102,11 +102,7 @@ export default function Index() {
         />
       </View>
       <View style={styles.listContainer}>
-        <Transactions
-          data={response?.data || []}
-          onDelete={confirmDelete}
-          isLoading={transactions.isLoading || transactions.isRefetching || transactions.isPending}
-        />
+        <Transactions data={data} onDelete={confirmDelete} isLoading={loading} />
       </View>
 
       <SelectMonthModal

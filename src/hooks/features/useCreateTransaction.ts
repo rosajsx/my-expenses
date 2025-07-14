@@ -40,6 +40,8 @@ export const useCreateTransaction = () => {
     setIsInstallmentsModalOpen,
     isCategoryModalOpen,
     setIsCategoryModalOpen,
+    isFixedExpense,
+    setIsFixedExpense,
   } = useCreateTransactionStore();
 
   const currencyValueRef = useRef<TextInput>(null);
@@ -58,6 +60,7 @@ export const useCreateTransaction = () => {
         type: transactionType!,
         date: selectedDate.toISOString(),
         category_id: category?.id!,
+        is_fixed: isFixedExpense,
       });
     },
     onError: (error) => {
@@ -72,6 +75,9 @@ export const useCreateTransaction = () => {
       resetStore();
       queryClient.invalidateQueries({
         queryKey: ['transactions'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['fixed-transactions'],
       });
       queryClient.invalidateQueries({
         queryKey: ['balances'],
@@ -90,7 +96,7 @@ export const useCreateTransaction = () => {
     },
   });
 
-  const isCreateButtonDisabled = !transactionName || amount === 0;
+  const isCreateButtonDisabled = !transactionName || amount === 0 || !category;
 
   return {
     transactionName,
@@ -120,5 +126,7 @@ export const useCreateTransaction = () => {
     categories,
     isCategoryModalOpen,
     setIsCategoryModalOpen,
+    isFixedExpense,
+    setIsFixedExpense,
   };
 };
