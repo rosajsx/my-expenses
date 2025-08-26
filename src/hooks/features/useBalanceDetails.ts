@@ -3,7 +3,7 @@ import { getAllFixedTransactions } from '@/services/transactions/getAllFixedTran
 import { getAllTransactions } from '@/services/transactions/getAllTransactions';
 import { getAllMonthsOfYear } from '@/utils';
 import { useIsFocused } from '@react-navigation/native';
-import { Session } from '@supabase/supabase-js';
+import { Session } from '@/types/session';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useHideTabBar } from '../useHideTabBar';

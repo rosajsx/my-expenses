@@ -1,7 +1,22 @@
-import { Database } from '../../../database.types';
+export interface ICategory {
+  id: number;
+  name: string;
+}
 
-export type ITransaction = Database['public']['Tables']['transactions']['Row'];
-export type ICategory = Database['public']['Tables']['categories']['Row'];
+export interface ITransaction {
+  id: number;
+  user_id: string;
+  created_at: string;
+  name: string;
+  amount: number;
+  type: number;
+  installment: number | null;
+  installment_qtd: number | null;
+  category_id: number | null;
+  is_fixed: boolean;
+  date: string | null;
+  updated_at: string;
+}
 
 export interface TransactionComposed extends Omit<ITransaction, 'category_id'> {
   categories: ICategory | null;

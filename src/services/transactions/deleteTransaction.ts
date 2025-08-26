@@ -1,10 +1,7 @@
-import { supabase } from '../supabase';
+import { getDB } from '../sqlite';
 
 export const deleteTransactionById = async (user_id: string, transactionID: number) => {
-  return supabase
-    .from('transactions')
-    .delete()
-    .eq('id', transactionID)
-    .eq('user_id', user_id)
-    .throwOnError();
+  const db = await getDB();
+  await db.runAsync('DELETE FROM transactions WHERE id = ? AND user_id = ?', [transactionID, user_id]);
+  return { data: null, error: null };
 };

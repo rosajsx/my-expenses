@@ -1,7 +1,7 @@
 import { getCategories } from '@/services/categories/getCategories';
 import { createTransaction } from '@/services/transactions/createTransaction';
 import { useCreateTransactionStore } from '@/store/transactions/createTransaction.store';
-import { Session } from '@supabase/supabase-js';
+import { Session } from '@/types/session';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { Alert, TextInput } from 'react-native';

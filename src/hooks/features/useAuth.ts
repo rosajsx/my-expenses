@@ -1,7 +1,7 @@
-import { supabase } from '@/services/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { router, usePathname } from 'expo-router';
 import { useEffect } from 'react';
+import { Session } from '@/types/session';
 
 type SignInParams = {
   email: string;
@@ -13,60 +13,38 @@ type SignUpParams = {
   password: string;
 };
 
+const STORAGE_KEY = 'session';
+
 export const useAuth = (enabled = false) => {
   const queryClient = useQueryClient();
-  const pathname = usePathname();
 
-  const { data: session, isLoading } = useQuery({
+  const { data: session, isLoading } = useQuery<Session | null>({
     queryKey: ['session'],
     queryFn: async () => {
-      const { data, error } = await supabase.auth.getSession();
-
-      if (error) {
-        throw error;
-      }
-      return data.session;
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      return stored ? (JSON.parse(stored) as Session) : null;
     },
     staleTime: Infinity,
     enabled,
   });
 
-  const signIn = async ({ email, password }: SignInParams) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
-
-    return;
+  const signIn = async ({ email }: SignInParams) => {
+    const newSession: Session = { user: { id: email } };
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newSession));
+    queryClient.setQueryData(['session'], newSession);
   };
 
-  const signUp = async ({ email, password }: SignInParams) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (error) throw error;
-
-    return data;
+  const signUp = async ({ email }: SignUpParams) => {
+    await signIn({ email, password: '' });
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    return;
+    await AsyncStorage.removeItem(STORAGE_KEY);
+    queryClient.setQueryData(['session'], null);
   };
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, currentSession) => {
-      queryClient.setQueryData(['session'], currentSession);
-
-      if (!currentSession && !['/sign-in', '/sign-up'].includes(pathname)) {
-        router.replace('/sign-in');
-      }
-    });
-
-    return () => authListener.subscription.unsubscribe();
+    // nothing to subscribe to in local auth
   }, []);
 
   return {
