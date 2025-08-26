@@ -1,5 +1,7 @@
-import { supabase } from '../supabase';
+import { getDB } from '../sqlite';
 
 export async function getCategories() {
-  return supabase.from('categories').select();
+  const db = await getDB();
+  const data = await db.getAllAsync('SELECT id, name FROM categories');
+  return { data, error: null };
 }

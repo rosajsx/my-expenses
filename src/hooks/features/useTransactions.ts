@@ -4,7 +4,7 @@ import { getAllTransactions } from '@/services/transactions/getAllTransactions';
 import { useTransactionsStore } from '@/store/transactions/trasactions.store';
 import { getAllMonthsOfYear } from '@/utils';
 import { useIsFocused } from '@react-navigation/native';
-import { Session } from '@supabase/supabase-js';
+import { Session } from '@/types/session';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { deleteTransactionById } from '../../services/transactions/deleteTransaction';
 

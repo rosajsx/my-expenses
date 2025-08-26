@@ -1,6 +1,6 @@
 import { getMonthBalance } from '@/services/balances/getMonthBalance';
 import { useIsFocused } from '@react-navigation/native';
-import { Session } from '@supabase/supabase-js';
+import { Session } from '@/types/session';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const currentMonth = new Date().getMonth();

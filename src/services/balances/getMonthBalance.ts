@@ -1,5 +1,5 @@
 import { getAllMonthsOfYear } from '@/utils';
-import { supabase } from '../supabase';
+import { getDB } from '../sqlite';
 
 type Balance =
   | {
@@ -38,24 +38,19 @@ export const getMonthBalance = async (
   currentMonth: number,
   currentYear: number,
 ) => {
-  const response = await supabase
-    .from('transactions')
-    .select('amount, type, created_at')
-    .eq('user_id', user_id)
-    .gte('date', `${currentYear}-${currentMonth}-1`)
-    .lt('date', `${currentYear}-${currentMonth + 1}-1`);
+  const db = await getDB();
+  const response = await db.getAllAsync(
+    'SELECT amount, type, created_at FROM transactions WHERE user_id = ? AND date >= ? AND date < ?',
+    [user_id, `${currentYear}-${currentMonth}-1`, `${currentYear}-${currentMonth + 1}-1`],
+  );
 
-  const fixedTransactionsResponse = await supabase
-    .from('transactions')
-    .select('amount, type, created_at')
-    .eq('is_fixed', true)
-    .eq('user_id', user_id);
+  const fixedTransactionsResponse = await db.getAllAsync(
+    'SELECT amount, type, created_at FROM transactions WHERE is_fixed = 1 AND user_id = ?',
+    [user_id],
+  );
 
-  const data = calcBalance(response?.data);
-  const fixedBalanceData = calcBalance(fixedTransactionsResponse?.data, currentYear);
-
-  console.log('data', data);
-  console.log('fixedBalanceData', fixedBalanceData);
+  const data = calcBalance(response);
+  const fixedBalanceData = calcBalance(fixedTransactionsResponse, currentYear);
 
   return {
     total: (data?.total || 0) + (fixedBalanceData?.total || 0),
@@ -65,26 +60,23 @@ export const getMonthBalance = async (
 };
 
 export const getAllMonthBalances = async (user_id: string) => {
+  const db = await getDB();
   const currentYear = new Date().getFullYear();
-  const response = await supabase
-    .from('transactions')
-    .select('date, type, amount')
-    .eq('user_id', user_id)
-    .eq('is_fixed', false)
-    .throwOnError();
+  const response = await db.getAllAsync(
+    'SELECT date, type, amount FROM transactions WHERE user_id = ? AND is_fixed = 0',
+    [user_id],
+  );
 
   const months = getAllMonthsOfYear();
 
-  const responseFixed = await supabase
-    .from('transactions')
-    .select('created_at, amount, type')
-    .eq('user_id', user_id)
-    .eq('is_fixed', true)
-    .throwOnError();
+  const responseFixed = await db.getAllAsync(
+    'SELECT created_at, amount, type FROM transactions WHERE user_id = ? AND is_fixed = 1',
+    [user_id],
+  );
 
-  const fixedTransactions = responseFixed?.data || [];
+  const fixedTransactions = responseFixed || [];
 
-  const grouped = response?.data?.reduce(
+  const grouped = response.reduce(
     (acc, item) => {
       const date = new Date(item.date!);
       const year = date.getFullYear();

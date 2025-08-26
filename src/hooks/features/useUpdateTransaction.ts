@@ -2,7 +2,7 @@ import { getCategories } from '@/services/categories/getCategories';
 import { getTransactionById } from '@/services/transactions/getTransactionById';
 import { updateTransaction } from '@/services/transactions/updateTransaction';
 import { useUpdateTransactionStore } from '@/store/transactions/updateTransaction.store';
-import { Session } from '@supabase/supabase-js';
+import { Session } from '@/types/session';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
